@@ -9,7 +9,7 @@ const navItems = [
   { href: "/car-rental", key: "nav.car_rental" },
   { href: "/special-offers", key: "nav.special_offers" },
   { href: "/locations", key: "nav.locations" },
-  { href: "/gold-rewards", key: "nav.gold_rewards" },
+  { href: "/rewards", key: "nav.gold_rewards" },
   { href: "/vehicle-guide", key: "nav.vehicle_guide" },
   { href: "/products-services", key: "nav.products_services" },
   { href: "/drivers", key: "nav.drivers" },

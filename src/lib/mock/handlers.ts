@@ -14,6 +14,7 @@ import {
   createMockPricingBreakdown,
   generateReservationNo,
 } from "./data";
+import { getVehicleDetailByGroupCode } from "./searchVehicles";
 
 export const mockHandlers = {
   locations: {
@@ -42,7 +43,7 @@ export const mockHandlers = {
 
   vehicle: {
     getByGroupCode: async (groupCode: string): Promise<VehicleDetail | null> => {
-      return mockVehicleGroups[groupCode] ?? null;
+      return mockVehicleGroups[groupCode] ?? getVehicleDetailByGroupCode(groupCode) ?? null;
     },
   },
 
@@ -94,7 +95,9 @@ export const mockHandlers = {
             (24 * 60 * 60 * 1000)
         )
       );
-      const vehicle = mockVehicleGroups[params.vehicleGroupCode];
+      const vehicle =
+        mockVehicleGroups[params.vehicleGroupCode] ??
+        getVehicleDetailByGroupCode(params.vehicleGroupCode);
       const pricing = createMockPricingBreakdown(
         params.vehicleGroupCode,
         days,

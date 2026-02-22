@@ -46,17 +46,20 @@ export default function VehicleDetailPage() {
     groupCode,
   });
 
-  const days = vehicle
-    ? Math.max(
-        1,
-        Math.ceil(
-          (new Date(dropoffAt).getTime() - new Date(pickupAt).getTime()) /
-            (24 * 60 * 60 * 1000)
-        )
+  const rawDays = vehicle && pickupAt && dropoffAt
+    ? Math.ceil(
+        (new Date(dropoffAt).getTime() - new Date(pickupAt).getTime()) /
+          (24 * 60 * 60 * 1000)
       )
     : 1;
+  const days = Number.isFinite(rawDays) ? Math.max(1, rawDays) : 1;
 
-  const base = basePrices[groupCode] ?? { payLater: 1000, payNow: 900 };
+  const apiVehicle = vehicle as VehicleDetail & { dailyPayNow?: number; dailyPayLater?: number };
+  const base =
+    basePrices[groupCode] ??
+    (apiVehicle?.dailyPayNow != null && apiVehicle?.dailyPayLater != null
+      ? { payLater: apiVehicle.dailyPayLater, payNow: apiVehicle.dailyPayNow }
+      : { payLater: 1000, payNow: 900 });
   const payLaterTotal = base.payLater * days;
   const payNowTotal = base.payNow * days;
   const vat = 0.07;

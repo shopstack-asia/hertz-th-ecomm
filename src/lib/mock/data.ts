@@ -5,6 +5,7 @@ import type {
   Reservation,
   PricingBreakdown,
 } from "@/types";
+import { getBasePrices as getSearchVehicleBasePrices } from "./searchVehicles";
 
 /** Unsplash placeholder URLs for vehicle images (economy, compact, sedan, suv, luxury) */
 const IMAGES = {
@@ -459,7 +460,10 @@ export function createMockPricingBreakdown(
   voucherCode?: string,
   bookingType?: "PAY_LATER" | "PAY_NOW"
 ): PricingBreakdown {
-  const base = basePrices[vehicleGroupCode] ?? { payLater: 1500, payNow: 1350 };
+  const base =
+    basePrices[vehicleGroupCode] ??
+    getSearchVehicleBasePrices(vehicleGroupCode) ??
+    { payLater: 1500, payNow: 1350 };
   const rate = bookingType === "PAY_NOW" ? base.payNow : base.payLater;
   const subtotal = rate * days;
   const discount = voucherCode === "HERTZ10" ? Math.round(subtotal * 0.1) : 0;

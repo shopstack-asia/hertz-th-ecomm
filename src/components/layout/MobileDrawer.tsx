@@ -10,7 +10,7 @@ const navItems = [
   { href: "/locations", key: "nav.locations" },
   { href: "/special-offers", key: "nav.offers" },
   { href: "/vehicles", key: "nav.vehicles" },
-  { href: "/gold-rewards", key: "nav.rewards" },
+  { href: "/rewards", key: "nav.rewards" },
 ] as const;
 
 const bookSubItems = [

@@ -1,41 +1,90 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { FilterSidebar } from "@/components/search/FilterSidebar";
 import { MobileFilterDrawer } from "@/components/search/MobileFilterDrawer";
 import type { SearchResultVehicleGroup } from "@/types";
 
+const PAGE_SIZE = 9;
+
+interface SearchApiResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  data: SearchResultVehicleGroup[];
+}
+
 function SearchContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+
   const pickup = searchParams.get("pickup") ?? "";
   const dropoff = searchParams.get("dropoff") ?? pickup;
   const pickupAt = searchParams.get("pickupAt") ?? "";
   const dropoffAt = searchParams.get("dropoffAt") ?? "";
+  const category = searchParams.get("category") ?? "";
+  const transmission = searchParams.get("transmission") ?? "";
+  const sort = searchParams.get("sort") ?? "";
+  const page = searchParams.get("page") ?? "1";
 
-  const [results, setResults] = useState<SearchResultVehicleGroup[]>([]);
+  const [response, setResponse] = useState<SearchApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [category, setCategory] = useState("");
-  const [transmission, setTransmission] = useState("");
+
+  const updateParams = useCallback(
+    (updates: Record<string, string>) => {
+      const next = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v) next.set(k, v);
+        else next.delete(k);
+      });
+      if (updates.category !== undefined || updates.transmission !== undefined || updates.sort !== undefined) {
+        next.set("page", "1");
+      }
+      router.push(`/search?${next.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
 
   useEffect(() => {
-    const params = new URLSearchParams({ pickup, dropoff, pickupAt, dropoffAt });
+    const params = new URLSearchParams();
+    if (pickup) params.set("pickup", pickup);
+    if (dropoff) params.set("dropoff", dropoff);
+    if (pickupAt) params.set("pickupAt", pickupAt);
+    if (dropoffAt) params.set("dropoffAt", dropoffAt);
+    if (category) params.set("category", category);
+    if (transmission) params.set("transmission", transmission);
+    if (sort) params.set("sort", sort);
+    params.set("page", page);
+    params.set("page_size", String(PAGE_SIZE));
+
+    setLoading(true);
     fetch(`/api/search?${params}`)
       .then((r) => r.json())
-      .then((data) => setResults(Array.isArray(data) ? data : []))
+      .then((data: SearchApiResponse) => {
+        if (data && typeof data.total === "number" && Array.isArray(data.data)) {
+          setResponse(data);
+        } else {
+          setResponse({ total: 0, page: 1, page_size: PAGE_SIZE, total_pages: 0, data: [] });
+        }
+      })
+      .catch(() => setResponse({ total: 0, page: 1, page_size: PAGE_SIZE, total_pages: 0, data: [] }))
       .finally(() => setLoading(false));
-  }, [pickup, dropoff, pickupAt, dropoffAt]);
+  }, [pickup, dropoff, pickupAt, dropoffAt, category, transmission, sort, page]);
 
-  const filtered = results.filter((v) => {
-    if (category && v.category.toLowerCase() !== category.toLowerCase())
-      return false;
-    if (transmission && v.transmission !== transmission) return false;
-    return true;
-  });
-
+  const vehicles = response?.data ?? [];
+  const total = response?.total ?? 0;
+  const currentPage = response?.page ?? 1;
+  const totalPages = response?.total_pages ?? 0;
   const queryString = searchParams.toString();
+
+  const handleCategoryChange = (v: string) => updateParams({ category: v });
+  const handleTransmissionChange = (v: string) => updateParams({ transmission: v });
+  const handleSortChange = (v: string) => updateParams({ sort: v });
+  const handlePageChange = (p: number) => updateParams({ page: String(p) });
 
   return (
     <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
@@ -48,13 +97,13 @@ function SearchContent() {
           <FilterSidebar
             selectedCategory={category}
             selectedTransmission={transmission}
-            onCategoryChange={setCategory}
-            onTransmissionChange={setTransmission}
+            onCategoryChange={handleCategoryChange}
+            onTransmissionChange={handleTransmissionChange}
           />
         </div>
 
         <div className="flex-1">
-          <div className="mb-4 flex items-center justify-between lg:mb-6">
+          <div className="mb-4 flex flex-wrap items-center gap-4 lg:mb-6">
             <button
               type="button"
               onClick={() => setFilterOpen(true)}
@@ -63,12 +112,17 @@ function SearchContent() {
               Filters
             </button>
             <p className="text-sm text-hertz-black-80">
-              {filtered.length} vehicle{filtered.length !== 1 ? "s" : ""} found
+              {loading ? "Searching…" : `${total} vehicle${total !== 1 ? "s" : ""} found`}
             </p>
-            <select className="ml-auto border border-hertz-border bg-white px-3 py-2 text-sm font-medium text-hertz-black-90">
-              <option value="">Sort by price</option>
-              <option value="low">Price: low to high</option>
-              <option value="high">Price: high to low</option>
+            <select
+              className="ml-auto border border-hertz-border bg-white px-3 py-2 text-sm font-medium text-hertz-black-90"
+              value={sort}
+              onChange={(e) => handleSortChange(e.target.value)}
+            >
+              <option value="">Sort by</option>
+              <option value="price_asc">Price: low to high</option>
+              <option value="price_desc">Price: high to low</option>
+              <option value="name_asc">Name: A–Z</option>
             </select>
           </div>
 
@@ -77,33 +131,79 @@ function SearchContent() {
             onClose={() => setFilterOpen(false)}
             selectedCategory={category}
             selectedTransmission={transmission}
-            onCategoryChange={setCategory}
-            onTransmissionChange={setTransmission}
+            onCategoryChange={handleCategoryChange}
+            onTransmissionChange={handleTransmissionChange}
           />
 
           {loading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                 <div key={i} className="h-80 animate-pulse bg-hertz-gray" />
               ))}
             </div>
-          ) : filtered.length === 0 ? (
+          ) : vehicles.length === 0 ? (
             <div className="rounded border border-hertz-border bg-white p-12 text-center">
               <p className="text-hertz-black-80">
-                No vehicles available for your search.
+                No vehicles available for your search. Try adjusting your filters.
               </p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((v) => (
-                <VehicleCard
-                  key={v.groupCode}
-                  vehicle={v}
-                  searchParams={queryString}
-                  showImage
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {vehicles.map((v) => (
+                  <VehicleCard
+                    key={v.groupCode}
+                    vehicle={v}
+                    searchParams={queryString}
+                    showImage
+                  />
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <nav
+                  className="mt-8 flex flex-wrap items-center justify-center gap-2"
+                  aria-label="Pagination"
+                >
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                    className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
+                    aria-label="Previous page"
+                  >
+                    ← Previous
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => handlePageChange(p)}
+                        className={`min-h-tap min-w-tap border px-3 text-sm font-medium transition-colors ${
+                          p === currentPage
+                            ? "border-black bg-black text-white"
+                            : "border-hertz-border text-hertz-black-80 hover:border-black hover:text-black"
+                        }`}
+                        aria-current={p === currentPage ? "page" : undefined}
+                        aria-label={`Page ${p}`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                    className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
+                    aria-label="Next page"
+                  >
+                    Next →
+                  </button>
+                </nav>
+              )}
+            </>
           )}
         </div>
       </div>

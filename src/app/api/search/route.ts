@@ -1,20 +1,23 @@
 import { NextRequest } from "next/server";
-import { mockHandlers } from "@/lib/mock/handlers";
+import { runSearch } from "@/lib/mock/searchVehicles";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const pickup = searchParams.get("pickup") ?? "";
-  const dropoff = searchParams.get("dropoff") ?? pickup;
-  const pickupAt = searchParams.get("pickupAt") ?? "";
-  const dropoffAt = searchParams.get("dropoffAt") ?? "";
 
-  if (!pickup || !pickupAt || !dropoffAt) {
-    return Response.json(
-      { error: "Missing required params: pickup, pickupAt, dropoffAt" },
-      { status: 400 }
-    );
-  }
+  const params = {
+    pickup: searchParams.get("pickup") ?? undefined,
+    dropoff: searchParams.get("dropoff") ?? undefined,
+    pickupAt: searchParams.get("pickupAt") ?? undefined,
+    dropoffAt: searchParams.get("dropoffAt") ?? undefined,
+    category: searchParams.get("category") ?? undefined,
+    transmission: searchParams.get("transmission") ?? undefined,
+    min_price: searchParams.get("min_price") ?? undefined,
+    max_price: searchParams.get("max_price") ?? undefined,
+    sort: searchParams.get("sort") ?? undefined,
+    page: searchParams.get("page") ?? undefined,
+    page_size: searchParams.get("page_size") ?? undefined,
+  };
 
-  const results = await mockHandlers.search(pickup, dropoff, pickupAt, dropoffAt);
+  const results = runSearch(params);
   return Response.json(results);
 }

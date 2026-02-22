@@ -11,7 +11,7 @@ const navItems = [
   { href: "/locations", key: "nav.locations", hasMega: false },
   { href: "/special-offers", key: "nav.offers", hasMega: false },
   { href: "/vehicles", key: "nav.vehicles", hasMega: false },
-  { href: "/gold-rewards", key: "nav.rewards", hasMega: false },
+  { href: "/rewards", key: "nav.rewards", hasMega: false },
 ] as const;
 
 interface DesktopNavProps {
