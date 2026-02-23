@@ -28,3 +28,40 @@ export interface PointsRedemptionOption {
 export interface LoyaltyPointsResponse {
   available_points: number;
 }
+
+/** My Points summary (GET /api/loyalty/summary) */
+export interface LoyaltySummary {
+  available_points: number;
+  expiring_points: number;
+  expiring_date: string | null;
+  tier: "SILVER" | "GOLD" | "PLATINUM";
+  next_tier: "GOLD" | "PLATINUM" | null;
+  next_tier_threshold: number;
+}
+
+/** Point transaction type */
+export type PointsTransactionType =
+  | "EARN"
+  | "REDEEM"
+  | "EXPIRED"
+  | "ADJUSTMENT";
+
+export interface PointsTransaction {
+  id: string;
+  date: string;
+  type: PointsTransactionType;
+  description: string;
+  booking_ref: string | null;
+  points: number;
+  balance_after: number;
+  /** For ADJUSTMENT: admin note */
+  admin_note?: string;
+}
+
+export interface LoyaltyTransactionsResponse {
+  data: PointsTransaction[];
+  pagination: {
+    page: number;
+    total_pages: number;
+  };
+}

@@ -63,10 +63,21 @@ export function Header() {
                   <button
                     type="button"
                     onClick={() => setProfileOpen((o) => !o)}
-                    className="flex items-center gap-1 text-sm font-medium text-hertz-black-80 hover:text-black"
+                    className="flex items-center gap-2 text-sm font-medium text-hertz-black-80 hover:text-black"
                     aria-expanded={profileOpen}
                     aria-haspopup="true"
                   >
+                    {user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt=""
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-hertz-gray text-xs font-bold text-hertz-black-60">
+                        {(user.first_name?.[0] ?? "") + (user.last_name?.[0] ?? "") || "?"}
+                      </span>
+                    )}
                     {user.first_name} {user.last_name}
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -80,6 +91,13 @@ export function Header() {
                         className="block border-b border-hertz-border px-4 py-3 text-sm font-medium text-black hover:bg-hertz-gray"
                       >
                         My profile
+                      </Link>
+                      <Link
+                        href="/my-points"
+                        onClick={() => setProfileOpen(false)}
+                        className="block border-b border-hertz-border px-4 py-3 text-sm font-medium text-black hover:bg-hertz-gray"
+                      >
+                        My Points
                       </Link>
                       <Link
                         href="/my-vouchers"

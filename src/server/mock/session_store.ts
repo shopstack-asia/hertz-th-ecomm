@@ -11,6 +11,8 @@ export interface SessionUser {
   email: string;
   first_name: string;
   last_name: string;
+  phone?: string;
+  avatar_url?: string;
 }
 
 export interface Session {
@@ -75,4 +77,17 @@ export function getSession(sessionId: string): Session | null {
  */
 export function deleteSession(sessionId: string): void {
   sessions.delete(sessionId);
+}
+
+/**
+ * Update user data on an existing session (e.g. after profile update).
+ */
+export function updateSessionUser(
+  sessionId: string,
+  updates: Partial<SessionUser>
+): Session | null {
+  const session = getSession(sessionId);
+  if (!session) return null;
+  session.user = { ...session.user, ...updates };
+  return session;
 }

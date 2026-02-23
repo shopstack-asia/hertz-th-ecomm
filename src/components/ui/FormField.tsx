@@ -6,22 +6,26 @@ interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   id?: string;
+  /** Use for dashboard-style forms: small uppercase grey label */
+  labelStyle?: "default" | "dashboard";
 }
 
 export function FormField({
   label,
   error,
   id,
+  labelStyle = "default",
   className = "",
   ...props
 }: FormFieldProps) {
   const fieldId = id ?? label.toLowerCase().replace(/\s+/g, "-");
+  const labelClassName =
+    labelStyle === "dashboard"
+      ? "text-xs font-bold uppercase tracking-wide text-hertz-black-60"
+      : "text-sm font-medium text-hertz-black-80";
   return (
     <div className="flex flex-col gap-1">
-      <label
-        htmlFor={fieldId}
-        className="text-sm font-medium text-hertz-black-80"
-      >
+      <label htmlFor={fieldId} className={labelClassName}>
         {label}
       </label>
       <input

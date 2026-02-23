@@ -161,9 +161,27 @@ export function MobileDrawer({ open, onClose, loginHref, registerHref, authentic
                 <Link
                   href="/account/profile"
                   onClick={onClose}
+                  className="min-h-tap flex items-center justify-center gap-2 border border-hertz-border font-medium text-black"
+                >
+                  {user.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt=""
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-hertz-gray text-xs font-bold text-hertz-black-60">
+                      {(user.first_name?.[0] ?? "") + (user.last_name?.[0] ?? "") || "?"}
+                    </span>
+                  )}
+                  {user.first_name} {user.last_name}
+                </Link>
+                <Link
+                  href="/my-points"
+                  onClick={onClose}
                   className="min-h-tap flex items-center justify-center border border-hertz-border font-medium text-black"
                 >
-                  {user.first_name} {user.last_name}
+                  My Points
                 </Link>
                 <Link
                   href="/my-vouchers"

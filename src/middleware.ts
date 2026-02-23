@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE = "hertz_session";
 
-const protectedPaths = ["/account/profile", "/account/bookings", "/my-vouchers"];
+const protectedPaths = ["/account/profile", "/account/bookings", "/my-vouchers", "/my-points"];
 
 function isProtectedPath(pathname: string): boolean {
   return protectedPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -29,5 +29,6 @@ export const config = {
     "/account/profile/:path*",
     "/account/bookings/:path*",
     "/my-vouchers",
+    "/my-points",
   ],
 };
