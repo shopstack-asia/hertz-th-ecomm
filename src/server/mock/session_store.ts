@@ -6,6 +6,14 @@
 
 const TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
+/** Consent persisted with user record (audit/compliance). */
+export interface UserConsent {
+  terms_version: string;
+  privacy_version: string;
+  marketing_opt_in: boolean;
+  consent_timestamp: string;
+}
+
 export interface SessionUser {
   id: string;
   email: string;
@@ -13,6 +21,8 @@ export interface SessionUser {
   last_name: string;
   phone?: string;
   avatar_url?: string;
+  loyalty_tier?: string;
+  consent?: UserConsent;
 }
 
 export interface Session {

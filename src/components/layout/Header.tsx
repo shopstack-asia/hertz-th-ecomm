@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DesktopNav } from "./DesktopNav";
 import { MobileDrawer } from "./MobileDrawer";
 import { MegaMenu } from "./MegaMenu";
@@ -12,8 +12,10 @@ import { useAuth } from "@/contexts/auth_context";
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [bookMegaOpen, setBookMegaOpen] = useState(false);
+  const bookMegaCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -32,10 +34,29 @@ export function Header() {
     return () => document.removeEventListener("click", handleClick);
   }, [profileOpen]);
 
+  const onBookMegaEnter = useCallback(() => {
+    if (bookMegaCloseTimerRef.current) {
+      clearTimeout(bookMegaCloseTimerRef.current);
+      bookMegaCloseTimerRef.current = null;
+    }
+    setBookMegaOpen(true);
+  }, []);
+
+  const onBookMegaLeave = useCallback(() => {
+    bookMegaCloseTimerRef.current = setTimeout(() => setBookMegaOpen(false), 100);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (bookMegaCloseTimerRef.current) clearTimeout(bookMegaCloseTimerRef.current);
+    };
+  }, []);
+
   const handleLogout = async () => {
     setProfileOpen(false);
     await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     await refreshAuth();
+    router.push("/account/login");
   };
 
   return (
@@ -53,8 +74,8 @@ export function Header() {
             </Link>
             <DesktopNav
               bookMegaOpen={bookMegaOpen}
-              onBookMegaEnter={() => setBookMegaOpen(true)}
-              onBookMegaLeave={() => setBookMegaOpen(false)}
+              onBookMegaEnter={onBookMegaEnter}
+              onBookMegaLeave={onBookMegaLeave}
             />
             <div className="flex items-center gap-6">
               <LanguageSwitcher />

@@ -76,6 +76,21 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 const nextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: path.join(__dirname),
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && config.optimization?.minimizer) {
+      config.optimization.minimizer = config.optimization.minimizer.map((plugin) => {
+        const name = plugin?.constructor?.name ?? "";
+        if (name.includes("Terser")) {
+          try {
+            plugin.options = plugin.options ?? {};
+            plugin.options.terserOptions = { ...(plugin.options.terserOptions ?? {}), parallel: false };
+          } catch (_) {}
+        }
+        return plugin;
+      });
+    }
+    return config;
+  },
   async redirects() {
     return [
       { source: "/gold-rewards", destination: "/rewards", permanent: true },

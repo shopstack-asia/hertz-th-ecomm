@@ -1,76 +1,102 @@
 /**
- * In-memory OTP store (mock).
- * Rate limit: 5 attempts per key. OTP expires in 5 minutes. Resend after 60s.
+ * In-memory OTP store for login (mock).
+ * Replace with Redis/DB in production.
+ * Keyed by email (lowercase). OTP expires after OTP_TTL_MS.
  */
 
-const OTP_TTL_MS = 5 * 60 * 1000;
-const RESEND_COOLDOWN_MS = 60 * 1000;
-const MAX_ATTEMPTS = 5;
+const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
-interface OTPRecord {
+export interface StoredOtp {
+  email: string;
   otp: string;
-  type: "email" | "phone";
-  new_value: string;
-  created_at: number;
-  attempts: number;
+  expires_at: number;
 }
 
-const globalForOtp = globalThis as unknown as { __hertzOtpStore?: Map<string, OTPRecord> };
-const store = globalForOtp.__hertzOtpStore ?? new Map<string, OTPRecord>();
+const globalForOtp = globalThis as unknown as {
+  __hertzOtpStore?: Map<string, StoredOtp>;
+};
+const store = globalForOtp.__hertzOtpStore ?? new Map<string, StoredOtp>();
 if (process.env.NODE_ENV !== "production") {
   globalForOtp.__hertzOtpStore = store;
 }
 
-function key(type: string, newValue: string): string {
-  return `${type}:${newValue.trim().toLowerCase()}`;
+function key(email: string): string {
+  return email.trim().toLowerCase();
 }
 
-function generateOtp(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+function profileKey(type: "email" | "phone", value: string): string {
+  const v = value.trim();
+  return type === "email" ? v.toLowerCase() : `phone:${v}`;
 }
 
-export function createOtp(type: "email" | "phone", new_value: string): { otp: string; ok: boolean; error?: string } {
-  const k = key(type, new_value);
-  const existing = store.get(k);
-  const now = Date.now();
-  if (existing && now < existing.created_at + RESEND_COOLDOWN_MS) {
-    const waitSec = Math.ceil((existing.created_at + RESEND_COOLDOWN_MS - now) / 1000);
-    return { otp: "", ok: false, error: `Resend available in ${waitSec}s` };
+function isExpired(entry: StoredOtp): boolean {
+  return Date.now() > entry.expires_at;
+}
+
+function cleanup(): void {
+  for (const [k, v] of store.entries()) {
+    if (isExpired(v)) store.delete(k);
   }
-  const otp = generateOtp();
+}
+
+export function setOtp(email: string, otp: string): void {
+  cleanup();
+  const k = key(email);
   store.set(k, {
+    email: email.trim().toLowerCase(),
     otp,
-    type,
-    new_value: new_value.trim(),
-    created_at: now,
-    attempts: 0,
+    expires_at: Date.now() + OTP_TTL_MS,
+  });
+}
+
+export function getOtp(email: string): StoredOtp | null {
+  cleanup();
+  const entry = store.get(key(email)) ?? null;
+  if (!entry || isExpired(entry)) {
+    if (entry) store.delete(key(email));
+    return null;
+  }
+  return entry;
+}
+
+export function consumeOtp(email: string, otp: string): boolean {
+  const entry = getOtp(email);
+  if (!entry || entry.otp !== otp) return false;
+  store.delete(key(email));
+  return true;
+}
+
+/** Profile flow: create OTP for email or phone. Returns { otp, ok } or { ok: false, error }. */
+export function createOtp(
+  type: "email" | "phone",
+  value: string
+): { otp?: string; ok: boolean; error?: string } {
+  const v = value.trim();
+  if (!v) return { ok: false, error: "Value required" };
+  cleanup();
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const k = profileKey(type, value);
+  store.set(k, {
+    email: type === "email" ? v.toLowerCase() : "",
+    otp,
+    expires_at: Date.now() + OTP_TTL_MS,
   });
   return { otp, ok: true };
 }
 
+/** Profile flow: verify OTP for email or phone. */
 export function verifyOtp(
   type: "email" | "phone",
-  new_value: string,
+  value: string,
   otp: string
 ): { success: boolean; error?: string } {
-  const k = key(type, new_value);
-  const record = store.get(k);
-  if (!record) {
-    return { success: false, error: "OTP expired or not found" };
+  const k = profileKey(type, value);
+  const entry = store.get(k) ?? null;
+  if (!entry || isExpired(entry)) {
+    if (entry) store.delete(k);
+    return { success: false, error: "Invalid or expired code" };
   }
-  const now = Date.now();
-  if (now > record.created_at + OTP_TTL_MS) {
-    store.delete(k);
-    return { success: false, error: "OTP expired" };
-  }
-  record.attempts += 1;
-  if (record.attempts > MAX_ATTEMPTS) {
-    store.delete(k);
-    return { success: false, error: "Too many attempts" };
-  }
-  if (record.otp !== otp) {
-    return { success: false, error: "Invalid code" };
-  }
+  if (entry.otp !== otp) return { success: false, error: "Invalid code" };
   store.delete(k);
   return { success: true };
 }
