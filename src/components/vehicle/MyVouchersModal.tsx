@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { MyVoucher } from "@/app/api/vouchers/my/route";
 import type { VoucherDetail } from "./PromotionsSection";
 import { VOUCHER_TYPE_LABELS, isBenefitType } from "@/types/voucher";
+import { useAuth } from "@/contexts/auth_context";
 
 interface MyVouchersModalProps {
   open: boolean;
@@ -52,18 +53,31 @@ export function MyVouchersModal({
   appliedCodes,
   onApplySelected,
 }: MyVouchersModalProps) {
+  const { authenticated, loading: authLoading, refreshAuth } = useAuth();
+  const authenticatedRef = useRef(authenticated);
+  authenticatedRef.current = authenticated;
+
   const [vouchers, setVouchers] = useState<MyVoucher[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const fetchVouchers = useCallback(async () => {
+  const fetchVouchers = useCallback(async (isRetry = false) => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/vouchers/my", { credentials: "include" });
       if (res.status === 401) {
-        setError("Please log in to view your vouchers.");
+        const isLoggedIn = authenticatedRef.current;
+        if (isLoggedIn && !isRetry) {
+          await refreshAuth();
+          return fetchVouchers(true);
+        }
+        setError(
+          isLoggedIn
+            ? "Session expired. Please log in again."
+            : "Please log in to view your vouchers."
+        );
         setVouchers([]);
         return;
       }
@@ -81,11 +95,25 @@ export function MyVouchersModal({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [refreshAuth]);
 
   useEffect(() => {
-    if (open) fetchVouchers();
-  }, [open, fetchVouchers]);
+    if (!open) return;
+    // รอให้ auth โหลดเสร็จก่อน (เช่น หลังล็อกอิน refreshAuth ยังไม่จบ)
+    if (authLoading) {
+      setError(null);
+      setLoading(true);
+      setVouchers([]);
+      return;
+    }
+    if (!authenticated) {
+      setError("Please log in to view your vouchers.");
+      setLoading(false);
+      setVouchers([]);
+      return;
+    }
+    fetchVouchers();
+  }, [open, authenticated, authLoading, fetchVouchers]);
 
   const selectable = vouchers.filter(
     (v) => v.status === "ACTIVE" && !appliedCodes.includes(v.code)
@@ -130,18 +158,20 @@ export function MyVouchersModal({
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-4">
-            {loading && (
-              <p className="text-sm text-hertz-black-60">Loading vouchers…</p>
+            {(loading || authLoading) && (
+              <p className="text-sm text-hertz-black-60">
+                {authLoading ? "Loading…" : "Loading vouchers…"}
+              </p>
             )}
-            {error && (
+            {!authLoading && error && (
               <p className="text-sm text-red-600" role="alert">
                 {error}
               </p>
             )}
-            {!loading && !error && vouchers.length === 0 && (
+            {!authLoading && !loading && !error && vouchers.length === 0 && (
               <p className="text-sm text-hertz-black-60">No vouchers in your wallet.</p>
             )}
-            {!loading && !error && vouchers.length > 0 && (
+            {!authLoading && !loading && !error && vouchers.length > 0 && (
               <ul className="space-y-2">
                 {vouchers.map((v) => {
                   const isActive = v.status === "ACTIVE";

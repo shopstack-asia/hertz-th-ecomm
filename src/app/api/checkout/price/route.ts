@@ -9,6 +9,15 @@ interface VoucherInput {
   benefit?: string;
 }
 
+/** Single points redemption (one per booking) */
+interface PointsRedemptionInput {
+  id: string;
+  type: string;
+  label: string;
+  discount_amount: number;
+  addon_key?: string;
+}
+
 interface PriceRequest {
   vehicle_id: string;
   rental_days: number;
@@ -16,6 +25,7 @@ interface PriceRequest {
   vouchers?: VoucherInput[];
   addon_ids?: string[];
   campaign?: { type: "percent_off_rental" | "percent_off_total" | "free_insurance"; value?: number; label?: string };
+  points_redemption?: PointsRedemptionInput;
 }
 
 interface DiscountItem {
@@ -44,10 +54,12 @@ interface PriceResponse {
     addons: BreakdownLine[];
     subtotal: number;
     voucher_lines: BreakdownLine[];
+    points_line?: BreakdownLine;
     campaign_line?: BreakdownLine;
     vat: BreakdownLine;
     total: number;
   };
+  points_used?: { id: string; label: string; amount: number };
   currency: string;
   rental_days: number;
   product_promo?: { label: string; amount: number };
@@ -113,13 +125,16 @@ function getAddonAmount(addonId: string, rentalDays: number): number {
   return spec.type === "daily" ? spec.price * rentalDays : spec.price;
 }
 
+const MAX_DISCOUNT_PERCENT_OF_BASE = 0.8;
+
 function computeTotal(
   dailyRate: number,
   rentalDays: number,
   promotionCode: string | undefined,
   vouchers: VoucherInput[],
   addonIds: string[],
-  campaign: PriceRequest["campaign"]
+  campaign: PriceRequest["campaign"],
+  pointsRedemption?: PointsRedemptionInput
 ): {
   lineItems: { description: string; amount: number }[];
   total: number;
@@ -128,6 +143,7 @@ function computeTotal(
   addonsTotal: number;
   appliedVouchers: { code: string; label: string; amount: number }[];
   appliedCampaign?: { label: string; amount: number };
+  pointsUsed?: { id: string; label: string; amount: number };
 } {
   const basePrice = dailyRate * rentalDays;
   const lineItems: { description: string; amount: number }[] = [];
@@ -243,6 +259,21 @@ function computeTotal(
     }
   }
 
+  let pointsDiscountAmount = 0;
+  const baseRentalForCap = basePrice;
+  const maxTotalDiscount = Math.round(baseRentalForCap * MAX_DISCOUNT_PERCENT_OF_BASE);
+  const currentDiscountTotal = subtotalBeforeDiscounts - runningTotal;
+
+  if (pointsRedemption && pointsRedemption.discount_amount > 0) {
+    const rawPointsDiscount = Math.min(pointsRedemption.discount_amount, runningTotal);
+    const remainingDiscountBudget = maxTotalDiscount - currentDiscountTotal;
+    pointsDiscountAmount = Math.min(rawPointsDiscount, remainingDiscountBudget, runningTotal);
+    if (pointsDiscountAmount > 0) {
+      lineItems.push({ description: `Points Redemption`, amount: -pointsDiscountAmount });
+      runningTotal -= pointsDiscountAmount;
+    }
+  }
+
   runningTotal = Math.max(0, runningTotal);
   const vatRate = 0.07;
   const vatAmount = Math.round(runningTotal * vatRate);
@@ -255,15 +286,26 @@ function computeTotal(
       ? { label: campaign?.label ?? "Campaign", amount: campaignDiscountAmount }
       : undefined;
 
+  const pointsLine: BreakdownLine | undefined =
+    pointsDiscountAmount > 0
+      ? { description: pointsRedemption!.label, amount: -pointsDiscountAmount }
+      : undefined;
+
   const breakdown: NonNullable<PriceResponse["breakdown"]> = {
     rental: { description: `Rental (${rentalDays} day${rentalDays > 1 ? "s" : ""})`, amount: basePrice },
     addons: breakdownAddons,
     subtotal: subtotalBeforeDiscounts,
     voucher_lines: voucherLines,
+    points_line: pointsLine,
     campaign_line: appliedCampaign ? { description: appliedCampaign.label, amount: -Math.abs(appliedCampaign.amount) } : undefined,
     vat: { description: `VAT ${vatRate * 100}%`, amount: vatAmount },
     total,
   };
+
+  const pointsUsed =
+    pointsDiscountAmount > 0 && pointsRedemption
+      ? { id: pointsRedemption.id, label: pointsRedemption.label, amount: pointsDiscountAmount }
+      : undefined;
 
   return {
     lineItems,
@@ -273,6 +315,7 @@ function computeTotal(
     addonsTotal,
     appliedVouchers,
     appliedCampaign,
+    pointsUsed,
   };
 }
 
@@ -290,6 +333,7 @@ export async function POST(request: NextRequest) {
   const vouchers = Array.isArray(body.vouchers) ? body.vouchers : [];
   const addonIds = Array.isArray(body.addon_ids) ? body.addon_ids : [];
   const campaign = body.campaign;
+  const pointsRedemption = body.points_redemption;
 
   if (!vehicleId) {
     return Response.json({ error: "vehicle_id required" }, { status: 400 });
@@ -303,7 +347,8 @@ export async function POST(request: NextRequest) {
     promotionCode || undefined,
     vouchers,
     addonIds,
-    campaign
+    campaign,
+    pointsRedemption
   );
   const payNowResult = computeTotal(
     dailyPayNow,
@@ -311,7 +356,8 @@ export async function POST(request: NextRequest) {
     promotionCode || undefined,
     vouchers,
     addonIds,
-    campaign
+    campaign,
+    pointsRedemption
   );
 
   const basePricePayLater = dailyPayLater * rentalDays;
@@ -407,6 +453,7 @@ export async function POST(request: NextRequest) {
     voucher_discounts: voucherDiscounts,
     applied_vouchers: payLaterResult.appliedVouchers.length > 0 ? payLaterResult.appliedVouchers : undefined,
     applied_campaign: payLaterResult.appliedCampaign,
+    points_used: payLaterResult.pointsUsed,
     benefit_vouchers_applied: hasBenefitVouchers || undefined,
     promo_code_error: promoCodeInvalid,
   };

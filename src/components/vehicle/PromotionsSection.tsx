@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MyVouchersModal } from "./MyVouchersModal";
 import { VOUCHER_TYPE_LABELS } from "@/types/voucher";
+import type { PointsRedemptionOption } from "@/types/loyalty";
 
 /** Applied voucher at checkout (from apply API or My Vouchers). */
 export interface VoucherDetail {
@@ -36,6 +37,14 @@ function benefitBadge(type: string): string | null {
   return (VOUCHER_TYPE_LABELS as Record<string, string>)[t] ?? null;
 }
 
+export interface PointsRedemptionSelection {
+  id: string;
+  type: string;
+  label: string;
+  discount_amount: number;
+  addon_key?: string;
+}
+
 interface PromotionsSectionProps {
   appliedPromoCode: string | null;
   promoCodeError: string | null;
@@ -50,6 +59,11 @@ interface PromotionsSectionProps {
   /** When true, show "My Vouchers" button and allow wallet selection */
   authenticated?: boolean;
   rentalDays?: number;
+  /** Use Points section - hide when availablePoints is 0 or undefined */
+  availablePoints?: number;
+  pointsRedemptionOptions?: PointsRedemptionOption[];
+  selectedPointsRedemption?: PointsRedemptionSelection | null;
+  onPointsRedemptionChange?: (option: PointsRedemptionSelection | null) => void;
 }
 
 function formatExpired(iso: string): string {
@@ -78,6 +92,10 @@ export function PromotionsSection({
   hasProductPromo,
   authenticated = false,
   rentalDays = 1,
+  availablePoints = 0,
+  pointsRedemptionOptions = [],
+  selectedPointsRedemption = null,
+  onPointsRedemptionChange,
 }: PromotionsSectionProps) {
   const [promoInput, setPromoInput] = useState(appliedPromoCode ?? "");
   const [voucherCode, setVoucherCode] = useState("");
@@ -242,6 +260,63 @@ export function PromotionsSection({
           </ul>
         )}
       </div>
+
+      {availablePoints > 0 && onPointsRedemptionChange && (
+        <div className="mt-6">
+          <label className="text-sm font-medium text-hertz-black-80">
+            Use Points
+          </label>
+          <p className="mt-1 text-xs text-hertz-black-60">
+            You have {availablePoints.toLocaleString()} points available
+          </p>
+          <select
+            value={selectedPointsRedemption?.id ?? ""}
+            onChange={(e) => {
+              const id = e.target.value;
+              if (!id) {
+                onPointsRedemptionChange(null);
+                return;
+              }
+              const opt = pointsRedemptionOptions.find((o) => o.id === id);
+              if (opt && opt.points_required <= availablePoints) {
+                onPointsRedemptionChange({
+                  id: opt.id,
+                  type: opt.type,
+                  label: opt.label,
+                  discount_amount: opt.discount_amount ?? 0,
+                  addon_key: opt.addon_key,
+                });
+              } else {
+                onPointsRedemptionChange(null);
+              }
+            }}
+            className="mt-2 min-h-tap w-full border border-hertz-border bg-white px-4 py-3 text-hertz-black-80 focus:border-[#FFCC00] focus:ring-2 focus:ring-[#FFCC00]/30"
+          >
+            <option value="">Select redemption</option>
+            {pointsRedemptionOptions.map((opt) => {
+              const hasEnough = opt.points_required <= availablePoints;
+              return (
+                <option
+                  key={opt.id}
+                  value={opt.id}
+                  disabled={!hasEnough}
+                >
+                  {hasEnough ? opt.label : `${opt.label} — Not enough points`}
+                </option>
+              );
+            })}
+          </select>
+          {selectedPointsRedemption && (
+            <button
+              type="button"
+              onClick={() => onPointsRedemptionChange(null)}
+              className="mt-2 text-sm font-medium text-hertz-black-80 hover:underline"
+            >
+              Remove points redemption
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 }

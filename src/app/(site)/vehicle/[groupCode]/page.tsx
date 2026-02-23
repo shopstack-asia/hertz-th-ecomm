@@ -9,6 +9,7 @@ import { RentalDetailsSection } from "@/components/vehicle/RentalDetailsSection"
 import {
   PromotionsSection,
   type VoucherDetail,
+  type PointsRedemptionSelection,
 } from "@/components/vehicle/PromotionsSection";
 import { RenterFormSection } from "@/components/vehicle/RenterFormSection";
 import { StickyBottomBar } from "@/components/layout/StickyBottomBar";
@@ -17,6 +18,7 @@ import { useAuth } from "@/contexts/auth_context";
 import { proxyFetch } from "@/lib/api/proxy_fetch";
 import type { VehicleDetail } from "@/types";
 import type { Location } from "@/types";
+import type { PointsRedemptionOption } from "@/types/loyalty";
 
 interface PriceResponse {
   base_price: number;
@@ -37,12 +39,14 @@ interface PriceResponse {
     addons: { description: string; amount: number; key?: string }[];
     subtotal: number;
     voucher_lines: { description: string; amount: number }[];
+    points_line?: { description: string; amount: number };
     campaign_line?: { description: string; amount: number };
     vat: { description: string; amount: number };
     total: number;
   };
   applied_vouchers?: { code: string; label: string; amount: number }[];
   applied_campaign?: { label: string; amount: number };
+  points_used?: { id: string; label: string; amount: number };
 }
 
 const defaultPickup = () => new Date(Date.now()).toISOString().slice(0, 16);
@@ -79,6 +83,9 @@ function VehicleDetailContent() {
   const [appliedVouchers, setAppliedVouchers] = useState<VoucherDetail[]>([]);
   const [promoCodeError, setPromoCodeError] = useState<string | null>(null);
   const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [selectedPointsRedemption, setSelectedPointsRedemption] = useState<PointsRedemptionSelection | null>(null);
+  const [availablePoints, setAvailablePoints] = useState<number>(0);
+  const [pointsRedemptionOptions, setPointsRedemptionOptions] = useState<PointsRedemptionOption[]>([]);
   const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
   const [coveredByVoucher, setCoveredByVoucher] = useState<string[]>([]);
   const [campaign, setCampaign] = useState<{
@@ -145,6 +152,15 @@ function VehicleDetailContent() {
           })),
           addon_ids: selectedAddonIds,
           campaign: campaign || undefined,
+          points_redemption: selectedPointsRedemption
+            ? {
+                id: selectedPointsRedemption.id,
+                type: selectedPointsRedemption.type,
+                label: selectedPointsRedemption.label,
+                discount_amount: selectedPointsRedemption.discount_amount,
+                addon_key: selectedPointsRedemption.addon_key,
+              }
+            : undefined,
         }),
       });
       const data = await res.json();
@@ -155,7 +171,7 @@ function VehicleDetailContent() {
     } finally {
       setPriceLoading(false);
     }
-  }, [groupCode, rentalDays, appliedPromoCode, appliedVouchers, selectedAddonIds, campaign]);
+  }, [groupCode, rentalDays, appliedPromoCode, appliedVouchers, selectedAddonIds, campaign, selectedPointsRedemption]);
 
   useEffect(() => {
     fetch(`/api/vehicle/${groupCode}`)
@@ -180,6 +196,27 @@ function VehicleDetailContent() {
       setPricing(null);
     }
   }, [vehicle, pickupAt, dropoffAt, fetchPrice]);
+
+  useEffect(() => {
+    if (!authenticated) {
+      setAvailablePoints(0);
+      setPointsRedemptionOptions([]);
+      return;
+    }
+    Promise.all([
+      fetch("/api/loyalty/points", { credentials: "include" }).then((r) => r.json()),
+      fetch(
+        `/api/loyalty/redemption-options?vehicleGroupCode=${encodeURIComponent(groupCode)}&rentalDays=${rentalDays}&addonIds=${selectedAddonIds.join(",")}`,
+        { credentials: "include" }
+      ).then((r) => r.json()),
+    ]).then(([pointsRes, optionsRes]) => {
+      setAvailablePoints(pointsRes.available_points ?? 0);
+      setPointsRedemptionOptions((Array.isArray(optionsRes) ? optionsRes : []) as PointsRedemptionOption[]);
+    }).catch(() => {
+      setAvailablePoints(0);
+      setPointsRedemptionOptions([]);
+    });
+  }, [authenticated, groupCode, rentalDays, selectedAddonIds.join(",")]);
 
   useEffect(() => {
     const types = appliedVouchers.map((v) => v.type);
@@ -501,6 +538,7 @@ function VehicleDetailContent() {
         breakdown={pricing?.breakdown}
         appliedVouchers={pricing?.applied_vouchers}
         appliedCampaign={pricing?.applied_campaign}
+        pointsUsed={pricing?.points_used}
         benefitVouchersApplied={benefitVouchersApplied}
       />
     </>
@@ -612,7 +650,10 @@ function VehicleDetailContent() {
             rentalDays={rentalDays}
             oneWay={pickupCode !== dropoffCode}
             selectedAddonIds={selectedAddonIds}
-            coveredByVoucher={coveredByVoucher}
+            coveredByVoucher={[
+              ...coveredByVoucher,
+              ...(selectedPointsRedemption?.addon_key ? [selectedPointsRedemption.addon_key] : []),
+            ]}
             onSelectionChange={setSelectedAddonIds}
           />
 
@@ -632,6 +673,20 @@ function VehicleDetailContent() {
             hasProductPromo={hasProductPromo}
             authenticated={authenticated}
             rentalDays={rentalDays}
+            availablePoints={availablePoints}
+            pointsRedemptionOptions={pointsRedemptionOptions}
+            selectedPointsRedemption={selectedPointsRedemption}
+            onPointsRedemptionChange={(opt) => {
+              const prevAddonKey = selectedPointsRedemption?.addon_key;
+              setSelectedPointsRedemption(opt);
+              if (opt?.addon_key) {
+                setSelectedAddonIds((prev) =>
+                  prev.includes(opt.addon_key!) ? prev : [...prev, opt.addon_key!]
+                );
+              } else if (prevAddonKey) {
+                setSelectedAddonIds((prev) => prev.filter((id) => id !== prevAddonKey));
+              }
+            }}
           />
         </div>
 

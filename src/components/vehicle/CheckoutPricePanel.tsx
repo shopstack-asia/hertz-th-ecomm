@@ -13,6 +13,7 @@ interface Breakdown {
   addons: BreakdownLine[];
   subtotal: number;
   voucher_lines: BreakdownLine[];
+  points_line?: BreakdownLine;
   campaign_line?: BreakdownLine;
   vat: BreakdownLine;
   total: number;
@@ -31,6 +32,7 @@ interface CheckoutPricePanelProps {
   breakdown?: Breakdown;
   appliedVouchers?: { code: string; label: string; amount: number }[];
   appliedCampaign?: { label: string; amount: number };
+  pointsUsed?: { id: string; label: string; amount: number };
   benefitVouchersApplied?: boolean;
 }
 
@@ -60,12 +62,13 @@ export function CheckoutPricePanel({
   breakdown,
   appliedVouchers,
   appliedCampaign,
+  pointsUsed,
   benefitVouchersApplied,
 }: CheckoutPricePanelProps) {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const disabled = !isValid || loading;
 
-  const hasBreakdown = breakdown && (breakdown.addons.length > 0 || breakdown.voucher_lines.length > 0 || breakdown.campaign_line);
+  const hasBreakdown = breakdown && (breakdown.addons.length > 0 || breakdown.voucher_lines.length > 0 || breakdown.points_line || breakdown.campaign_line);
 
   return (
     <div
@@ -101,6 +104,12 @@ export function CheckoutPricePanel({
                 <AnimatedAmount amount={v.amount} className="font-medium text-green-700" />
               </div>
             ))}
+            {breakdown.points_line && (
+              <div className="flex justify-between text-sm">
+                <span className="text-hertz-black-80">{breakdown.points_line.description}</span>
+                <AnimatedAmount amount={breakdown.points_line.amount} className="font-medium text-green-700" />
+              </div>
+            )}
             {breakdown.campaign_line && (
               <div className="flex justify-between text-sm">
                 <span className="text-hertz-black-80">{breakdown.campaign_line.description}</span>
@@ -174,6 +183,11 @@ export function CheckoutPricePanel({
       {appliedCampaign && appliedCampaign.amount > 0 && (
         <div className="mb-2 text-xs text-hertz-black-80">
           Campaign: {appliedCampaign.label} — -฿{appliedCampaign.amount.toLocaleString()}
+        </div>
+      )}
+      {pointsUsed && pointsUsed.amount > 0 && (
+        <div className="mb-2 text-xs text-hertz-black-80">
+          Points: {pointsUsed.label} — -฿{pointsUsed.amount.toLocaleString()}
         </div>
       )}
 
