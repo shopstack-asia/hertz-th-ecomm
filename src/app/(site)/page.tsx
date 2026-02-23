@@ -4,6 +4,7 @@ import { SpecialOffersSection } from "@/components/home/SpecialOffersSection";
 import { CategorySection } from "@/components/home/CategorySection";
 import { FuelTypeSection } from "@/components/home/FuelTypeSection";
 import { TopLocationsSection } from "@/components/home/TopLocationsSection";
+import { GiftVouchersSection } from "@/components/home/GiftVouchersSection";
 import { FeaturedVehicles } from "@/components/home/FeaturedVehicles";
 import { WhyChooseSection } from "@/components/home/WhyChooseSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
@@ -18,6 +19,7 @@ export default function HomePage() {
       <CategorySection />
       <FuelTypeSection />
       <TopLocationsSection />
+      <GiftVouchersSection />
       <FeaturedVehicles />
       <WhyChooseSection />
       <TestimonialsSection />

@@ -11,6 +11,7 @@ const navItems = [
   { href: "/locations", key: "nav.locations", hasMega: false },
   { href: "/special-offers", key: "nav.offers", hasMega: false },
   { href: "/vehicles", key: "nav.vehicles", hasMega: false },
+  { href: "/vouchers", key: "nav.vouchers", hasMega: false },
   { href: "/rewards", key: "nav.rewards", hasMega: false },
 ] as const;
 
@@ -57,7 +58,10 @@ export function DesktopNav({
             </div>
           );
         }
-        const isActive = item.href ? pathname === item.href : false;
+        const isActive = item.href
+          ? pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href + "/"))
+          : false;
         return (
           <Link
             key={item.key}

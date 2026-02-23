@@ -495,3 +495,7 @@ export function createMockPricingBreakdown(
 }
 
 export { generateReservationNo };
+export { basePrices };
+
+/** Maps booking_ref (e.g. HZT123456) to reservationNo for thank-you lookup */
+export const bookingRefToReservationNo: Record<string, string> = {};

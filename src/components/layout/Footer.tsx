@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const footerLinks = {
   "Rent a Car": [
@@ -15,14 +16,17 @@ const footerLinks = {
     { href: "#", label: "Terms & Conditions" },
     { href: "#", label: "Privacy Policy" },
   ],
-  Account: [
-    { href: "/account/login", label: "Log in" },
-    { href: "/account/register", label: "Register" },
-    { href: "/account/bookings/upcoming", label: "My Bookings" },
-  ],
 };
 
 export function Footer() {
+  const pathname = usePathname();
+  const returnUrl = encodeURIComponent(pathname ?? "/");
+  const accountLinks = [
+    { href: `/account/login?returnUrl=${returnUrl}`, label: "Log in" },
+    { href: `/account/register?returnUrl=${returnUrl}`, label: "Register" },
+    { href: "/account/bookings/upcoming", label: "My Bookings" },
+  ];
+
   return (
     <footer className="border-t border-hertz-border bg-white">
       <div className="mx-auto max-w-container px-6 py-12 lg:py-16">
@@ -33,13 +37,16 @@ export function Footer() {
               Premium car rental in Thailand.
             </p>
           </div>
-          {Object.entries(footerLinks).map(([title, links]) => (
+          {[
+            ...Object.entries(footerLinks),
+            ["Account", accountLinks],
+          ].map(([title, links]) => (
             <div key={title}>
               <h3 className="text-sm font-bold uppercase tracking-wide text-black">
                 {title}
               </h3>
               <ul className="mt-4 space-y-3">
-                {links.map((link) => (
+                {links.map((link: { href: string; label: string }) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}

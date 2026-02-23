@@ -20,6 +20,7 @@ export async function proxyFetch<T>(
 ): Promise<T> {
   const res = await fetch(path, {
     ...init,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...init?.headers,

@@ -99,14 +99,14 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
           </div>
           <div className="mt-4 flex flex-col gap-2">
             <Link
-              href="/account/login"
+              href={`/account/login?returnUrl=${encodeURIComponent(pathname ?? "/")}`}
               onClick={onClose}
               className="min-h-tap flex items-center justify-center border border-hertz-border font-medium text-black"
             >
               {t("header.login")}
             </Link>
             <Link
-              href="/account/register"
+              href={`/account/register?returnUrl=${encodeURIComponent(pathname ?? "/")}`}
               onClick={onClose}
               className="min-h-tap flex items-center justify-center bg-hertz-yellow font-bold text-black"
             >

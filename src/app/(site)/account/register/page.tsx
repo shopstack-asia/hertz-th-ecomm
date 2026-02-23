@@ -1,12 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FormField } from "@/components/ui/FormField";
 
+function getSafeReturnUrl(returnUrl: string | null): string | null {
+  if (!returnUrl) return null;
+  const decoded = decodeURIComponent(returnUrl);
+  if (!decoded.startsWith("/") || decoded.startsWith("//")) return null;
+  return decoded;
+}
+
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = getSafeReturnUrl(searchParams.get("returnUrl"));
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,9 +29,13 @@ export default function RegisterPage() {
     if (password !== confirmPassword) return;
     setLoading(true);
     await new Promise((r) => setTimeout(r, 500));
-    router.push("/account/profile");
+    router.push(returnUrl ?? "/account/profile");
     setLoading(false);
   };
+
+  const loginHref = returnUrl
+    ? `/account/login?returnUrl=${encodeURIComponent(returnUrl)}`
+    : "/account/login";
 
   return (
     <div className="mx-auto max-w-md px-4 py-8">
@@ -79,7 +93,7 @@ export default function RegisterPage() {
       </form>
       <p className="mt-6 text-center text-hertz-black-80">
         Already have an account?{" "}
-        <Link href="/account/login" className="font-medium text-hertz-yellow underline">
+        <Link href={loginHref} className="font-medium text-hertz-yellow underline">
           Log in
         </Link>
       </p>

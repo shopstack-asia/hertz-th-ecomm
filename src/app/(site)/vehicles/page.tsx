@@ -35,6 +35,7 @@ function VehiclesContent() {
   const transmission = searchParams.get("transmission") ?? "";
   const sort = searchParams.get("sort") ?? "";
   const page = searchParams.get("page") ?? "1";
+  const paymentCancelled = searchParams.get("payment") === "cancelled";
 
   const [response, setResponse] = useState<SearchApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -122,6 +123,15 @@ function VehiclesContent() {
       <h1 className="mb-6 text-2xl font-bold text-black lg:text-3xl">
         {pageTitle}
       </h1>
+
+      {paymentCancelled && (
+        <div className="mb-6 border border-hertz-border bg-hertz-gray p-4">
+          <p className="text-sm font-medium text-black">Payment was cancelled.</p>
+          <p className="mt-1 text-sm text-hertz-black-80">
+            You can select a vehicle and try again when ready.
+          </p>
+        </div>
+      )}
 
       <div className="flex gap-8">
         <div className="hidden lg:block">

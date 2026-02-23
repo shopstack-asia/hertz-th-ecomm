@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface AppHeaderProps {
   showBack?: boolean;
@@ -8,6 +9,11 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ showBack, title }: AppHeaderProps) {
+  const pathname = usePathname();
+  const returnUrl = encodeURIComponent(pathname ?? "/");
+  const loginHref = `/account/login?returnUrl=${returnUrl}`;
+  const registerHref = `/account/register?returnUrl=${returnUrl}`;
+
   return (
     <header className="sticky top-0 z-50 flex h-14 min-h-tap items-center justify-between border-b border-gray-200 bg-white px-4 shadow-card lg:h-16">
       <div className="flex items-center gap-3">
@@ -51,13 +57,13 @@ export function AppHeader({ showBack, title }: AppHeaderProps) {
       )}
       <div className="flex items-center gap-2">
         <Link
-          href="/account/login"
+          href={loginHref}
           className="rounded-lg px-3 py-2 text-sm font-medium text-hertz-black-80 hover:bg-hertz-gray focus:outline-none focus:ring-2 focus:ring-hertz-yellow"
         >
           Log in
         </Link>
         <Link
-          href="/account/register"
+          href={registerHref}
           className="rounded-lg bg-hertz-yellow px-4 py-2 text-sm font-semibold text-hertz-black-90 hover:bg-hertz-yellow/90 focus:outline-none focus:ring-2 focus:ring-hertz-yellow focus:ring-offset-2"
         >
           Sign up

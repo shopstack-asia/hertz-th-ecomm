@@ -6,6 +6,7 @@ export const en = {
     offers: "Offers",
     vehicles: "Vehicles",
     rewards: "Rewards",
+    vouchers: "Vouchers",
   },
   megaMenu: {
     book_car: "Book a Car",
@@ -19,6 +20,9 @@ export const en = {
     login: "Log in",
     register: "Sign up",
     lang: "TH",
+  },
+  auth: {
+    mock_phase_credentials: "Mock phase: Use any email and any password (e.g. demo@example.com / 1234)",
   },
   booking: {
     pickup_location: "Pickup location",

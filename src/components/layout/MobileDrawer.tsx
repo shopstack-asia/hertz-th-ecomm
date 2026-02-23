@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { AuthUser } from "@/contexts/auth_context";
 
 const navItems = [
   { href: "/account/bookings/upcoming", key: "nav.manage_booking" },
   { href: "/locations", key: "nav.locations" },
   { href: "/special-offers", key: "nav.offers" },
   { href: "/vehicles", key: "nav.vehicles" },
+  { href: "/vouchers", key: "nav.vouchers" },
   { href: "/rewards", key: "nav.rewards" },
 ] as const;
 
@@ -25,10 +27,17 @@ const bookSubItems = [
 interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
+  loginHref?: string;
+  registerHref?: string;
+  authenticated?: boolean;
+  user?: AuthUser | null;
+  onLogout?: () => void;
 }
 
-export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
+export function MobileDrawer({ open, onClose, loginHref, registerHref, authenticated, user, onLogout }: MobileDrawerProps) {
   const pathname = usePathname();
+  const loginUrl = loginHref ?? `/account/login?returnUrl=${encodeURIComponent(pathname ?? "/")}`;
+  const registerUrl = registerHref ?? `/account/register?returnUrl=${encodeURIComponent(pathname ?? "/")}`;
   const { t, locale, setLocale } = useLanguage();
   const [bookExpanded, setBookExpanded] = useState(false);
 
@@ -145,22 +154,53 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
             </div>
           </div>
 
-          {/* Login / Register */}
+          {/* Login / Register or User + Log out */}
           <div className="mt-4 flex flex-col gap-2">
-            <Link
-              href="/account/login"
-              onClick={onClose}
-              className="min-h-tap flex items-center justify-center border border-hertz-border font-medium text-black"
-            >
-              {t("header.login")}
-            </Link>
-            <Link
-              href="/account/register"
-              onClick={onClose}
-              className="min-h-tap flex items-center justify-center bg-hertz-yellow font-bold text-black"
-            >
-              {t("header.register")}
-            </Link>
+            {authenticated && user && onLogout ? (
+              <>
+                <Link
+                  href="/account/profile"
+                  onClick={onClose}
+                  className="min-h-tap flex items-center justify-center border border-hertz-border font-medium text-black"
+                >
+                  {user.first_name} {user.last_name}
+                </Link>
+                <Link
+                  href="/my-vouchers"
+                  onClick={onClose}
+                  className="min-h-tap flex items-center justify-center border border-hertz-border font-medium text-black"
+                >
+                  My Vouchers
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onLogout();
+                    onClose();
+                  }}
+                  className="min-h-tap flex items-center justify-center bg-hertz-yellow font-bold text-black"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href={loginUrl}
+                  onClick={onClose}
+                  className="min-h-tap flex items-center justify-center border border-hertz-border font-medium text-black"
+                >
+                  {t("header.login")}
+                </Link>
+                <Link
+                  href={registerUrl}
+                  onClick={onClose}
+                  className="min-h-tap flex items-center justify-center bg-hertz-yellow font-bold text-black"
+                >
+                  {t("header.register")}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
