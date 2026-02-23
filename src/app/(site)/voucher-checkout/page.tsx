@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth_context";
 import type { VoucherCatalogItem } from "@/app/api/vouchers/catalog/route";
 
-export default function VoucherCheckoutPage() {
+function VoucherCheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { authenticated } = useAuth();
@@ -176,5 +176,19 @@ export default function VoucherCheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VoucherCheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-container px-6 py-12">
+          <p className="text-hertz-black-80">Loading...</p>
+        </div>
+      }
+    >
+      <VoucherCheckoutContent />
+    </Suspense>
   );
 }

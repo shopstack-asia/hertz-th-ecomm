@@ -59,8 +59,7 @@ export function DesktopNav({
           );
         }
         const isActive = item.href
-          ? pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href + "/"))
+          ? pathname === item.href || pathname.startsWith(item.href + "/")
           : false;
         return (
           <Link

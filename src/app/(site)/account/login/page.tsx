@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FormField } from "@/components/ui/FormField";
@@ -14,7 +14,7 @@ function getSafeReturnUrl(returnUrl: string | null): string | null {
   return decoded;
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLanguage();
@@ -109,5 +109,13 @@ export default function LoginPage() {
         {t("auth.mock_phase_credentials")}
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-8">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

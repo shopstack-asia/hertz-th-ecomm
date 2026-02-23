@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 
 interface VoucherOrder {
@@ -14,7 +14,7 @@ interface VoucherOrder {
   status: string;
 }
 
-export default function VoucherThankYouPage() {
+function VoucherThankYouContent() {
   const searchParams = useSearchParams();
   const orderRef = searchParams.get("order_ref") ?? "";
 
@@ -156,5 +156,21 @@ export default function VoucherThankYouPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VoucherThankYouPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-container px-6 py-12">
+          <div className="mx-auto max-w-lg border border-hertz-border bg-white p-8">
+            <p className="text-hertz-black-80">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <VoucherThankYouContent />
+    </Suspense>
   );
 }

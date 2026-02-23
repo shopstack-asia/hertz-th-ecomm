@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface BookingData {
   booking_ref?: string;
@@ -21,7 +21,7 @@ interface BookingData {
   bookingType?: string;
 }
 
-export default function ThankYouPage() {
+function ThankYouContent() {
   const searchParams = useSearchParams();
   const bookingRef = searchParams.get("booking_ref") ?? "";
   const type = searchParams.get("type") ?? "pay_later";
@@ -166,5 +166,21 @@ export default function ThankYouPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ThankYouPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-container px-6 py-12">
+          <div className="mx-auto max-w-lg border border-hertz-border bg-white p-8">
+            <p className="text-hertz-black-80">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <ThankYouContent />
+    </Suspense>
   );
 }

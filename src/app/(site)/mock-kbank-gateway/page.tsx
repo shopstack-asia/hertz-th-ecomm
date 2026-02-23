@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function MockKBankGatewayPage() {
+function MockKBankGatewayContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const sessionId = searchParams.get("session_id") ?? "";
@@ -136,5 +136,19 @@ export default function MockKBankGatewayPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MockKBankGatewayPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-hertz-gray p-4">
+          <p className="text-hertz-black-80">Loading...</p>
+        </div>
+      }
+    >
+      <MockKBankGatewayContent />
+    </Suspense>
   );
 }

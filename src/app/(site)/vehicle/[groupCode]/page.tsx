@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckoutPricePanel } from "@/components/vehicle/CheckoutPricePanel";
@@ -49,7 +49,7 @@ const defaultPickup = () => new Date(Date.now()).toISOString().slice(0, 16);
 const defaultDropoff = () =>
   new Date(Date.now() + 86400000).toISOString().slice(0, 16);
 
-export default function VehicleDetailPage() {
+function VehicleDetailContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -705,5 +705,19 @@ export default function VehicleDetailPage() {
         </div>
       </StickyBottomBar>
     </div>
+  );
+}
+
+export default function VehicleDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-container px-6 py-12">
+          <div className="h-96 animate-pulse bg-hertz-gray" />
+        </div>
+      }
+    >
+      <VehicleDetailContent />
+    </Suspense>
   );
 }

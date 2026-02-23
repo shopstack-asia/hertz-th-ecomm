@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function PaymentReturnPage() {
+function PaymentReturnContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const status = searchParams.get("status");
@@ -103,5 +103,19 @@ export default function PaymentReturnPage() {
     <div className="flex min-h-screen items-center justify-center bg-hertz-gray p-4">
       <p className="text-hertz-black-80">Processing...</p>
     </div>
+  );
+}
+
+export default function PaymentReturnPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-hertz-gray p-4">
+          <p className="text-hertz-black-80">Loading...</p>
+        </div>
+      }
+    >
+      <PaymentReturnContent />
+    </Suspense>
   );
 }

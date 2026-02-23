@@ -27,6 +27,11 @@ export function Footer() {
     { href: "/account/bookings/upcoming", label: "My Bookings" },
   ];
 
+  const footerSections: [string, { href: string; label: string }[]][] = [
+    ...Object.entries(footerLinks),
+    ["Account", accountLinks],
+  ];
+
   return (
     <footer className="border-t border-hertz-border bg-white">
       <div className="mx-auto max-w-container px-6 py-12 lg:py-16">
@@ -37,10 +42,7 @@ export function Footer() {
               Premium car rental in Thailand.
             </p>
           </div>
-          {[
-            ...Object.entries(footerLinks),
-            ["Account", accountLinks],
-          ].map(([title, links]) => (
+          {footerSections.map(([title, links]) => (
             <div key={title}>
               <h3 className="text-sm font-bold uppercase tracking-wide text-black">
                 {title}

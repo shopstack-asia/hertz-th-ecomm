@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FormField } from "@/components/ui/FormField";
@@ -12,7 +12,7 @@ function getSafeReturnUrl(returnUrl: string | null): string | null {
   return decoded;
 }
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnUrl = getSafeReturnUrl(searchParams.get("returnUrl"));
@@ -98,5 +98,13 @@ export default function RegisterPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-8">Loading...</div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }

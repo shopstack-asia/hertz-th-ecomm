@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { MyVoucher } from "@/app/api/vouchers/my/route";
@@ -95,7 +95,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-export default function MyVouchersPage() {
+function MyVouchersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -429,5 +429,20 @@ export default function MyVouchersPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MyVouchersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          <h1 className="text-2xl font-bold text-black">My Vouchers</h1>
+          <div className="mt-6 h-64 animate-pulse border border-hertz-border bg-hertz-gray" />
+        </div>
+      }
+    >
+      <MyVouchersContent />
+    </Suspense>
   );
 }
