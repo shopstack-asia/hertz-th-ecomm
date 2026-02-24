@@ -1,6 +1,7 @@
 /**
  * In-memory signup flow store (mock).
- * Keyed by otp_ref. OTP expires in 5 min, max 5 attempts.
+ * Keyed by otp_ref. OTP expires in 5 min, max 5 attempts per channel.
+ * Verify email first, then phone if provided.
  * Replace with Redis/DB in production.
  */
 
@@ -18,16 +19,21 @@ export interface SignupConsent {
   user_agent?: string;
 }
 
+export type VerifyChannel = "email" | "phone";
+
 export interface SignupEntry {
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
   consent: SignupConsent;
-  otp: string;
+  email_otp: string;
+  phone_otp: string;
   expires_at: number;
-  verified: boolean;
-  attempts: number;
+  email_verified: boolean;
+  phone_verified: boolean;
+  email_attempts: number;
+  phone_attempts: number;
 }
 
 const globalForSignup = globalThis as unknown as {
@@ -58,6 +64,7 @@ function generateOtpRef(): string {
 
 /**
  * Create signup flow: validate, store entry, return otp_ref.
+ * Generates OTP for email and (if phone provided) for phone.
  */
 export function createSignup(data: {
   first_name: string;
@@ -65,22 +72,25 @@ export function createSignup(data: {
   email: string;
   phone: string;
   consent: SignupConsent;
-}): { otp_ref: string; otp: string } {
+}): { otp_ref: string } {
   cleanup();
-  const otp = generateOtp();
   const otp_ref = generateOtpRef();
+  const hasPhone = (data.phone ?? "").trim().length > 0;
   store.set(otp_ref, {
     first_name: data.first_name.trim(),
     last_name: data.last_name.trim(),
     email: data.email.trim().toLowerCase(),
     phone: (data.phone ?? "").trim(),
     consent: data.consent,
-    otp,
+    email_otp: generateOtp(),
+    phone_otp: hasPhone ? generateOtp() : "",
     expires_at: Date.now() + OTP_TTL_MS,
-    verified: false,
-    attempts: 0,
+    email_verified: false,
+    phone_verified: false,
+    email_attempts: 0,
+    phone_attempts: 0,
   });
-  return { otp_ref, otp };
+  return { otp_ref };
 }
 
 /**
@@ -97,39 +107,62 @@ export function getByRef(otpRef: string): SignupEntry | null {
 }
 
 /**
- * Verify OTP. Increments attempts; returns false if wrong or max attempts exceeded.
+ * Verify OTP for a channel (email or phone). Returns true if valid.
  */
-export function verifyOtp(otpRef: string, otp: string): boolean {
+export function verifyOtp(otpRef: string, otp: string, channel: VerifyChannel): boolean {
   const entry = getByRef(otpRef);
   if (!entry) return false;
-  entry.attempts += 1;
-  if (entry.attempts > MAX_OTP_ATTEMPTS) {
-    store.delete(otpRef);
-    return false;
+  const isEmail = channel === "email";
+  const attempts = isEmail ? entry.email_attempts : entry.phone_attempts;
+  const otpValue = isEmail ? entry.email_otp : entry.phone_otp;
+  if (isEmail) {
+    entry.email_attempts += 1;
+    if (entry.email_attempts > MAX_OTP_ATTEMPTS) {
+      store.delete(otpRef);
+      return false;
+    }
+    if (entry.email_otp !== otp) return false;
+    entry.email_verified = true;
+  } else {
+    if (!entry.phone) return false;
+    entry.phone_attempts += 1;
+    if (entry.phone_attempts > MAX_OTP_ATTEMPTS) {
+      store.delete(otpRef);
+      return false;
+    }
+    if (entry.phone_otp !== otp) return false;
+    entry.phone_verified = true;
   }
-  if (entry.otp !== otp) return false;
-  entry.verified = true;
   return true;
 }
 
 /**
- * Resend OTP for existing otp_ref (resets OTP and expiry). Returns true if sent.
+ * Resend OTP for a channel. Resets that channel's OTP and expiry. Returns true if sent.
  */
-export function resendOtp(otpRef: string): boolean {
+export function resendOtp(otpRef: string, channel: VerifyChannel): boolean {
   const entry = getByRef(otpRef);
-  if (!entry || entry.verified) return false;
-  entry.otp = generateOtp();
+  if (!entry) return false;
+  if (channel === "phone" && !entry.phone) return false;
+  if (channel === "email") {
+    entry.email_otp = generateOtp();
+    entry.email_attempts = 0;
+  } else {
+    entry.phone_otp = generateOtp();
+    entry.phone_attempts = 0;
+  }
   entry.expires_at = Date.now() + OTP_TTL_MS;
-  entry.attempts = 0;
   return true;
 }
 
 /**
- * Consume verified otp_ref: return entry and delete. Returns null if not verified.
+ * Consume signup: return entry only if email verified and (if phone) phone verified. Then delete.
  */
 export function consumeAndGet(otpRef: string): SignupEntry | null {
   const entry = store.get(otpRef) ?? null;
-  if (!entry || !entry.verified) return null;
+  if (!entry) return null;
+  const hasPhone = entry.phone.length > 0;
+  const allVerified = entry.email_verified && (!hasPhone || entry.phone_verified);
+  if (!allVerified) return null;
   store.delete(otpRef);
   return entry;
 }

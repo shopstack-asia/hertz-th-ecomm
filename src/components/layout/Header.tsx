@@ -114,6 +114,13 @@ export function Header() {
                         My profile
                       </Link>
                       <Link
+                        href="/account/bookings/upcoming"
+                        onClick={() => setProfileOpen(false)}
+                        className="block border-b border-hertz-border px-4 py-3 text-sm font-medium text-black hover:bg-hertz-gray"
+                      >
+                        {t("header.my_booking")}
+                      </Link>
+                      <Link
                         href="/my-points"
                         onClick={() => setProfileOpen(false)}
                         className="block border-b border-hertz-border px-4 py-3 text-sm font-medium text-black hover:bg-hertz-gray"

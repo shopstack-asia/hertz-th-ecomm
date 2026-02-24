@@ -279,7 +279,7 @@ function computeTotal(
   const vatAmount = Math.round(runningTotal * vatRate);
   const total = runningTotal + vatAmount;
 
-  lineItems.push({ description: `VAT (${vatRate * 100}%)`, amount: vatAmount });
+  lineItems.push({ description: `VAT (${Math.round(vatRate * 100)}%)`, amount: vatAmount });
 
   const appliedCampaign =
     campaignDiscountAmount > 0
@@ -298,7 +298,7 @@ function computeTotal(
     voucher_lines: voucherLines,
     points_line: pointsLine,
     campaign_line: appliedCampaign ? { description: appliedCampaign.label, amount: -Math.abs(appliedCampaign.amount) } : undefined,
-    vat: { description: `VAT ${vatRate * 100}%`, amount: vatAmount },
+    vat: { description: `VAT (${Math.round(vatRate * 100)}%)`, amount: vatAmount },
     total,
   };
 

@@ -9,12 +9,12 @@ export async function GET() {
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 
   if (!sessionId) {
-    return Response.json({ authenticated: false });
+    return Response.json({ authenticated: false, user: null });
   }
 
   const session = getSession(sessionId);
   if (!session) {
-    return Response.json({ authenticated: false });
+    return Response.json({ authenticated: false, user: null });
   }
 
   const profile = getProfile(session.user.id);

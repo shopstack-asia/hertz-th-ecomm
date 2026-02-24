@@ -22,6 +22,10 @@ interface AuthContextValue {
   authenticated: boolean;
   user: AuthUser | null;
   refreshAuth: () => Promise<void>;
+  /** Alias for authenticated */
+  isAuthed: boolean;
+  /** Alias for refreshAuth */
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -43,8 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
       }
     } catch {
-      setAuthenticated(false);
-      setUser(null);
+      /* Network error: keep current auth state so user is not logged out by a transient failure */
     } finally {
       setLoading(false);
     }
@@ -59,6 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     authenticated,
     user,
     refreshAuth,
+    isAuthed: authenticated,
+    refresh: refreshAuth,
   };
 
   return (

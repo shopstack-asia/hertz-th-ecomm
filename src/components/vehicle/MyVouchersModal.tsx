@@ -70,12 +70,12 @@ export function MyVouchersModal({
       if (res.status === 401) {
         const isLoggedIn = authenticatedRef.current;
         if (isLoggedIn && !isRetry) {
-          await refreshAuth();
+          /* Retry once without calling refreshAuth - avoid clearing session on transient 401 */
           return fetchVouchers(true);
         }
         setError(
           isLoggedIn
-            ? "Session expired. Please log in again."
+            ? "Could not load vouchers. Please try again."
             : "Please log in to view your vouchers."
         );
         setVouchers([]);
@@ -95,7 +95,7 @@ export function MyVouchersModal({
     } finally {
       setLoading(false);
     }
-  }, [refreshAuth]);
+  }, []);
 
   useEffect(() => {
     if (!open) return;

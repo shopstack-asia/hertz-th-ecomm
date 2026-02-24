@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import QRCode from "qrcode";
 import type { Reservation } from "@/types";
 
 export default function BookingConfirmationPage() {
@@ -11,6 +12,7 @@ export default function BookingConfirmationPage() {
 
   const [booking, setBooking] = useState<Reservation | null>(null);
   const [loading, setLoading] = useState(true);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/booking/${reservationNo}`)
@@ -18,6 +20,17 @@ export default function BookingConfirmationPage() {
       .then(setBooking)
       .finally(() => setLoading(false));
   }, [reservationNo]);
+
+  useEffect(() => {
+    if (!booking?.reservationNo) return;
+    QRCode.toDataURL(booking.reservationNo, {
+      width: 200,
+      margin: 2,
+      color: { dark: "#000000", light: "#ffffff" },
+    })
+      .then(setQrDataUrl)
+      .catch(() => {});
+  }, [booking?.reservationNo]);
 
   if (loading) {
     return (
@@ -50,6 +63,22 @@ export default function BookingConfirmationPage() {
         <p className="mt-2 text-3xl font-bold text-hertz-black-90">
           {booking.reservationNo}
         </p>
+        {qrDataUrl && (
+          <div className="mt-4 flex justify-center">
+            <div className="rounded-xl border-2 border-hertz-black-90/20 bg-white p-3 shadow-sm">
+              <img
+                src={qrDataUrl}
+                alt={`QR code for reservation ${booking.reservationNo}`}
+                width={160}
+                height={160}
+                className="h-40 w-40"
+              />
+              <p className="mt-2 text-xs font-medium text-hertz-black-80">
+                Scan for reservation
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-6 space-y-4">
@@ -137,16 +166,16 @@ export default function BookingConfirmationPage() {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-3">
         <Link
           href="/account/bookings/upcoming"
-          className="flex h-12 items-center justify-center rounded-xl border-2 border-hertz-yellow font-semibold text-hertz-black-90"
+          className="flex h-12 w-full items-center justify-center rounded-xl border-2 border-hertz-yellow bg-white font-semibold text-hertz-black-90 hover:bg-hertz-gray/20 sm:w-auto sm:min-w-[180px]"
         >
           View my bookings
         </Link>
         <Link
           href="/"
-          className="flex h-12 items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90"
+          className="flex h-12 w-full items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90 hover:opacity-95 sm:w-auto sm:min-w-[180px]"
         >
           Book another car
         </Link>

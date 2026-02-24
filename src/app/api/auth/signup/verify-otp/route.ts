@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
   const otp_ref = String(body.otp_ref ?? "").trim();
   const otp = String(body.otp ?? "").replace(/\D/g, "");
+  const channel = body.channel === "phone" ? "phone" : "email";
 
   if (!otp_ref || !otp) {
     return Response.json(
@@ -30,15 +31,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (channel === "phone" && !entry.phone) {
+    return Response.json(
+      { success: false, error: "No phone to verify" },
+      { status: 400 }
+    );
+  }
+
   const mockBypass = otp === MOCK_OTP_BYPASS;
-  let valid = mockBypass || verifyOtp(otp_ref, otp);
+  let valid = mockBypass || verifyOtp(otp_ref, otp, channel);
   if (mockBypass && entry) {
-    entry.verified = true;
+    if (channel === "email") entry.email_verified = true;
+    else entry.phone_verified = true;
     valid = true;
   }
   if (!valid) {
     const updated = getByRef(otp_ref);
-    const attemptsLeft = updated ? Math.max(0, 5 - updated.attempts) : 0;
+    const attempts = updated
+      ? channel === "email"
+        ? updated.email_attempts
+        : updated.phone_attempts
+      : 0;
+    const attemptsLeft = Math.max(0, 5 - attempts);
     return Response.json(
       {
         success: false,
@@ -51,5 +65,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return Response.json({ success: true });
+  const current = getByRef(otp_ref);
+  return Response.json({
+    success: true,
+    email_verified: current?.email_verified ?? true,
+    phone_verified: current?.phone_verified ?? false,
+    has_phone: (current?.phone ?? "").length > 0,
+  });
 }

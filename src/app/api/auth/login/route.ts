@@ -1,27 +1,9 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createSession } from "@/server/mock/session_store";
+import { validateMockLogin } from "@/server/mock/mock_users";
 
 const SESSION_COOKIE = "hertz_session";
-
-/** Mock: any email with any non-empty password is valid */
-function validateCredentials(email: string, password: string): boolean {
-  return !!email?.trim() && password != null && String(password).trim() !== "";
-}
-
-/** Derive mock user from email */
-function userFromEmail(email: string): { id: string; email: string; first_name: string; last_name: string } {
-  const local = email.split("@")[0] || "user";
-  const name = local.replace(/[._-]/g, " ").trim() || "User";
-  const [first = name, ...rest] = name.split(" ");
-  const last = rest.length ? rest.join(" ") : "User";
-  return {
-    id: `user_${Date.now()}`,
-    email: email.trim().toLowerCase(),
-    first_name: first,
-    last_name: last,
-  };
-}
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
@@ -32,11 +14,11 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Email and password required" }, { status: 400 });
   }
 
-  if (!validateCredentials(email, password)) {
+  const user = validateMockLogin(email, String(password ?? ""));
+  if (!user) {
     return Response.json({ error: "Invalid email or password" }, { status: 401 });
   }
 
-  const user = userFromEmail(email);
   const session = createSession(user);
 
   const cookieStore = await cookies();

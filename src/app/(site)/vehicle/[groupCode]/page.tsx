@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { CheckoutPricePanel } from "@/components/vehicle/CheckoutPricePanel";
 import { EnhanceYourRentalSection } from "@/components/vehicle/EnhanceYourRentalSection";
@@ -57,6 +57,7 @@ function VehicleDetailContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const groupCode = params.groupCode as string;
 
   const [vehicle, setVehicle] = useState<VehicleDetail | null>(null);
@@ -641,6 +642,13 @@ function VehicleDetailContent() {
             onContactEmailChange={setContactEmail}
             onContactPhoneChange={setContactPhone}
             onDriverNameChange={setDriverName}
+            isAuthed={authenticated}
+            authUser={authUser}
+            onLoginClick={() => {
+              const returnUrl =
+                pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+              router.push(`/account/login?returnUrl=${encodeURIComponent(returnUrl)}`);
+            }}
           />
 
           {/* 4. Enhance your rental — optional add-ons */}

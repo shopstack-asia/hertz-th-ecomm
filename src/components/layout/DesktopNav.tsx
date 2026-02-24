@@ -7,7 +7,6 @@ import { MegaMenu } from "./MegaMenu";
 
 const navItems = [
   { href: "/#booking", key: "nav.book", hasMega: true },
-  { href: "/account/bookings/upcoming", key: "nav.manage_booking", hasMega: false },
   { href: "/locations", key: "nav.locations", hasMega: false },
   { href: "/special-offers", key: "nav.offers", hasMega: false },
   { href: "/vehicles", key: "nav.vehicles", hasMega: false },

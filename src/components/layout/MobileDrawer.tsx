@@ -7,7 +7,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { AuthUser } from "@/contexts/auth_context";
 
 const navItems = [
-  { href: "/account/bookings/upcoming", key: "nav.manage_booking" },
   { href: "/locations", key: "nav.locations" },
   { href: "/special-offers", key: "nav.offers" },
   { href: "/vehicles", key: "nav.vehicles" },
@@ -175,6 +174,13 @@ export function MobileDrawer({ open, onClose, loginHref, registerHref, authentic
                     </span>
                   )}
                   {user.first_name} {user.last_name}
+                </Link>
+                <Link
+                  href="/account/bookings/upcoming"
+                  onClick={onClose}
+                  className="min-h-tap flex items-center justify-center border border-hertz-border font-medium text-black"
+                >
+                  {t("header.my_booking")}
                 </Link>
                 <Link
                   href="/my-points"

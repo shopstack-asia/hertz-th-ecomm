@@ -6,7 +6,6 @@ import Link from "next/link";
 import { FormField } from "@/components/ui/FormField";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { ConsentModal } from "@/components/auth/ConsentModal";
-import { useAuth } from "@/contexts/auth_context";
 import { MOCK_TERMS_PARAGRAPHS, MOCK_PRIVACY_PARAGRAPHS } from "@/lib/mock/legal_content";
 
 const STORAGE_KEY = "hertz_signup";
@@ -103,7 +102,6 @@ function StepIndicator({ current }: { current: Step }) {
 function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { refreshAuth } = useAuth();
   const nextUrl = getSafeNext(searchParams.get("next") ?? searchParams.get("returnUrl"));
 
   const [step, setStep] = useState<Step>(1);
@@ -112,7 +110,7 @@ function SignupContent() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [verifyChannel, setVerifyChannel] = useState<"email" | "sms">("email");
+  const [verifyStep, setVerifyStep] = useState<"email" | "phone">("email");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -224,6 +222,7 @@ function SignupContent() {
       }
       setOtpRef(data.otp_ref);
       setStep(2);
+      setVerifyStep("email");
       persist(2, data.otp_ref);
       setOtp("");
       setResendCooldown(RESEND_COOLDOWN_SEC);
@@ -234,8 +233,8 @@ function SignupContent() {
     }
   }, [firstName, lastName, email, phone, acceptTerms, acceptPrivacy, acceptMarketing, persist]);
 
-  // Step 2: verify OTP
-  const verifyTarget = verifyChannel === "sms" && phone ? phone : email;
+  // Step 2: verify OTP (email first, then phone if provided)
+  const verifyTarget = verifyStep === "phone" ? phone : email;
   const handleVerifyOtp = useCallback(async () => {
     if (otp.replace(/\D/g, "").length !== 6) {
       setError("Enter 6-digit code");
@@ -247,23 +246,33 @@ function SignupContent() {
       const res = await fetch("/api/auth/signup/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ otp_ref: otpRef, otp: otp.replace(/\D/g, "") }),
+        body: JSON.stringify({
+          otp_ref: otpRef,
+          otp: otp.replace(/\D/g, ""),
+          channel: verifyStep,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.message ?? data.error ?? "Invalid or expired code. Try again or resend.");
         return;
       }
-      setStep(3);
-      persist(3, otpRef);
-      setPassword("");
-      setConfirmPassword("");
+      if (data.has_phone && !data.phone_verified) {
+        setVerifyStep("phone");
+        setOtp("");
+        setResendCooldown(RESEND_COOLDOWN_SEC);
+      } else {
+        setStep(3);
+        persist(3, otpRef);
+        setPassword("");
+        setConfirmPassword("");
+      }
     } catch {
       setError("Verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, [otpRef, otp, persist]);
+  }, [otpRef, otp, verifyStep, persist]);
 
   const handleResendOtp = useCallback(async () => {
     if (resendCooldown > 0) return;
@@ -273,7 +282,7 @@ function SignupContent() {
       const res = await fetch("/api/auth/signup/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ otp_ref: otpRef }),
+        body: JSON.stringify({ otp_ref: otpRef, channel: verifyStep }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -287,10 +296,11 @@ function SignupContent() {
     } finally {
       setLoading(false);
     }
-  }, [otpRef, resendCooldown]);
+  }, [otpRef, verifyStep, resendCooldown]);
 
   const handleBackToInfo = useCallback(() => {
     setStep(1);
+    setVerifyStep("email");
     setError(null);
     setOtp("");
     persist(1, otpRef);
@@ -320,14 +330,18 @@ function SignupContent() {
         return;
       }
       clearPersist();
-      await refreshAuth();
-      router.replace(nextUrl);
+      const params = new URLSearchParams();
+      if (nextUrl && nextUrl !== "/") params.set("next", nextUrl);
+      if (data.user?.email) params.set("email", data.user.email);
+      if (data.user?.first_name) params.set("firstName", data.user.first_name);
+      const welcomeUrl = `/signup/welcome${params.toString() ? `?${params.toString()}` : ""}`;
+      router.replace(welcomeUrl);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, [otpRef, password, passwordValid, clearPersist, nextUrl, router, refreshAuth]);
+  }, [otpRef, password, passwordValid, clearPersist, nextUrl, router]);
 
   const loginHref = nextUrl !== "/" ? `/account/login?next=${encodeURIComponent(nextUrl)}` : "/account/login";
 
@@ -486,37 +500,11 @@ function SignupContent() {
       {step === 2 && (
         <div className="animate-fade-in">
           <h1 className="mb-2 text-2xl font-bold text-hertz-black-90">
-            Verify your account
+            {verifyStep === "email" ? "Verify your email" : "Verify your phone"}
           </h1>
           <p className="mb-6 text-sm text-hertz-black-60">
             We sent a 6-digit code to {verifyTarget}
           </p>
-          {phone && (
-            <div className="mb-4 flex rounded-xl border border-gray-200 bg-gray-50 p-2">
-              <button
-                type="button"
-                onClick={() => setVerifyChannel("email")}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
-                  verifyChannel === "email"
-                    ? "bg-white text-hertz-black-90 shadow-sm"
-                    : "text-hertz-black-60 hover:text-hertz-black-80"
-                }`}
-              >
-                Verify via Email
-              </button>
-              <button
-                type="button"
-                onClick={() => setVerifyChannel("sms")}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
-                  verifyChannel === "sms"
-                    ? "bg-white text-hertz-black-90 shadow-sm"
-                    : "text-hertz-black-60 hover:text-hertz-black-80"
-                }`}
-              >
-                Verify via SMS
-              </button>
-            </div>
-          )}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-card">
             <OtpInput
               value={otp}

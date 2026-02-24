@@ -404,7 +404,7 @@ function generateReservationNo(): string {
   return `HZT2026${seq}`;
 }
 
-export const mockReservations: Record<string, Reservation> = {
+const initialMockReservations: Record<string, Reservation> = {
   HZT20261234: {
     reservationNo: "HZT20261234",
     status: "CONFIRMED",
@@ -454,6 +454,23 @@ export const mockReservations: Record<string, Reservation> = {
   },
 };
 
+/** Persist across HMR / server restarts so thank-you page can resolve booking_ref after redirect */
+const globalForMock = globalThis as unknown as {
+  __hertzMockReservations?: Record<string, Reservation>;
+  __hertzBookingRefToReservationNo?: Record<string, string>;
+};
+if (!globalForMock.__hertzMockReservations) {
+  globalForMock.__hertzMockReservations = { ...initialMockReservations };
+}
+if (!globalForMock.__hertzBookingRefToReservationNo) {
+  globalForMock.__hertzBookingRefToReservationNo = {
+    HZT797430: "HZT20261234",
+    HZT888888: "HZT20265678",
+  };
+}
+export const mockReservations = globalForMock.__hertzMockReservations;
+export const bookingRefToReservationNo = globalForMock.__hertzBookingRefToReservationNo;
+
 export function createMockPricingBreakdown(
   vehicleGroupCode: string,
   days: number,
@@ -496,6 +513,3 @@ export function createMockPricingBreakdown(
 
 export { generateReservationNo };
 export { basePrices };
-
-/** Maps booking_ref (e.g. HZT123456) to reservationNo for thank-you lookup */
-export const bookingRefToReservationNo: Record<string, string> = {};

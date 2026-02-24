@@ -1,9 +1,6 @@
 import { NextRequest } from "next/server";
-import { cookies } from "next/headers";
 import { consumeAndGet } from "@/server/mock/signup_store";
 import { createSession } from "@/server/mock/session_store";
-
-const SESSION_COOKIE = "hertz_session";
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_HAS_LETTER = /[a-zA-Z]/;
@@ -63,19 +60,10 @@ export async function POST(request: NextRequest) {
     },
   };
 
-  const session = createSession(user);
-
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, session.session_id, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: Math.floor((session.expires_at - Date.now()) / 1000),
-    path: "/",
-  });
+  createSession(user);
 
   return Response.json({
     success: true,
-    user: session.user,
+    user,
   });
 }
