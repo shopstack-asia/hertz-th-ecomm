@@ -27,8 +27,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Ride", "Arial", "Helvetica Neue", "sans-serif"],
-        ride: ["Ride", "Arial", "sans-serif"],
+        sans: ["var(--font-ibm-plex-sans-thai)", "sans-serif"],
+        ride: ["var(--font-ibm-plex-sans-thai)", "sans-serif"],
       },
       maxWidth: {
         container: "1280px",
