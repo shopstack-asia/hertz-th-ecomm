@@ -9,11 +9,17 @@ import { BookingSheet } from "./BookingSheet";
 
 const HERO_ID = "booking";
 
-export function StickyBookingBar() {
-  const shouldShow = useScrollTrigger(HERO_ID, 0.2);
+interface StickyBookingBarProps {
+  /** When true, always show the bar (e.g. on Vehicle list / Special Offers). When false, show after scroll past hero. */
+  alwaysShow?: boolean;
+}
+
+export function StickyBookingBar({ alwaysShow = false }: StickyBookingBarProps) {
+  const scrollShow = useScrollTrigger(HERO_ID, 0.2);
   const [modalOpen, setModalOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  const shouldShow = alwaysShow || scrollShow;
   if (!shouldShow) return null;
 
   return (

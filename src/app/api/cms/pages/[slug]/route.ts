@@ -1,12 +1,14 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { getCmsPageBySlug } from "@/lib/mock/cmsPages";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const locale = getLocaleFromRequest(request);
   const { slug } = await params;
-  const page = getCmsPageBySlug(slug);
+  const page = getCmsPageBySlug(slug, locale);
 
   if (!page) {
     return Response.json({ error: "Page not found" }, { status: 404 });

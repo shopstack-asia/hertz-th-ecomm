@@ -2,34 +2,42 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useCookieConsent } from "@/contexts/CookieConsentContext";
 
-const footerLinks = {
-  "Rent a Car": [
-    { href: "/vehicles", label: "All Vehicles" },
-    { href: "/vehicles?category=economy", label: "Economy" },
-    { href: "/vehicles?category=suv", label: "SUV" },
-    { href: "/vehicles?category=premium", label: "Premium" },
-  ],
-  Support: [
-    { href: "#", label: "Contact Us" },
-    { href: "#", label: "FAQs" },
-    { href: "#", label: "Terms & Conditions" },
-    { href: "#", label: "Privacy Policy" },
-  ],
-};
+type FooterLink = { href: string; labelKey: string; openCookieModal?: boolean };
+
+const footerLinkSections: { titleKey: string; links: FooterLink[] }[] = [
+  {
+    titleKey: "footer.rent_a_car",
+    links: [
+      { href: "/vehicles", labelKey: "footer.all_vehicles" },
+      { href: "/vehicles?category=economy", labelKey: "footer.economy" },
+      { href: "/vehicles?category=suv", labelKey: "footer.suv" },
+      { href: "/vehicles?category=premium", labelKey: "footer.premium" },
+    ],
+  },
+  {
+    titleKey: "footer.support",
+    links: [
+      { href: "#", labelKey: "footer.contact_us" },
+      { href: "#", labelKey: "footer.faqs" },
+      { href: "#", labelKey: "footer.terms_conditions" },
+      { href: "#", labelKey: "footer.privacy_policy" },
+      { href: "#", labelKey: "footer.cookie_settings", openCookieModal: true },
+    ],
+  },
+];
 
 export function Footer() {
   const pathname = usePathname();
+  const { t } = useLanguage();
+  const { openModal: openCookieModal } = useCookieConsent();
   const returnUrl = encodeURIComponent(pathname ?? "/");
-  const accountLinks = [
-    { href: `/account/login?returnUrl=${returnUrl}`, label: "Log in" },
-    { href: `/account/register?returnUrl=${returnUrl}`, label: "Register" },
-    { href: "/account/bookings/upcoming", label: "My Bookings" },
-  ];
-
-  const footerSections: [string, { href: string; label: string }[]][] = [
-    ...Object.entries(footerLinks),
-    ["Account", accountLinks],
+  const accountLinks: { href: string; labelKey: string }[] = [
+    { href: `/account/login?returnUrl=${returnUrl}`, labelKey: "footer.log_in" },
+    { href: `/account/register?returnUrl=${returnUrl}`, labelKey: "footer.register" },
+    { href: "/account/bookings/upcoming", labelKey: "footer.my_bookings" },
   ];
 
   return (
@@ -39,32 +47,59 @@ export function Footer() {
           <div>
             <p className="text-xl font-bold text-black">Hertz</p>
             <p className="mt-2 text-sm text-hertz-black-60">
-              Premium car rental in Thailand.
+              {t("footer.hertz_tagline")}
             </p>
           </div>
-          {footerSections.map(([title, links]) => (
-            <div key={title}>
+          {footerLinkSections.map((section) => (
+            <div key={section.titleKey}>
               <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-                {title}
+                {t(section.titleKey)}
               </h3>
               <ul className="mt-4 space-y-3">
-                {links.map((link: { href: string; label: string }) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-hertz-black-80 hover:text-black"
-                    >
-                      {link.label}
-                    </Link>
+                {section.links.map((link) => (
+                  <li key={link.labelKey}>
+                    {link.openCookieModal ? (
+                      <button
+                        type="button"
+                        onClick={openCookieModal}
+                        className="text-left text-sm text-hertz-black-80 hover:text-black focus:outline-none focus:ring-2 focus:ring-[#FFCC00] focus:ring-offset-2"
+                      >
+                        {t(link.labelKey)}
+                      </button>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-hertz-black-80 hover:text-black"
+                      >
+                        {t(link.labelKey)}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
             </div>
           ))}
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-black">
+              {t("footer.account")}
+            </h3>
+            <ul className="mt-4 space-y-3">
+              {accountLinks.map((link) => (
+                <li key={link.labelKey}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-hertz-black-80 hover:text-black"
+                  >
+                    {t(link.labelKey)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
         <div className="mt-12 border-t border-hertz-border pt-8">
           <p className="text-center text-sm text-hertz-black-60">
-            © {new Date().getFullYear()} Hertz Thailand. All rights reserved.
+            {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>

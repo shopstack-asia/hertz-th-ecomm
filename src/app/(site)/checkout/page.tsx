@@ -8,6 +8,7 @@ import { PriceSummaryCard } from "@/components/checkout/PriceSummaryCard";
 import { StickyBottomBar } from "@/components/layout/StickyBottomBar";
 import { useAuth } from "@/contexts/auth_context";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePromotionOptional } from "@/contexts/PromotionContext";
 import { proxyFetch } from "@/lib/api/proxy_fetch";
 import type { PricingBreakdown } from "@/types";
 
@@ -19,6 +20,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const { t } = useLanguage();
   const { user: authUser, isAuthed } = useAuth();
+  const promotion = usePromotionOptional();
 
   const groupCode = searchParams.get("groupCode") ?? "";
   const bookingType = (searchParams.get("bookingType") ?? "PAY_LATER") as
@@ -58,6 +60,33 @@ function CheckoutContent() {
 
   const loginReturnUrl =
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+
+  const promoCodeForValidate = promotion?.promoCode ?? null;
+  useEffect(() => {
+    if (
+      !promoCodeForValidate ||
+      !pickupAt ||
+      !dropoffAt ||
+      !pickupLocationName ||
+      !dropoffLocationName
+    )
+      return;
+    promotion?.validatePromotion(
+      {
+        pickup_location: pickupLocationName,
+        dropoff_location: dropoffLocationName,
+        pickup_date: pickupAt,
+        dropoff_date: dropoffAt,
+      },
+      promoCodeForValidate
+    );
+  }, [
+    promoCodeForValidate,
+    pickupAt,
+    dropoffAt,
+    pickupLocationName,
+    dropoffLocationName,
+  ]);
 
   useEffect(() => {
     proxyFetch<{ valid: boolean; breakdown?: PricingBreakdown }>(
@@ -153,9 +182,16 @@ function CheckoutContent() {
         ? true
         : true;
 
+  const stepLabels = [
+    { id: "details" as const, label: t("checkout.step_details") },
+    { id: "extras" as const, label: t("checkout.step_extras") },
+    { id: "review" as const, label: t("checkout.step_review") },
+    { id: "payment" as const, label: t("checkout.payment_step") },
+  ];
+
   return (
     <div className="mx-auto max-w-container px-6 py-8 pb-28 lg:pb-12 lg:py-12">
-      <StepIndicator current={step} />
+      <StepIndicator current={step} steps={stepLabels} />
 
       <div className="mt-8 lg:flex lg:gap-12">
         <div className="flex-1">
@@ -245,18 +281,66 @@ function CheckoutContent() {
           {step === "extras" && (
             <div className="border border-hertz-border bg-white p-6">
               <h2 className="mb-6 text-xl font-bold text-black">
-                Promo & extras
+                {t("checkout.promo_extras")}
               </h2>
+              {promotion?.promoCode && (
+                <div className="mb-6 border border-hertz-border bg-white p-4">
+                  {promotion.validation?.status === "valid" ? (
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-sm font-medium text-green-700">
+                        ✓ {t("promotion.applied_with_discount", { code: promotion.promoCode, discount: promotion.validation?.discountLabel ?? t("promotion.discount") })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          promotion.clearPromotion();
+                          const next = new URLSearchParams(searchParams.toString());
+                          next.delete("promo");
+                          router.replace(pathname + (next.toString() ? `?${next.toString()}` : ""));
+                        }}
+                        className="text-sm font-medium text-hertz-black-80 hover:underline"
+                      >
+                        {t("common.remove")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-sm font-medium text-amber-800">
+                          ⚠ {t("promotion.not_applicable", { code: promotion.promoCode })}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            promotion.clearPromotion();
+                            const next = new URLSearchParams(searchParams.toString());
+                            next.delete("promo");
+                            router.replace(pathname + (next.toString() ? `?${next.toString()}` : ""));
+                          }}
+                          className="text-sm font-medium text-hertz-black-80 hover:underline"
+                        >
+                          {t("common.remove")}
+                        </button>
+                      </div>
+                      {promotion.validation?.reason && (
+                        <p className="text-sm text-hertz-black-70">
+                          {t("promotion.reason")}: {promotion.validation.reason}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               <div>
                 <label className="text-sm font-medium text-hertz-black-80">
-                  Voucher code
+                  {t("booking.promotion_code")}
                 </label>
                 <div className="mt-2 flex gap-2">
                   <input
                     type="text"
                     value={voucherCode}
                     onChange={(e) => setVoucherCode(e.target.value)}
-                    placeholder="Enter voucher code"
+                    placeholder={t("checkout.voucher_placeholder")}
                     className="min-h-tap flex-1 border border-hertz-border px-4 py-3 text-hertz-black-80"
                   />
                   <button
@@ -264,19 +348,19 @@ function CheckoutContent() {
                     onClick={handleApplyVoucher}
                     className="min-h-tap border-2 border-black px-6 font-bold text-black"
                   >
-                    Apply
+                    {t("checkout.apply_voucher")}
                   </button>
                 </div>
                 <p className="mt-2 text-sm text-hertz-black-60">
-                  Try &quot;HERTZ10&quot; for 10% off
+                  {t("checkout.try_hertz10")}
                 </p>
               </div>
               <div className="mt-6">
                 <h3 className="text-sm font-bold text-black">
-                  Optional add-ons
+                  {t("checkout.optional_addons")}
                 </h3>
                 <p className="mt-2 text-sm text-hertz-black-80">
-                  Add-ons can be selected at pick-up.
+                  {t("checkout.addons_at_pickup")}
                 </p>
               </div>
             </div>
@@ -286,30 +370,30 @@ function CheckoutContent() {
           {step === "review" && (
             <div className="border border-hertz-border bg-white p-6">
               <h2 className="mb-6 text-xl font-bold text-black">
-                Review your booking
+                {t("checkout.review_title")}
               </h2>
               <dl className="space-y-3">
                 <div>
-                  <dt className="text-sm text-hertz-black-60">Renter</dt>
+                  <dt className="text-sm text-hertz-black-60">{t("checkout.renter")}</dt>
                   <dd className="font-medium">{renterName}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-hertz-black-60">Email</dt>
+                  <dt className="text-sm text-hertz-black-60">{t("checkout.email")}</dt>
                   <dd className="font-medium">{contactEmail}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-hertz-black-60">Phone</dt>
+                  <dt className="text-sm text-hertz-black-60">{t("checkout.phone")}</dt>
                   <dd className="font-medium">{contactPhone}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-hertz-black-60">Pick-up</dt>
+                  <dt className="text-sm text-hertz-black-60">{t("thankYou.pickup")}</dt>
                   <dd className="font-medium">{pickupLocationName}</dd>
                   <dd className="text-sm text-hertz-black-80">
                     {new Date(pickupAt).toLocaleString()}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-hertz-black-60">Drop-off</dt>
+                  <dt className="text-sm text-hertz-black-60">{t("thankYou.drop_off")}</dt>
                   <dd className="font-medium">{dropoffLocationName}</dd>
                   <dd className="text-sm text-hertz-black-80">
                     {new Date(dropoffAt).toLocaleString()}
@@ -323,15 +407,15 @@ function CheckoutContent() {
           {step === "payment" && (
             <div className="border border-hertz-border bg-white p-6">
               <h2 className="mb-6 text-xl font-bold text-black">
-                {bookingType === "PAY_NOW" ? "Payment" : "Confirm"}
+                {bookingType === "PAY_NOW" ? t("checkout.payment_step") : t("checkout.confirm_step")}
               </h2>
               {bookingType === "PAY_NOW" ? (
                 <p className="text-hertz-black-80">
-                  You will be redirected to complete payment.
+                  {t("checkout.redirect_payment")}
                 </p>
               ) : (
                 <p className="text-hertz-black-80">
-                  Pay at counter when you collect your vehicle.
+                  {t("thankYou.pay_at_counter")}
                 </p>
               )}
             </div>
@@ -351,7 +435,7 @@ function CheckoutContent() {
                   disabled={submitting}
                   className="flex h-12 w-full items-center justify-center bg-hertz-yellow font-bold text-black disabled:opacity-50"
                 >
-                  {submitting ? "Processing..." : "Confirm booking"}
+                  {submitting ? t("checkout.processing") : t("checkout.confirm_booking")}
                 </button>
               ) : (
                 <button
@@ -361,7 +445,7 @@ function CheckoutContent() {
                   disabled={step === "details" ? !canProceedDetails : false}
                   className="flex h-12 w-full items-center justify-center border-2 border-black font-bold text-black disabled:opacity-50"
                 >
-                  Continue
+                  {t("common.continue")}
                 </button>
               )}
               {stepIndex > 0 && (
@@ -370,7 +454,7 @@ function CheckoutContent() {
                   onClick={() => setStep(steps[stepIndex - 1])}
                   className="mt-3 w-full py-2 text-sm font-medium text-hertz-black-80 hover:text-black"
                 >
-                  Back
+                  {t("checkout.back")}
                 </button>
               )}
             </div>
@@ -386,7 +470,7 @@ function CheckoutContent() {
             disabled={submitting}
             className="flex h-12 w-full items-center justify-center bg-hertz-yellow font-bold text-black disabled:opacity-50"
           >
-            {submitting ? "Processing..." : "Confirm booking"}
+            {submitting ? t("checkout.processing") : t("checkout.confirm_booking")}
           </button>
         ) : (
           <div className="flex gap-3">
@@ -396,7 +480,7 @@ function CheckoutContent() {
                 onClick={() => setStep(steps[stepIndex - 1])}
                 className="flex h-12 flex-1 items-center justify-center border-2 border-black font-bold text-black"
               >
-                Back
+                {t("checkout.back")}
               </button>
             )}
             <button
@@ -406,7 +490,7 @@ function CheckoutContent() {
               disabled={step === "details" ? !canProceedDetails : false}
               className="flex h-12 flex-1 items-center justify-center bg-hertz-yellow font-bold text-black disabled:opacity-50"
             >
-              Continue
+              {t("common.continue")}
             </button>
           </div>
         )}

@@ -1,8 +1,10 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { mockHandlers } from "@/lib/mock/handlers";
 import { bookingRefToReservationNo } from "@/lib/mock/data";
 
 export async function POST(request: NextRequest) {
+  getLocaleFromRequest(request);
   const body = await request.json().catch(() => ({}));
   const bookingRef = body.booking_ref?.trim();
 

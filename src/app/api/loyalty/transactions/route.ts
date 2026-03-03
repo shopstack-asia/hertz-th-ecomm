@@ -1,4 +1,6 @@
 import { cookies } from "next/headers";
+import { getLocaleFromRequest } from "@/lib/request-locale";
+import type { ApiLocale } from "@/lib/request-locale";
 import { getSession } from "@/server/mock/session_store";
 import type {
   LoyaltyTransactionsResponse,
@@ -66,6 +68,47 @@ const MOCK_TRANSACTIONS: PointsTransaction[] = [
   },
 ];
 
+const TXN_DESCRIPTIONS: Record<string, Record<ApiLocale, { description: string; admin_note?: string }>> = {
+  txn1: {
+    en: { description: "Rental Booking #BK2026001" },
+    th: { description: "การจองเช่ารถ #BK2026001" },
+    zh: { description: "租车预订 #BK2026001" },
+  },
+  txn2: {
+    en: { description: "300 points → ฿500 discount" },
+    th: { description: "300 คะแนน → ส่วนลด ฿500" },
+    zh: { description: "300 积分 → ฿500 折扣" },
+  },
+  txn3: {
+    en: { description: "Year-end expiry" },
+    th: { description: "คะแนนหมดอายุสิ้นปี" },
+    zh: { description: "年终过期" },
+  },
+  txn4: {
+    en: { description: "Rental Booking #BK2026020" },
+    th: { description: "การจองเช่ารถ #BK2026020" },
+    zh: { description: "租车预订 #BK2026020" },
+  },
+  txn5: {
+    en: { description: "Points correction", admin_note: "Promotional bonus applied." },
+    th: { description: "ปรับคะแนน", admin_note: "โบนัสโปรโมชัน" },
+    zh: { description: "积分调整", admin_note: "已应用促销奖励。" },
+  },
+  txn6: {
+    en: { description: "500 points → ฿700 discount" },
+    th: { description: "500 คะแนน → ส่วนลด ฿700" },
+    zh: { description: "500 积分 → ฿700 折扣" },
+  },
+};
+
+function getLocalizedTransactions(locale: ApiLocale): PointsTransaction[] {
+  return MOCK_TRANSACTIONS.map((t) => {
+    const over = TXN_DESCRIPTIONS[t.id]?.[locale];
+    if (!over) return { ...t };
+    return { ...t, description: over.description, ...(over.admin_note != null && { admin_note: over.admin_note }) };
+  });
+}
+
 const TYPES: PointsTransactionType[] = [
   "EARN",
   "REDEEM",
@@ -108,6 +151,7 @@ function filterByDateRange(
 }
 
 export async function GET(request: Request) {
+  const locale = getLocaleFromRequest(request);
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 
@@ -120,6 +164,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const listBase = getLocalizedTransactions(locale);
   const { searchParams } = new URL(request.url);
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
   const type = searchParams.get("type") ?? "ALL";
@@ -129,7 +174,7 @@ export async function GET(request: Request) {
     | "newest"
     | "oldest";
 
-  let list = filterByType(MOCK_TRANSACTIONS, type);
+  let list = filterByType(listBase, type);
   list = filterByDateRange(list, dateFrom, dateTo);
   list = sortByDate(list, sort);
 

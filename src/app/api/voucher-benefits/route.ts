@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 
 /** Maps voucher benefit type to add-on id covered by voucher. */
 const VOUCHER_TYPE_TO_ADDON_ID: Record<string, string> = {
@@ -15,6 +16,7 @@ export interface VoucherBenefitsResponse {
 
 /** POST body: { voucher_types: string[] } — types of applied vouchers. Returns add-on ids covered. */
 export async function POST(request: NextRequest) {
+  getLocaleFromRequest(request);
   let body: { voucher_types?: string[] };
   try {
     body = await request.json();

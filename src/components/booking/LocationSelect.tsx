@@ -10,6 +10,8 @@ interface LocationSelectProps {
   placeholder?: string;
   disabled?: boolean;
   dark?: boolean;
+  /** When set, show this name when value is set but location not yet in list (e.g. from BookingContext). */
+  displayName?: string;
 }
 
 export function LocationSelect({
@@ -19,6 +21,7 @@ export function LocationSelect({
   placeholder = "Select location",
   disabled,
   dark = false,
+  displayName,
 }: LocationSelectProps) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,10 +41,8 @@ export function LocationSelect({
     fetchLocations(query);
   }, [query, fetchLocations]);
 
-  const displayValue =
-    value && locations.length
-      ? locations.find((l) => l.code === value)?.name ?? value
-      : "";
+  const nameFromList = value && locations.length ? locations.find((l) => l.code === value)?.name : null;
+  const displayValue = open ? query : (nameFromList ?? (value && displayName ? displayName : value ? value : ""));
 
   const inputClass = dark
     ? "min-h-tap w-full border border-white/40 bg-white/10 px-4 py-3 pr-10 text-white placeholder:text-white/60 focus:border-hertz-yellow focus:ring-2 focus:ring-hertz-yellow/30"

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PromotionCardProps {
   offer: {
@@ -25,6 +26,8 @@ function formatDate(iso: string) {
 }
 
 export function PromotionCard({ offer }: PromotionCardProps) {
+  const { t } = useLanguage();
+  const validDate = formatDate(offer.valid_to);
   return (
     <article className="group flex flex-col overflow-hidden border border-hertz-border bg-white transition-all duration-200 ease-out hover:border-[#FFCC00]/60 hover:shadow-card">
       <Link href={`/search?promo=${offer.id}`} className="flex flex-1 flex-col">
@@ -40,7 +43,7 @@ export function PromotionCard({ offer }: PromotionCardProps) {
           </span>
           {offer.is_member_only && (
             <span className="absolute left-3 top-3 border border-white bg-black/70 px-2 py-1 text-xs font-medium text-white">
-              Member Only
+              {t("specialOffers.member_only_badge")}
             </span>
           )}
         </div>
@@ -50,10 +53,10 @@ export function PromotionCard({ offer }: PromotionCardProps) {
             {offer.short_description}
           </p>
           <p className="mt-3 text-xs text-hertz-black-60">
-            Valid until {formatDate(offer.valid_to)}
+            {t("specialOffers.valid_until", { date: validDate })}
           </p>
           <span className="mt-4 inline-block font-bold text-black transition-transform group-hover:translate-x-1">
-            View offer →
+            {t("specialOffers.view_offer")} →
           </span>
         </div>
       </Link>
@@ -62,7 +65,7 @@ export function PromotionCard({ offer }: PromotionCardProps) {
           href={`/search?promo=${offer.id}`}
           className="flex min-h-tap w-full items-center justify-center bg-[#FFCC00] font-bold text-black transition-colors hover:bg-[#FFCC00]/90"
         >
-          Search vehicles
+          {t("specialOffers.search_vehicles")}
         </Link>
       </div>
     </article>

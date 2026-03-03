@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LocationSelect } from "@/components/booking/LocationSelect";
 import { DateTimePicker } from "@/components/booking/DateTimePicker";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useBooking } from "@/contexts/BookingContext";
 
 function toDatetimeLocal(d: Date): string {
   const pad = (n: number) => n.toString().padStart(2, "0");
@@ -14,16 +15,28 @@ function toDatetimeLocal(d: Date): string {
 export function SecondaryBookingBar() {
   const router = useRouter();
   const { t } = useLanguage();
+  const booking = useBooking();
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const [pickupLocation, setPickupLocation] = useState("");
-  const [pickupLocationName, setPickupLocationName] = useState("");
+  const [pickupLocation, setPickupLocationState] = useState(booking.pickupLocation);
+  const [pickupLocationName, setPickupLocationNameState] = useState(booking.pickupLocationName);
   const [pickupDate, setPickupDate] = useState(toDatetimeLocal(today).slice(0, 10));
   const [pickupTime, setPickupTime] = useState("10:00");
   const [dropoffDate, setDropoffDate] = useState(toDatetimeLocal(tomorrow).slice(0, 10));
   const [dropoffTime, setDropoffTime] = useState("10:00");
+
+  useEffect(() => {
+    setPickupLocationState(booking.pickupLocation);
+    setPickupLocationNameState(booking.pickupLocationName);
+  }, [booking.pickupLocation, booking.pickupLocationName]);
+
+  const setPickupLocation = (code: string, name = "") => {
+    setPickupLocationState(code);
+    setPickupLocationNameState(name);
+    booking.setPickupLocation(code, name);
+  };
 
   const handleSearch = () => {
     const pickupAt = `${pickupDate}T${pickupTime}:00`;
@@ -48,8 +61,7 @@ export function SecondaryBookingBar() {
               label={t("booking.pickup_location")}
               value={pickupLocation}
               onChange={(code, loc) => {
-                setPickupLocation(code);
-                setPickupLocationName(loc?.name ?? "");
+                setPickupLocation(code, loc?.name ?? "");
               }}
               placeholder="Location"
             />

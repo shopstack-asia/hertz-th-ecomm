@@ -1,8 +1,11 @@
 "use client";
 
+type TFunction = (key: string) => string;
+
 interface BranchCardProps {
   branch: {
     id: string;
+    code?: string;
     name: string;
     branch_type: string;
     province: string;
@@ -13,7 +16,9 @@ interface BranchCardProps {
   isSelected?: boolean;
   isExpanded?: boolean;
   onSelect?: (id: string) => void;
+  onUseForFilter?: (code: string, name: string) => void;
   onToggleExpand?: (id: string) => void;
+  t: TFunction;
 }
 
 export function BranchCard({
@@ -21,7 +26,9 @@ export function BranchCard({
   isSelected = false,
   isExpanded = false,
   onSelect,
+  onUseForFilter,
   onToggleExpand,
+  t,
 }: BranchCardProps) {
   const isAirport = branch.branch_type === "Airport";
 
@@ -47,7 +54,7 @@ export function BranchCard({
               <h3 className="font-bold text-black">{branch.name}</h3>
               {isAirport && (
                 <span className="bg-[#FFCC00] px-2 py-0.5 text-xs font-bold text-black">
-                  Airport
+                  {t("locations.airport_badge")}
                 </span>
               )}
             </div>
@@ -61,13 +68,33 @@ export function BranchCard({
         {(isExpanded || !onToggleExpand) && (
           <div className="space-y-2 text-sm text-hertz-black-80">
             <p>{branch.address}</p>
-            <p>{branch.phone}</p>
+            <p>
+              <a
+                href={`tel:${branch.phone.replace(/\s/g, "")}`}
+                onClick={(e) => e.stopPropagation()}
+                className="min-h-tap inline-flex font-semibold text-black underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-[#FFCC00]"
+              >
+                {branch.phone}
+              </a>
+            </p>
             <p>{branch.opening_hours}</p>
           </div>
         )}
 
         {(isExpanded || !onToggleExpand) && (
           <div className="flex flex-wrap gap-3 pt-2">
+            {onUseForFilter && branch.code && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUseForFilter(branch.code!, branch.name);
+                }}
+                className="min-h-tap bg-[#FFCC00] px-5 font-bold text-black transition-colors hover:bg-[#FFCC00]/90"
+              >
+                {t("locations.select_location")}
+              </button>
+            )}
             {onSelect && (
               <button
                 type="button"
@@ -75,17 +102,11 @@ export function BranchCard({
                   e.stopPropagation();
                   onSelect(branch.id);
                 }}
-                className="min-h-tap bg-[#FFCC00] px-5 font-bold text-black transition-colors hover:bg-[#FFCC00]/90"
+                className="min-h-tap border border-hertz-border bg-white px-5 font-bold text-black transition-colors hover:border-black hover:bg-hertz-gray"
               >
-                Select this location
+                {t("locations.view_details")} →
               </button>
             )}
-            <a
-              href={`tel:${branch.phone.replace(/\s/g, "")}`}
-              className="min-h-tap inline-flex items-center font-semibold text-black underline-offset-2 hover:underline"
-            >
-              View details →
-            </a>
           </div>
         )}
       </div>

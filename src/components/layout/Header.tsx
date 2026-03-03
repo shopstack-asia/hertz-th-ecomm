@@ -68,7 +68,7 @@ export function Header() {
             <Link
               href="/"
               className="inline-block border-b-2 border-hertz-yellow pb-0.5"
-              aria-label="Hertz Thailand"
+              aria-label={t("common.hertz_thailand")}
             >
               <span className="text-2xl font-bold text-black">Hertz</span>
             </Link>
@@ -177,7 +177,7 @@ export function Header() {
               type="button"
               onClick={() => setMobileOpen(true)}
               className="flex min-h-tap min-w-tap items-center justify-center text-hertz-black-80"
-              aria-label="Open menu"
+              aria-label={t("common.open_menu")}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />

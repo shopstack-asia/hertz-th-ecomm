@@ -1,23 +1,25 @@
 "use client";
 
-const categories = [
-  { value: "", label: "All" },
-  { value: "economy", label: "Economy" },
-  { value: "compact", label: "Compact" },
-  { value: "mid-size", label: "Mid-size" },
-  { value: "suv", label: "SUV" },
-  { value: "premium", label: "Premium" },
-  { value: "luxury", label: "Luxury" },
-  { value: "van", label: "Van" },
-  { value: "hybrid", label: "Hybrid" },
-  { value: "ev", label: "EV" },
-  { value: "pickup", label: "Pickup" },
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const categories: { value: string; key: string }[] = [
+  { value: "", key: "filters.all" },
+  { value: "economy", key: "filters.economy" },
+  { value: "compact", key: "filters.compact" },
+  { value: "mid-size", key: "filters.mid_size" },
+  { value: "suv", key: "filters.suv" },
+  { value: "premium", key: "filters.premium" },
+  { value: "luxury", key: "filters.luxury" },
+  { value: "van", key: "filters.van" },
+  { value: "hybrid", key: "filters.hybrid" },
+  { value: "ev", key: "filters.ev" },
+  { value: "pickup", key: "filters.pickup" },
 ];
 
-const transmission = [
-  { value: "", label: "All" },
-  { value: "A", label: "Automatic" },
-  { value: "M", label: "Manual" },
+const transmissionOptions: { value: string; key: string }[] = [
+  { value: "", key: "filters.all" },
+  { value: "A", key: "filters.automatic" },
+  { value: "M", key: "filters.manual" },
 ];
 
 interface FilterSidebarProps {
@@ -33,11 +35,12 @@ export function FilterSidebar({
   onCategoryChange,
   onTransmissionChange,
 }: FilterSidebarProps) {
+  const { t } = useLanguage();
   return (
     <aside className="w-64 shrink-0 space-y-6">
       <div>
         <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-          Vehicle class
+          {t("filters.vehicle_class")}
         </h3>
         <ul className="mt-3 space-y-1">
           {categories.map((c) => (
@@ -51,7 +54,7 @@ export function FilterSidebar({
                     : "text-hertz-black-80 hover:text-black"
                 }`}
               >
-                {c.label}
+                {t(c.key)}
               </button>
             </li>
           ))}
@@ -59,21 +62,21 @@ export function FilterSidebar({
       </div>
       <div>
         <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-          Transmission
+          {t("filters.transmission")}
         </h3>
         <ul className="mt-3 space-y-1">
-          {transmission.map((t) => (
-            <li key={t.value}>
+          {transmissionOptions.map((opt) => (
+            <li key={opt.value}>
               <button
                 type="button"
-                onClick={() => onTransmissionChange(t.value)}
+                onClick={() => onTransmissionChange(opt.value)}
                 className={`block w-full text-left py-2 text-sm ${
-                  selectedTransmission === t.value
+                  selectedTransmission === opt.value
                     ? "font-bold text-black"
                     : "text-hertz-black-80 hover:text-black"
                 }`}
               >
-                {t.label}
+                {t(opt.key)}
               </button>
             </li>
           ))}

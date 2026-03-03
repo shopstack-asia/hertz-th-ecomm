@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { cookies } from "next/headers";
 import { getSession } from "@/server/mock/session_store";
 import type { VoucherType } from "@/types/voucher";
@@ -242,6 +243,7 @@ function filterAndSort(
 }
 
 export async function GET(request: NextRequest) {
+  getLocaleFromRequest(request);
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 

@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { mockHandlers } from "@/lib/mock/handlers";
 import { bookingRefToReservationNo } from "@/lib/mock/data";
 import type { Reservation } from "@/types/booking";
@@ -65,9 +66,10 @@ function toConfirmationPayload(
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  getLocaleFromRequest(request);
   const { id } = await params;
   const reservationNo = resolveReservationNo(id);
   if (!reservationNo) {

@@ -16,6 +16,7 @@ body {
   line-height: 1.6;
   color: var(--hertz-text-medium);
   background: #ffffff;
+  font-family: var(--font-ibm-plex-sans-thai), "Noto Sans SC", "Noto Sans Thai", system-ui, sans-serif;
 }
 
 h1,
@@ -114,4 +115,49 @@ select:focus-visible {
 }
 .animate-mega-menu {
   animation: megaMenuOpen 0.18s ease-out forwards;
+}
+
+/* Cookie consent bar: slide up on appear, fade out on hide */
+@keyframes cookieConsentFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.cookie-consent-fade-out {
+  animation: cookieConsentFadeOut 0.22s ease-out forwards;
+}
+
+/* Cookie settings modal: overlay fade in, content scale in */
+@keyframes cookieModalOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes cookieModalContentIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.cookie-modal-overlay-in {
+  animation: cookieModalOverlayIn 0.15s ease-out forwards;
+}
+.cookie-modal-content-in {
+  animation: cookieModalContentIn 0.15s ease-out forwards;
+}
+
+@keyframes branchDetailFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.branch-detail-fade-in {
+  animation: branchDetailFadeIn 0.2s ease-out forwards;
 }

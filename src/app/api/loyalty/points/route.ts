@@ -1,10 +1,13 @@
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { getSession } from "@/server/mock/session_store";
 
 const SESSION_COOKIE = "hertz_session";
 
 /** Mock: returns 1200 points for logged-in users, 0 otherwise */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  getLocaleFromRequest(request);
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 

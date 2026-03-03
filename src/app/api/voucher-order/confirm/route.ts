@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { voucherOrders } from "@/lib/mock/voucherPaymentSessions";
 
 function generateVoucherCode(): string {
@@ -11,6 +12,7 @@ function generateVoucherCode(): string {
 }
 
 export async function POST(request: NextRequest) {
+  getLocaleFromRequest(request);
   let body: { order_ref?: string };
   try {
     body = await request.json();

@@ -14,7 +14,7 @@ import {
   createMockPricingBreakdown,
   generateReservationNo,
 } from "./data";
-import { getVehicleDetailByGroupCode } from "./searchVehicles";
+import { getVehicleDetailByGroupCode, type MockLocale } from "./searchVehicles";
 
 export const mockHandlers = {
   locations: {
@@ -42,8 +42,8 @@ export const mockHandlers = {
   },
 
   vehicle: {
-    getByGroupCode: async (groupCode: string): Promise<VehicleDetail | null> => {
-      return mockVehicleGroups[groupCode] ?? getVehicleDetailByGroupCode(groupCode) ?? null;
+    getByGroupCode: async (groupCode: string, locale?: MockLocale): Promise<VehicleDetail | null> => {
+      return mockVehicleGroups[groupCode] ?? getVehicleDetailByGroupCode(groupCode, locale) ?? null;
     },
   },
 

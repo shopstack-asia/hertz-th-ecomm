@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { BreakdownLine } from "@/app/api/checkout/price/route";
 
 interface LineItem {
@@ -65,6 +66,7 @@ export function CheckoutPricePanel({
   pointsUsed,
   benefitVouchersApplied,
 }: CheckoutPricePanelProps) {
+  const { t } = useLanguage();
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const disabled = !isValid || loading;
 
@@ -76,7 +78,7 @@ export function CheckoutPricePanel({
         loading ? "opacity-70" : "opacity-100"
       } ${className}`}
     >
-      <h3 className="text-lg font-bold text-black">Price summary</h3>
+      <h3 className="text-lg font-bold text-black">{t("checkout.price_summary")}</h3>
 
       {hasBreakdown ? (
         <>
@@ -95,7 +97,7 @@ export function CheckoutPricePanel({
               </div>
             ))}
             <div className="flex justify-between border-t border-hertz-border pt-2 text-sm">
-              <span className="text-hertz-black-80">Subtotal</span>
+              <span className="text-hertz-black-80">{t("checkout.subtotal")}</span>
               <AnimatedAmount amount={breakdown.subtotal} className="font-medium text-black" />
             </div>
             {breakdown.voucher_lines.map((v, i) => (
@@ -124,7 +126,7 @@ export function CheckoutPricePanel({
               <AnimatedAmount amount={breakdown.vat.amount} className="font-medium text-black" />
             </div>
             <div className="flex justify-between border-t border-hertz-border pt-2 text-sm font-bold">
-              <span className="text-black">Total</span>
+              <span className="text-black">{t("thankYou.total")}</span>
               <AnimatedAmount amount={breakdown.total} className="text-black" />
             </div>
           </div>
@@ -133,7 +135,7 @@ export function CheckoutPricePanel({
             onClick={() => setBreakdownOpen((o) => !o)}
             className="mt-2 flex w-full items-center justify-between text-sm font-medium text-hertz-black-80 hover:text-black"
           >
-            {breakdownOpen ? "Hide breakdown" : "Show full breakdown"}
+            {breakdownOpen ? t("checkout.hide_breakdown") : t("checkout.show_full_breakdown")}
             <span className="transition-transform duration-200">{breakdownOpen ? "−" : "+"}</span>
           </button>
           {breakdownOpen && (
@@ -168,26 +170,26 @@ export function CheckoutPricePanel({
 
       {benefitVouchersApplied && (
         <div className="mb-3 flex items-center gap-2 border border-[#FFCC00] bg-[#FFCC00]/10 px-3 py-2">
-          <span className="text-sm font-medium text-black">Benefit voucher(s) applied</span>
+          <span className="text-sm font-medium text-black">{t("checkout.benefit_vouchers_applied")}</span>
         </div>
       )}
       {appliedVouchers && appliedVouchers.length > 0 && (
         <div className="mb-2 space-y-1 text-xs text-hertz-black-80">
           {appliedVouchers.map((v) => (
             <div key={v.code}>
-              Voucher: {v.label} — -฿{v.amount.toLocaleString()}
+              {t("checkout.voucher_label")}: {v.label} — -฿{v.amount.toLocaleString()}
             </div>
           ))}
         </div>
       )}
       {appliedCampaign && appliedCampaign.amount > 0 && (
         <div className="mb-2 text-xs text-hertz-black-80">
-          Campaign: {appliedCampaign.label} — -฿{appliedCampaign.amount.toLocaleString()}
+          {t("checkout.campaign_label")}: {appliedCampaign.label} — -฿{appliedCampaign.amount.toLocaleString()}
         </div>
       )}
       {pointsUsed && pointsUsed.amount > 0 && (
         <div className="mb-2 text-xs text-hertz-black-80">
-          Points: {pointsUsed.label} — -฿{pointsUsed.amount.toLocaleString()}
+          {t("checkout.points_label")}: {pointsUsed.label} — -฿{pointsUsed.amount.toLocaleString()}
         </div>
       )}
 
@@ -198,7 +200,7 @@ export function CheckoutPricePanel({
           disabled={disabled}
           className="flex h-12 w-full items-center justify-center border-2 border-black bg-white font-bold text-black transition-all duration-200 hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
         >
-          Pay later — <AnimatedAmount amount={payLaterTotal} className="ml-1" />
+          {t("checkout.pay_later_btn")} — <AnimatedAmount amount={payLaterTotal} className="ml-1" />
         </button>
         <button
           type="button"
@@ -206,7 +208,7 @@ export function CheckoutPricePanel({
           disabled={disabled}
           className="flex h-12 w-full items-center justify-center bg-[#FFCC00] font-bold text-black transition-all duration-200 hover:bg-[#FFCC00]/90 disabled:pointer-events-none disabled:opacity-50"
         >
-          Pay now — <AnimatedAmount amount={payNowTotal} className="ml-1" />
+          {t("checkout.pay_now_btn")} — <AnimatedAmount amount={payNowTotal} className="ml-1" />
         </button>
       </div>
     </div>

@@ -34,18 +34,25 @@ interface ConfirmationData {
 
 const CARD_ANIMATION_DELAY = 80;
 
+function getIntlLocale(locale: string): string {
+  if (locale === "th") return "th-TH";
+  if (locale === "zh") return "zh-CN";
+  return "en-GB";
+}
+
 function formatDate(dateStr: string, locale: string): string {
-  return new Date(dateStr).toLocaleDateString(
-    locale === "th" ? "th-TH" : "en-GB",
-    { day: "2-digit", month: "short", year: "numeric" }
-  );
+  return new Date(dateStr).toLocaleDateString(getIntlLocale(locale), {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function formatTime(dateStr: string, locale: string): string {
-  return new Date(dateStr).toLocaleTimeString(
-    locale === "th" ? "th-TH" : "en-GB",
-    { hour: "2-digit", minute: "2-digit" }
-  );
+  return new Date(dateStr).toLocaleTimeString(getIntlLocale(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function formatMoney(amount: number, currency: string): string {
@@ -66,7 +73,7 @@ function ThankYouContent() {
 
   useEffect(() => {
     if (!reservationId) {
-      setError("Missing booking reference");
+      setError("thankYou.missing_reference");
       setLoading(false);
       return;
     }
@@ -74,12 +81,12 @@ function ThankYouContent() {
       .then((r) => r.json())
       .then((res) => {
         if (res.error) {
-          setError(res.error);
+          setError("thankYou.not_found");
           return;
         }
         setData(res);
       })
-      .catch(() => setError("Failed to load booking"))
+      .catch(() => setError("thankYou.load_failed"))
       .finally(() => setLoading(false));
   }, [reservationId]);
 
@@ -113,7 +120,7 @@ function ThankYouContent() {
     return (
       <div className="mx-auto max-w-container px-4 py-12 sm:px-6">
         <div className="mx-auto max-w-lg rounded-2xl border border-[#E5E7EB] bg-white p-8 text-center shadow-sm">
-          <p className="text-red-600">{error ?? t("thankYou.not_found")}</p>
+          <p className="text-red-600">{error ? t(error) : t("thankYou.not_found")}</p>
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-xl bg-hertz-yellow px-6 font-semibold text-hertz-black-90"

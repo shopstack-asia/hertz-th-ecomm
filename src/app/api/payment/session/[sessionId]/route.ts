@@ -1,11 +1,13 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { paymentSessions } from "@/lib/mock/paymentSessions";
 import { voucherPaymentSessions } from "@/lib/mock/voucherPaymentSessions";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
+  getLocaleFromRequest(request);
   const { sessionId } = await params;
   const bookingSession = paymentSessions[sessionId];
   if (bookingSession) {

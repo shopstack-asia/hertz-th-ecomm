@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FormField } from "@/components/ui/FormField";
 import { OtpInput } from "@/components/auth/OtpInput";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const STORAGE_KEY = "hertz_fp";
 const RESEND_COOLDOWN_SEC = 30;
@@ -43,6 +44,7 @@ function clearStored() {
 function ForgotPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const [step, setStep] = useState<Step>("request");
   const [email, setEmail] = useState("");
   const [otpRef, setOtpRef] = useState("");
@@ -93,26 +95,26 @@ function ForgotPasswordContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error === "Email not found" ? "Email not found" : data.error ?? "Failed to send OTP");
+        setError(data.error === "Email not found" ? t("auth.email_not_found") : data.error ?? t("auth.failed_send_otp"));
         setLoading(false);
         return;
       }
       setOtpRef(data.otp_ref ?? "");
       saveStored(email.trim(), data.otp_ref ?? "", "verify");
-      setSuccessToast("OTP sent to your email");
+      setSuccessToast(t("auth.otp_sent_toast"));
       setResendCooldown(RESEND_COOLDOWN_SEC);
       setStep("verify");
       setOtp("");
     } catch {
-      setError("Failed to send OTP");
+      setError(t("auth.failed_send_otp"));
     } finally {
       setLoading(false);
     }
-  }, [email]);
+  }, [email, t]);
 
   const handleVerifyOtp = useCallback(async () => {
     if (otp.replace(/\D/g, "").length !== 6) {
-      setError("Enter 6-digit code");
+      setError(t("auth.enter_6_digit"));
       return;
     }
     setError(null);
@@ -131,10 +133,10 @@ function ForgotPasswordContent() {
       if (!res.ok) {
         setError(
           data.error === "OTP_EXPIRED"
-            ? "Code expired. Please request a new one."
+            ? t("auth.code_expired")
             : data.error === "INVALID_OTP"
-              ? "Invalid or expired code. Try again or resend."
-              : data.error ?? "Verification failed"
+              ? t("auth.invalid_otp")
+              : data.error ?? t("auth.verification_failed")
         );
         setLoading(false);
         return;
@@ -145,23 +147,23 @@ function ForgotPasswordContent() {
       setConfirmPassword("");
       setError(null);
     } catch {
-      setError("Verification failed");
+      setError(t("auth.verification_failed"));
     } finally {
       setLoading(false);
     }
-  }, [email, otp, otpRef]);
+  }, [email, otp, otpRef, t]);
 
   const handleReset = useCallback(async () => {
     if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError(t("auth.password_min_length"));
       return;
     }
     if (!/.*[a-zA-Z].*/.test(newPassword) || !/.*[0-9].*/.test(newPassword)) {
-      setError("Password must contain letters and numbers");
+      setError(t("auth.password_letters_numbers"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("auth.passwords_no_match"));
       return;
     }
     setError(null);
@@ -178,18 +180,18 @@ function ForgotPasswordContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error === "OTP_NOT_VERIFIED" ? "Session expired. Please start again." : data.error ?? "Update failed");
+        setError(data.error === "OTP_NOT_VERIFIED" ? t("auth.session_expired_start") : data.error ?? t("auth.update_failed"));
         setLoading(false);
         return;
       }
       clearStored();
       router.push("/account/login?reset=success");
     } catch {
-      setError("Update failed");
+      setError(t("auth.update_failed"));
     } finally {
       setLoading(false);
     }
-  }, [email, otpRef, newPassword, confirmPassword, router]);
+  }, [email, otpRef, newPassword, confirmPassword, router, t]);
 
   const handleResendOtp = useCallback(async () => {
     if (resendCooldown > 0) return;
@@ -203,20 +205,20 @@ function ForgotPasswordContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Resend failed");
+        setError(data.error ?? t("auth.resend_failed"));
       } else {
         setOtpRef(data.otp_ref ?? otpRef);
         if (data.otp_ref) saveStored(email.trim(), data.otp_ref, "verify");
-        setSuccessToast("OTP sent to your email");
+        setSuccessToast(t("auth.otp_sent_toast"));
         setResendCooldown(RESEND_COOLDOWN_SEC);
         setOtp("");
       }
     } catch {
-      setError("Resend failed");
+      setError(t("auth.resend_failed"));
     } finally {
       setLoading(false);
     }
-  }, [email, otpRef, resendCooldown]);
+  }, [email, otpRef, resendCooldown, t]);
 
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
@@ -234,10 +236,10 @@ function ForgotPasswordContent() {
       {step === "request" && (
         <div className="animate-fade-in">
           <h1 className="mb-1 text-2xl font-bold text-hertz-black-90">
-            Forgot password
+            {t("auth.forgot_title")}
           </h1>
           <p className="mb-6 text-sm text-hertz-black-60">
-            Enter your email to receive a one-time code.
+            {t("auth.forgot_intro")}
           </p>
           <form
             onSubmit={(e) => {
@@ -247,7 +249,7 @@ function ForgotPasswordContent() {
             className="rounded-2xl border border-gray-200 bg-white p-6 shadow-card"
           >
             <FormField
-              label="Email"
+              label={t("auth.email")}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -264,13 +266,13 @@ function ForgotPasswordContent() {
               disabled={loading || !isValidEmail}
               className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Sending…" : "Send OTP"}
+              {loading ? t("auth.sending") : t("auth.send_otp")}
             </button>
             <Link
               href="/account/login"
               className="mt-4 block text-center text-sm text-hertz-black-60 hover:underline"
             >
-              Back to log in
+              {t("auth.back_to_login")}
             </Link>
           </form>
         </div>
@@ -279,10 +281,10 @@ function ForgotPasswordContent() {
       {step === "verify" && (
         <div className="animate-fade-in">
           <h1 className="mb-1 text-2xl font-bold text-hertz-black-90">
-            Enter OTP
+            {t("auth.enter_otp")}
           </h1>
           <p className="mb-6 text-sm text-hertz-black-60">
-            We sent a 6-digit code to {email}
+            {t("auth.otp_sent_to", { email })}
           </p>
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-card">
             <OtpInput
@@ -291,7 +293,7 @@ function ForgotPasswordContent() {
               length={6}
               disabled={loading}
               error={!!error}
-              aria-label="One-time password"
+              aria-label={t("auth.otp_aria")}
             />
             {error && (
               <p className="mt-3 text-sm text-red-600" role="alert">
@@ -304,7 +306,7 @@ function ForgotPasswordContent() {
               disabled={loading || otp.replace(/\D/g, "").length !== 6}
               className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Verifying…" : "Verify"}
+              {loading ? t("auth.verifying") : t("auth.verify")}
             </button>
             <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
               <button
@@ -314,8 +316,8 @@ function ForgotPasswordContent() {
                 className="text-sm font-medium text-hertz-black-80 disabled:opacity-50 hover:underline"
               >
                 {resendCooldown > 0
-                  ? `Resend OTP (${resendCooldown}s)`
-                  : "Resend OTP"}
+                  ? t("auth.resend_otp_seconds", { seconds: resendCooldown })
+                  : t("auth.resend_otp")}
               </button>
               <button
                 type="button"
@@ -327,11 +329,11 @@ function ForgotPasswordContent() {
                 }}
                 className="text-sm text-hertz-black-60 hover:underline"
               >
-                Change email
+                {t("auth.change_email")}
               </button>
             </div>
             <p className="mt-4 text-center text-xs text-hertz-black-60">
-              Mock: ใช้รหัส OTP <strong>123456</strong>
+              {t("auth.mock_otp_hint")} <strong>123456</strong>
             </p>
           </div>
         </div>
@@ -340,15 +342,15 @@ function ForgotPasswordContent() {
       {step === "reset" && (
         <div className="animate-fade-in">
           <h1 className="mb-1 text-2xl font-bold text-hertz-black-90">
-            Create new password
+            {t("auth.create_new_password")}
           </h1>
           <p className="mb-6 text-sm text-hertz-black-60">
-            Choose a strong password for your account.
+            {t("auth.choose_password")}
           </p>
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-card">
             <div className="space-y-4">
               <FormField
-                label="New password"
+                label={t("auth.new_password")}
                 type={showPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -356,7 +358,7 @@ function ForgotPasswordContent() {
                 autoComplete="new-password"
               />
               <FormField
-                label="Confirm new password"
+                label={t("auth.confirm_new_password")}
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -367,14 +369,14 @@ function ForgotPasswordContent() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="inline-flex items-center gap-2 text-sm text-hertz-black-60 hover:text-hertz-black-80 hover:underline"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? t("auth.hide_password") : t("auth.show_password")}
               >
                 {showPassword ? (
                   <>
                     <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     </svg>
-                    Hide password
+                    {t("auth.hide_password")}
                   </>
                 ) : (
                   <>
@@ -382,13 +384,13 @@ function ForgotPasswordContent() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    Show password
+                    {t("auth.show_password")}
                   </>
                 )}
               </button>
             </div>
             <p className="mt-2 text-xs text-hertz-black-60">
-              At least 8 characters, with letters and numbers.
+              {t("auth.password_hint")}
             </p>
             {error && (
               <p className="mt-2 text-sm text-red-600" role="alert">
@@ -401,14 +403,14 @@ function ForgotPasswordContent() {
               disabled={loading}
               className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Updating…" : "Update password"}
+              {loading ? t("auth.updating") : t("auth.update_password")}
             </button>
             <button
               type="button"
               onClick={() => setStep("verify")}
               className="mt-4 block w-full text-center text-sm text-hertz-black-60 hover:underline"
             >
-              Back
+              {t("auth.back")}
             </button>
           </div>
         </div>
@@ -417,9 +419,14 @@ function ForgotPasswordContent() {
   );
 }
 
+function ForgotPasswordFallback() {
+  const { t } = useLanguage();
+  return <div className="mx-auto max-w-md px-4 py-8">{t("auth.loading")}</div>;
+}
+
 export default function ForgotPasswordPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-8">Loading…</div>}>
+    <Suspense fallback={<ForgotPasswordFallback />}>
       <ForgotPasswordContent />
     </Suspense>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { PageTemplate } from "@/components/layout/PageTemplate";
 import { PromotionCard } from "@/components/special-offers/PromotionCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ApiOffer {
   id: string;
@@ -23,19 +24,20 @@ interface ApiResponse {
   data: ApiOffer[];
 }
 
-const PROMOTION_TYPES = [
-  { value: "", label: "All types" },
-  { value: "Pay Now Discount", label: "Pay Now Discount" },
-  { value: "Long Rental Deal", label: "Long Rental Deal" },
-  { value: "Member Exclusive", label: "Member Exclusive" },
-  { value: "Airport Special", label: "Airport Special" },
-  { value: "Early Bird", label: "Early Bird" },
-  { value: "EV Promotion", label: "EV Promotion" },
+const PROMOTION_TYPES: { value: string; key: string }[] = [
+  { value: "", key: "specialOffers.type_all" },
+  { value: "Pay Now Discount", key: "specialOffers.type_pay_now" },
+  { value: "Long Rental Deal", key: "specialOffers.type_long_rental" },
+  { value: "Member Exclusive", key: "specialOffers.type_member_exclusive" },
+  { value: "Airport Special", key: "specialOffers.type_airport" },
+  { value: "Early Bird", key: "specialOffers.type_early_bird" },
+  { value: "EV Promotion", key: "specialOffers.type_ev" },
 ];
 
 const PAGE_SIZE = 6;
 
 function SpecialOffersContent() {
+  const { t } = useLanguage();
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [promotionType, setPromotionType] = useState("");
@@ -83,12 +85,11 @@ function SpecialOffersContent() {
 
   return (
     <PageTemplate
-      title="Special Offers"
-      breadcrumb={[{ label: "Home", href: "/" }, { label: "Special Offers" }]}
+      title={t("specialOffers.page_title")}
+      breadcrumb={[{ label: t("common.home"), href: "/" }, { label: t("specialOffers.breadcrumb") }]}
     >
       <p className="text-[#434244]">
-        Explore our latest promotions and special offers on car rentals across
-        Thailand.
+        {t("specialOffers.intro")}
       </p>
 
       <div className="mt-8 flex flex-col gap-6">
@@ -97,11 +98,11 @@ function SpecialOffersContent() {
             value={promotionType}
             onChange={(e) => updateFilter({ promotionType: e.target.value })}
             className="min-h-tap border border-hertz-border bg-white px-4 py-3 text-sm font-medium text-[#434244] focus:border-[#FFCC00] focus:ring-2 focus:ring-[#FFCC00]/30"
-            aria-label="Filter by promotion type"
+            aria-label={t("specialOffers.filter_by_type")}
           >
-            {PROMOTION_TYPES.map((t) => (
-              <option key={t.value || "all"} value={t.value}>
-                {t.label}
+            {PROMOTION_TYPES.map((typeOpt) => (
+              <option key={typeOpt.value || "all"} value={typeOpt.value}>
+                {t(typeOpt.key)}
               </option>
             ))}
           </select>
@@ -114,10 +115,10 @@ function SpecialOffersContent() {
               }
               className="h-4 w-4 border-hertz-border"
             />
-            <span className="text-sm text-[#434244]">Member only</span>
+            <span className="text-sm text-[#434244]">{t("specialOffers.member_only")}</span>
           </label>
           <p className="ml-auto text-sm text-hertz-black-80">
-            {loading ? "Loading…" : `${total} offer${total !== 1 ? "s" : ""} found`}
+            {loading ? t("specialOffers.loading") : total === 1 ? t("specialOffers.offer_found_one") : t("specialOffers.offers_found", { count: total })}
           </p>
         </div>
 
@@ -130,7 +131,7 @@ function SpecialOffersContent() {
         ) : offers.length === 0 ? (
           <div className="rounded border border-hertz-border bg-white p-12 text-center">
             <p className="text-hertz-black-80">
-              No active offers match your filters. Try adjusting your selection.
+              {t("specialOffers.no_match")}
             </p>
             <button
               type="button"
@@ -143,7 +144,7 @@ function SpecialOffersContent() {
               }
               className="mt-4 font-bold text-black underline hover:no-underline"
             >
-              Clear filters
+              {t("specialOffers.clear_filters")}
             </button>
           </div>
         ) : (
@@ -157,16 +158,16 @@ function SpecialOffersContent() {
             {totalPages > 1 && (
               <nav
                 className="flex flex-wrap items-center justify-center gap-2"
-                aria-label="Pagination"
+                aria-label={t("common.pagination")}
               >
                 <button
                   type="button"
                   onClick={() => updateFilter({ page: currentPage - 1 })}
                   disabled={currentPage <= 1}
                   className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
-                  aria-label="Previous page"
+                  aria-label={t("common.previous")}
                 >
-                  ← Previous
+                  ← {t("specialOffers.previous")}
                 </button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -195,9 +196,9 @@ function SpecialOffersContent() {
                   onClick={() => updateFilter({ page: currentPage + 1 })}
                   disabled={currentPage >= totalPages}
                   className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
-                  aria-label="Next page"
+                  aria-label={t("common.next")}
                 >
-                  Next →
+                  {t("specialOffers.next")} →
                 </button>
               </nav>
             )}

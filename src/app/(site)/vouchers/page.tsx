@@ -4,32 +4,33 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { VoucherProductTile } from "@/components/voucher/VoucherProductTile";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { VoucherCatalogItem } from "@/app/api/vouchers/catalog/route";
 
-const CATEGORIES = [
-  { value: "", label: "All" },
-  { value: "gift", label: "Gift vouchers" },
-  { value: "travel", label: "Travel vouchers" },
-  { value: "corporate", label: "Corporate vouchers" },
+const CATEGORIES: { value: string; key: string }[] = [
+  { value: "", key: "vouchers.category_all" },
+  { value: "gift", key: "vouchers.category_gift" },
+  { value: "travel", key: "vouchers.category_travel" },
+  { value: "corporate", key: "vouchers.category_corporate" },
 ];
 
-const TYPES = [
-  { value: "", label: "All" },
-  { value: "FIXED", label: "Fixed value" },
-  { value: "PERCENT", label: "Discount %" },
-  { value: "BENEFIT", label: "Free add-ons" },
+const TYPES: { value: string; key: string }[] = [
+  { value: "", key: "vouchers.type_all" },
+  { value: "FIXED", key: "vouchers.type_fixed" },
+  { value: "PERCENT", key: "vouchers.type_percent" },
+  { value: "BENEFIT", key: "vouchers.type_benefit" },
 ];
 
-function formatValidity(days: number): string {
-  if (days >= 365) return "Valid 1 year";
-  if (days >= 180) return "Valid 6 months";
-  return `Valid ${days} days`;
+function formatValidity(t: (key: string, params?: Record<string, number>) => string, days: number): string {
+  if (days >= 365) return t("vouchers.valid_1_year");
+  if (days >= 180) return t("vouchers.valid_6_months");
+  return t("vouchers.valid_days", { days });
 }
 
-function VoucherListingCard({ v }: { v: VoucherCatalogItem }) {
+function VoucherListingCard({ v, t }: { v: VoucherCatalogItem; t: (key: string, params?: Record<string, string | number>) => string }) {
   const saveAmount = v.type === "FIXED" ? v.value - v.selling_price : 0;
   const saveBadge =
-    saveAmount > 0 ? `Save ฿${saveAmount.toLocaleString()}` : undefined;
+    saveAmount > 0 ? t("vouchers.save_amount", { amount: saveAmount.toLocaleString() }) : undefined;
 
   return (
     <Link
@@ -51,16 +52,16 @@ function VoucherListingCard({ v }: { v: VoucherCatalogItem }) {
           {v.description}
         </p>
         <p className="mt-1 text-sm text-hertz-black-80">
-          Pay ฿{v.selling_price.toLocaleString()}
+          {t("vouchers.pay_amount", { amount: v.selling_price.toLocaleString() })}
         </p>
         <p className="mt-1 text-xs text-hertz-black-60">
-          {formatValidity(v.validity_days)}
+          {formatValidity(t, v.validity_days)}
         </p>
         {saveBadge && (
           <p className="mt-1 text-xs font-medium text-green-700">{saveBadge}</p>
         )}
         <span className="mt-4 inline-block border-2 border-black px-4 py-2 text-center text-sm font-bold text-black">
-          View Details
+          {t("vouchers.view_details")}
         </span>
       </div>
     </Link>
@@ -70,6 +71,7 @@ function VoucherListingCard({ v }: { v: VoucherCatalogItem }) {
 function VouchersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const typeFilter = searchParams.get("type") ?? "";
   const categoryFilter = searchParams.get("category") ?? "";
   const priceMin = searchParams.get("price_min") ?? "";
@@ -117,14 +119,14 @@ function VouchersContent() {
     <div className="min-h-screen bg-[#F8F8F8]">
       <div className="mx-auto max-w-container px-6 py-10 lg:py-14">
         <h1 className="mb-8 text-2xl font-bold text-black lg:text-3xl">
-          Vouchers
+          {t("vouchers.page_title")}
         </h1>
 
       {paymentCancelled && (
         <div className="mb-6 border border-hertz-border bg-hertz-gray p-4">
-          <p className="text-sm font-medium text-black">Payment was cancelled.</p>
+          <p className="text-sm font-medium text-black">{t("vouchers.payment_cancelled_title")}</p>
           <p className="mt-1 text-sm text-hertz-black-80">
-            You can select a voucher and try again when ready.
+            {t("vouchers.payment_cancelled_body")}
           </p>
         </div>
       )}
@@ -134,21 +136,21 @@ function VouchersContent() {
           <div className="space-y-6">
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-                Voucher type
+                {t("vouchers.voucher_type")}
               </h3>
               <ul className="mt-3 space-y-1">
-                {TYPES.map((t) => (
-                  <li key={t.value}>
+                {TYPES.map((typeOpt) => (
+                  <li key={typeOpt.value}>
                     <button
                       type="button"
-                      onClick={() => updateFilter({ type: t.value })}
+                      onClick={() => updateFilter({ type: typeOpt.value })}
                       className={`block w-full py-2 text-left text-sm ${
-                        typeFilter === t.value
+                        typeFilter === typeOpt.value
                           ? "font-bold text-black"
                           : "text-hertz-black-80 hover:text-black"
                       }`}
                     >
-                      {t.label}
+                      {t(typeOpt.key)}
                     </button>
                   </li>
                 ))}
@@ -156,7 +158,7 @@ function VouchersContent() {
             </div>
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-                Category
+                {t("vouchers.category")}
               </h3>
               <ul className="mt-3 space-y-1">
                 {CATEGORIES.map((c) => (
@@ -170,7 +172,7 @@ function VouchersContent() {
                           : "text-hertz-black-80 hover:text-black"
                       }`}
                     >
-                      {c.label}
+                      {t(c.key)}
                     </button>
                   </li>
                 ))}
@@ -178,19 +180,19 @@ function VouchersContent() {
             </div>
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-                Price range (฿)
+                {t("vouchers.price_range")}
               </h3>
               <div className="mt-3 flex gap-2">
                 <input
                   type="number"
-                  placeholder="Min"
+                  placeholder={t("vouchers.min")}
                   value={priceMin}
                   onChange={(e) => updateFilter({ price_min: e.target.value })}
                   className="w-24 border border-hertz-border px-2 py-2 text-sm"
                 />
                 <input
                   type="number"
-                  placeholder="Max"
+                  placeholder={t("vouchers.max")}
                   value={priceMax}
                   onChange={(e) => updateFilter({ price_max: e.target.value })}
                   className="w-24 border border-hertz-border px-2 py-2 text-sm"
@@ -203,8 +205,10 @@ function VouchersContent() {
         <div className="flex-1">
           <p className="mb-4 text-sm text-hertz-black-80">
             {loading
-              ? "Loading…"
-              : `${filtered.length} voucher${filtered.length !== 1 ? "s" : ""} found`}
+              ? t("vouchers.loading")
+              : filtered.length === 1
+                ? t("vouchers.voucher_found_one")
+                : t("vouchers.vouchers_found", { count: filtered.length })}
           </p>
 
           {loading ? (
@@ -216,7 +220,7 @@ function VouchersContent() {
           ) : filtered.length === 0 ? (
             <div className="rounded border border-hertz-border bg-white p-12 text-center">
               <p className="text-hertz-black-80">
-                No vouchers match your filters.
+                {t("vouchers.no_match")}
               </p>
               <button
                 type="button"
@@ -230,13 +234,13 @@ function VouchersContent() {
                 }
                 className="mt-4 font-bold text-black underline hover:no-underline"
               >
-                Clear filters
+                {t("vouchers.clear_filters")}
               </button>
             </div>
           ) : (
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((v) => (
-                <VoucherListingCard key={v.id} v={v} />
+                <VoucherListingCard key={v.id} v={v} t={t} />
               ))}
             </div>
           )}

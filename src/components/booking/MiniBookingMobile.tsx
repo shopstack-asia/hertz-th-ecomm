@@ -2,38 +2,106 @@
 
 import { useBooking } from "@/contexts/BookingContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePromotionOptional } from "@/contexts/PromotionContext";
 
 interface MiniBookingMobileProps {
   onOpenSheet: () => void;
 }
 
+function formatDateRow(d: string): string {
+  if (!d) return "—";
+  const date = new Date(d + "T12:00:00");
+  const day = date.getDate();
+  const month = date.toLocaleDateString("en-GB", { month: "short" }).toUpperCase();
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
+}
+
+function formatTime(t: string): string {
+  if (!t) return "—";
+  const [h, m] = t.split(":");
+  return `${h.padStart(2, "0")}:${(m ?? "00").padStart(2, "0")}`;
+}
+
+const ROW_DIVIDER = "border-b border-[#e5e5e5]";
+
 export function MiniBookingMobile({ onOpenSheet }: MiniBookingMobileProps) {
   const { t } = useLanguage();
-  const { pickupLocationName, pickupDate, dropoffDate } = useBooking();
+  const promotion = usePromotionOptional();
+  const {
+    pickupLocationName,
+    dropoffLocationName,
+    sameAsPickup,
+    pickupDate,
+    pickupTime,
+    dropoffDate,
+    dropoffTime,
+  } = useBooking();
 
-  const formatDate = (d: string) =>
-    d ? new Date(d + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—";
-  const pickupDisplay = pickupLocationName || t("booking.pickup_location");
-  const datesDisplay =
-    pickupDate && dropoffDate
-      ? `${formatDate(pickupDate)} - ${formatDate(dropoffDate)}`
-      : "—";
+  const pickupDisplay = pickupLocationName || "—";
+  const dropoffDisplay = sameAsPickup ? pickupDisplay : dropoffLocationName || "—";
+
+  const hasPromo = promotion?.promoCode != null && promotion.promoCode !== "";
+
+  const blockBase =
+    "flex min-h-tap flex-col justify-center py-3 text-left transition-colors duration-150 hover:bg-gray-50/80 active:bg-gray-100";
 
   return (
-    <button
-      type="button"
-      onClick={onOpenSheet}
-      className="flex min-h-tap w-full items-center justify-between gap-4 px-4 py-3"
-    >
-      <div className="flex-1 text-left">
-        <p className="truncate text-sm font-medium text-black">
-          {pickupDisplay}
+    <div className="flex flex-col px-4">
+      {/* Block 1 – Pickup */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onOpenSheet}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenSheet(); } }}
+        className={`${blockBase} ${ROW_DIVIDER} cursor-pointer`}
+      >
+        <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-sm leading-tight">
+          <span className="text-hertz-black-60">{t("booking.pickup_location")}:</span>
+          <span className="font-bold text-black">{pickupDisplay}</span>
+          <span className="text-hertz-black-70">{formatDateRow(pickupDate)} {formatTime(pickupTime)}</span>
         </p>
-        <p className="text-xs text-hertz-black-60">{datesDisplay}</p>
       </div>
-      <span className="flex min-h-tap shrink-0 items-center bg-hertz-yellow px-5 font-bold text-black">
-        {t("booking.modify_search")}
-      </span>
-    </button>
+
+      {/* Block 2 – Drop-off */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onOpenSheet}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenSheet(); } }}
+        className={`${blockBase} ${ROW_DIVIDER} cursor-pointer`}
+      >
+        <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-sm leading-tight">
+          <span className="text-hertz-black-60">{t("booking.dropoff_location")}:</span>
+          <span className="font-bold text-black">{dropoffDisplay}</span>
+          <span className="text-hertz-black-70">{formatDateRow(dropoffDate)} {formatTime(dropoffTime)}</span>
+        </p>
+      </div>
+
+      {/* Block 3 – Promotion */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onOpenSheet}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenSheet(); } }}
+        className={`${blockBase} cursor-pointer`}
+      >
+        <span className="text-xs text-hertz-black-60">{t("booking.apply_promotion")}</span>
+        <div className="mt-1 flex items-center gap-1.5">
+          {hasPromo ? (
+            <span
+              className="inline-flex items-center rounded border border-[#e5c700] bg-[#FFF6CC] px-2.5 py-1.5 text-xs font-bold leading-none uppercase tracking-wide text-black transition-opacity duration-150"
+              role="status"
+            >
+              {promotion.promoCode}
+            </span>
+          ) : (
+            <span className="text-sm font-medium text-hertz-black-70 underline decoration-hertz-black-50 underline-offset-2">
+              {t("booking.apply_promotion")}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

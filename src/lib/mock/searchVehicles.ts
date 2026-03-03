@@ -1,5 +1,66 @@
 import type { SearchResultVehicleGroup, VehicleDetail } from "@/types";
 
+/** Locale code for API mock responses (en | th | zh). */
+export type MockLocale = "en" | "th" | "zh";
+
+/** Category display name by locale (key = English category from seed). */
+const CATEGORY_BY_LOCALE: Record<MockLocale, Record<string, string>> = {
+  en: {
+    Economy: "Economy",
+    Compact: "Compact",
+    "Mid-size": "Mid-size",
+    SUV: "SUV",
+    Premium: "Premium",
+    Luxury: "Luxury",
+    Van: "Van",
+    Hybrid: "Hybrid",
+    EV: "EV",
+    Pickup: "Pickup",
+  },
+  th: {
+    Economy: "เศรษฐกิจ",
+    Compact: "คอมแพ็กต์",
+    "Mid-size": "กลาง",
+    SUV: "SUV",
+    Premium: "พรีเมียม",
+    Luxury: "ลักชัวรี",
+    Van: "แวน",
+    Hybrid: "ไฮบริด",
+    EV: "EV",
+    Pickup: "ปิกอัพ",
+  },
+  zh: {
+    Economy: "经济型",
+    Compact: "紧凑型",
+    "Mid-size": "中型",
+    SUV: "SUV",
+    Premium: "高端",
+    Luxury: "豪华",
+    Van: "厢型",
+    Hybrid: "混合动力",
+    EV: "电动车",
+    Pickup: "皮卡",
+  },
+};
+
+const INCLUSIONS_BY_LOCALE: Record<MockLocale, string[]> = {
+  en: [
+    "Unlimited mileage",
+    "Third party insurance",
+    "Free cancellation up to 24h before pickup",
+  ],
+  th: [
+    "ไมล์จำกัดไม่จำกัด",
+    "ประกันภาคบังคับ",
+    "ยกเลิกฟรีก่อนรับรถ 24 ชม.",
+  ],
+  zh: [
+    "不限里程",
+    "第三方责任险",
+    "取车前24小时免费取消",
+  ],
+};
+
 export interface SearchVehicleSeed {
   id: string;
   groupCode: string;
@@ -48,13 +109,21 @@ const VEHICLE_SEEDS: SearchVehicleSeed[] = [
   { id: "v30", groupCode: "MCAR4", name: "Nissan Teana or similar", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80", dailyPayNow: 1800, dailyPayLater: 2000 },
 ];
 
-function seedToSearchResult(seed: SearchVehicleSeed, days: number): SearchResultVehicleGroup {
+function seedToSearchResult(
+  seed: SearchVehicleSeed,
+  days: number,
+  locale?: MockLocale
+): SearchResultVehicleGroup {
   const payLaterPrice = seed.dailyPayLater * days;
   const payNowPrice = seed.dailyPayNow * days;
+  const category =
+    locale && CATEGORY_BY_LOCALE[locale]?.[seed.category]
+      ? CATEGORY_BY_LOCALE[locale][seed.category]
+      : seed.category;
   return {
     groupCode: seed.groupCode,
     name: seed.name,
-    category: seed.category,
+    category,
     seats: seed.seats,
     transmission: seed.transmission,
     luggage: seed.luggage,
@@ -88,7 +157,10 @@ export interface SearchApiResponse {
   data: SearchResultVehicleGroup[];
 }
 
-export function runSearch(params: SearchApiParams): SearchApiResponse {
+export function runSearch(
+  params: SearchApiParams,
+  locale?: MockLocale
+): SearchApiResponse {
   const pickupAt = params.pickupAt ?? new Date(Date.now()).toISOString().slice(0, 16);
   const dropoffAt = params.dropoffAt ?? new Date(Date.now() + 86400000).toISOString().slice(0, 16);
   const days = Math.max(
@@ -99,19 +171,22 @@ export function runSearch(params: SearchApiParams): SearchApiResponse {
     )
   );
 
-  let list = VEHICLE_SEEDS.map((s) => seedToSearchResult(s, days));
+  const effectiveLocale =
+    locale && (locale === "en" || locale === "th" || locale === "zh") ? locale : undefined;
 
+  let seeds = [...VEHICLE_SEEDS];
   if (params.category) {
     const cat = params.category.toLowerCase();
-    list = list.filter((v) => v.category.toLowerCase() === cat);
+    seeds = seeds.filter((s) => s.category.toLowerCase() === cat);
   }
-
   if (params.transmission) {
     const t = params.transmission.toUpperCase();
     if (t === "A" || t === "M") {
-      list = list.filter((v) => v.transmission === t);
+      seeds = seeds.filter((s) => s.transmission === t);
     }
   }
+
+  let list = seeds.map((s) => seedToSearchResult(s, days, effectiveLocale));
 
   const minPrice = params.min_price ? parseInt(params.min_price, 10) : undefined;
   const maxPrice = params.max_price ? parseInt(params.max_price, 10) : undefined;
@@ -155,24 +230,32 @@ export function getBasePrices(groupCode: string): { payLater: number; payNow: nu
 
 /** Build VehicleDetail for vehicle detail page when not in mockVehicleGroups */
 export function getVehicleDetailByGroupCode(
-  groupCode: string
+  groupCode: string,
+  locale?: MockLocale
 ): (VehicleDetail & { dailyPayNow?: number; dailyPayLater?: number }) | null {
   const seed = VEHICLE_SEEDS.find((s) => s.groupCode === groupCode);
   if (!seed) return null;
+  const effectiveLocale =
+    locale && (locale === "en" || locale === "th" || locale === "zh") ? locale : "en";
+  const category =
+    CATEGORY_BY_LOCALE[effectiveLocale]?.[seed.category] ?? seed.category;
+  const inclusions = INCLUSIONS_BY_LOCALE[effectiveLocale] ?? INCLUSIONS_BY_LOCALE.en;
+  const descriptionByLocale: Record<MockLocale, string> = {
+    en: `${seed.category} vehicle. ${seed.fuelType} fuel.`,
+    th: `รถระดับ${category} เชื้อเพลิง${seed.fuelType}`,
+    zh: `${category}车型，${seed.fuelType}。`,
+  };
+  const description = descriptionByLocale[effectiveLocale] ?? descriptionByLocale.en;
   return {
     groupCode: seed.groupCode,
     name: seed.name,
-    category: seed.category,
+    category,
     seats: seed.seats,
     transmission: seed.transmission,
     luggage: seed.luggage,
-    description: `${seed.category} vehicle. ${seed.fuelType} fuel.`,
+    description,
     images: [{ url: seed.imageUrl, alt: seed.name }],
-    inclusions: [
-      "Unlimited mileage",
-      "Third party insurance",
-      "Free cancellation up to 24h before pickup",
-    ],
+    inclusions,
     availabilityStatus: "AVAILABLE",
     dailyPayNow: seed.dailyPayNow,
     dailyPayLater: seed.dailyPayLater,

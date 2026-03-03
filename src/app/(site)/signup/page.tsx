@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { FormField } from "@/components/ui/FormField";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { ConsentModal } from "@/components/auth/ConsentModal";
@@ -30,23 +31,18 @@ function getSafeNext(next: string | null): string {
   return decoded;
 }
 
-const STEPS: { num: Step; label: string }[] = [
-  { num: 1, label: "Information" },
-  { num: 2, label: "Verification" },
-  { num: 3, label: "Password" },
-];
+const STEP_KEYS = ["signup.step_information", "signup.step_verification", "signup.step_password"] as const;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[\d\s\-+()]{8,20}$/;
 
-function StepIndicator({ current }: { current: Step }) {
-  // เส้นเดียวต่อเนื่องจากกลางวงที่ 1 ถึงกลางวงที่ 3 (1/6 ถึง 5/6 ของความกว้าง)
+function StepIndicator({ current, t }: { current: Step; t: (key: string) => string }) {
   const trackLeft = (1 / 6) * 100;
   const trackRight = (1 / 6) * 100;
   const progressPercent = current >= 3 ? 100 : current >= 2 ? 50 : 0;
 
   return (
-    <nav aria-label="Progress" className="relative mb-8">
+    <nav aria-label={t("signup.progress_aria")} className="relative mb-8">
       {/* เส้นเทาเส้นเดียวทั้งแถบ – อยู่หลังวงกลม */}
       <div
         className="absolute top-4 h-px bg-gray-200"
@@ -66,7 +62,8 @@ function StepIndicator({ current }: { current: Step }) {
         aria-hidden
       />
       <ol className="relative flex items-start justify-between gap-2">
-        {STEPS.map(({ num, label }) => {
+        {STEP_KEYS.map((key, i) => {
+          const num = (i + 1) as Step;
           const isActive = current === num;
           const isPast = current > num;
           return (
@@ -89,7 +86,7 @@ function StepIndicator({ current }: { current: Step }) {
                   isActive ? "text-hertz-black-90" : "text-hertz-black-60"
                 }`}
               >
-                {label}
+                {t(key)}
               </span>
             </li>
           );
@@ -102,6 +99,7 @@ function StepIndicator({ current }: { current: Step }) {
 function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const nextUrl = getSafeNext(searchParams.get("next") ?? searchParams.get("returnUrl"));
 
   const [step, setStep] = useState<Step>(1);
@@ -176,23 +174,23 @@ function SignupContent() {
     const ph = phone.trim();
 
     if (!fn || !ln) {
-      setError("First name and last name are required.");
+      setError(t("signup.error_first_last_required"));
       return;
     }
     if (!em) {
-      setError("Email is required.");
+      setError(t("signup.error_email_required"));
       return;
     }
     if (!EMAIL_REGEX.test(em)) {
-      setError("Please enter a valid email address.");
+      setError(t("signup.error_email_invalid"));
       return;
     }
     if (ph && !PHONE_REGEX.test(ph)) {
-      setError("Please enter a valid phone number.");
+      setError(t("signup.error_phone_invalid"));
       return;
     }
     if (!acceptTerms || !acceptPrivacy) {
-      setError("You must accept the Terms & Conditions and Privacy Policy to continue.");
+      setError(t("signup.error_accept_terms"));
       return;
     }
 
@@ -217,7 +215,7 @@ function SignupContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Please try again.");
+        setError(data.error ?? t("signup.error_generic"));
         return;
       }
       setOtpRef(data.otp_ref);
@@ -227,17 +225,17 @@ function SignupContent() {
       setOtp("");
       setResendCooldown(RESEND_COOLDOWN_SEC);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("signup.error_generic"));
     } finally {
       setLoading(false);
     }
-  }, [firstName, lastName, email, phone, acceptTerms, acceptPrivacy, acceptMarketing, persist]);
+  }, [firstName, lastName, email, phone, acceptTerms, acceptPrivacy, acceptMarketing, persist, t]);
 
   // Step 2: verify OTP (email first, then phone if provided)
   const verifyTarget = verifyStep === "phone" ? phone : email;
   const handleVerifyOtp = useCallback(async () => {
     if (otp.replace(/\D/g, "").length !== 6) {
-      setError("Enter 6-digit code");
+      setError(t("auth.enter_6_digit"));
       return;
     }
     setError(null);
@@ -254,7 +252,7 @@ function SignupContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.message ?? data.error ?? "Invalid or expired code. Try again or resend.");
+        setError(data.message ?? data.error ?? t("signup.error_invalid_otp"));
         return;
       }
       if (data.has_phone && !data.phone_verified) {
@@ -268,11 +266,11 @@ function SignupContent() {
         setConfirmPassword("");
       }
     } catch {
-      setError("Verification failed. Please try again.");
+      setError(t("auth.verification_failed"));
     } finally {
       setLoading(false);
     }
-  }, [otpRef, otp, verifyStep, persist]);
+  }, [otpRef, otp, verifyStep, persist, t]);
 
   const handleResendOtp = useCallback(async () => {
     if (resendCooldown > 0) return;
@@ -286,17 +284,17 @@ function SignupContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Resend failed.");
+        setError(data.error ?? t("signup.error_resend_failed"));
       } else {
         setResendCooldown(RESEND_COOLDOWN_SEC);
         setOtp("");
       }
     } catch {
-      setError("Resend failed.");
+      setError(t("signup.error_resend_failed"));
     } finally {
       setLoading(false);
     }
-  }, [otpRef, verifyStep, resendCooldown]);
+  }, [otpRef, verifyStep, resendCooldown, t]);
 
   const handleBackToInfo = useCallback(() => {
     setStep(1);
@@ -326,7 +324,7 @@ function SignupContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Please try again.");
+        setError(data.error ?? t("signup.error_generic"));
         return;
       }
       clearPersist();
@@ -337,25 +335,25 @@ function SignupContent() {
       const welcomeUrl = `/signup/welcome${params.toString() ? `?${params.toString()}` : ""}`;
       router.replace(welcomeUrl);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("signup.error_generic"));
     } finally {
       setLoading(false);
     }
-  }, [otpRef, password, passwordValid, clearPersist, nextUrl, router]);
+  }, [otpRef, password, passwordValid, clearPersist, nextUrl, router, t]);
 
   const loginHref = nextUrl !== "/" ? `/account/login?next=${encodeURIComponent(nextUrl)}` : "/account/login";
 
   return (
     <div className="mx-auto max-w-md px-4 py-8">
-      <StepIndicator current={step} />
+      <StepIndicator current={step} t={t} />
 
       {step === 1 && (
         <div className="animate-fade-in">
           <h1 className="mb-2 text-2xl font-bold text-hertz-black-90">
-            Create account
+            {t("signup.create_account")}
           </h1>
           <p className="mb-6 text-sm text-hertz-black-60">
-            Enter your details to get started.
+            {t("signup.enter_details")}
           </p>
           <form
             onSubmit={(e) => {
@@ -367,14 +365,14 @@ function SignupContent() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <FormField
-                  label="First name"
+                  label={t("signup.first_name")}
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
                   autoComplete="given-name"
                 />
                 <FormField
-                  label="Last name"
+                  label={t("signup.last_name")}
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
@@ -382,7 +380,7 @@ function SignupContent() {
                 />
               </div>
               <FormField
-                label="Email"
+                label={t("auth.email")}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -390,18 +388,18 @@ function SignupContent() {
                 autoComplete="email"
               />
               <FormField
-                label="Phone (optional)"
+                label={t("signup.phone_optional")}
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="Recommended for bookings"
+                placeholder={t("signup.phone_placeholder")}
                 autoComplete="tel"
               />
             </div>
 
             <div className="mt-6 border-t border-gray-200 pt-6">
               <h3 className="mb-3 text-sm font-semibold text-hertz-black-90">
-                Legal & Consent
+                {t("signup.legal_consent")}
               </h3>
               <div className="space-y-3 text-sm text-hertz-black-80">
                 <label className="flex items-start gap-3">
@@ -412,13 +410,13 @@ function SignupContent() {
                     className="mt-1 h-4 w-4 rounded border-gray-300 text-hertz-yellow focus:ring-hertz-yellow"
                   />
                   <span>
-                    I agree to the{" "}
+                    {t("signup.agree_terms")}{" "}
                     <button
                       type="button"
                       onClick={() => setConsentModal("terms")}
                       className="underline decoration-hertz-black-60 underline-offset-2 hover:decoration-hertz-yellow hover:text-hertz-black-90"
                     >
-                      Terms & Conditions
+                      {t("signup.terms_conditions")}
                     </button>
                     <span className="text-red-600"> *</span>
                   </span>
@@ -431,13 +429,13 @@ function SignupContent() {
                     className="mt-1 h-4 w-4 rounded border-gray-300 text-hertz-yellow focus:ring-hertz-yellow"
                   />
                   <span>
-                    I agree to the{" "}
+                    {t("signup.agree_privacy")}{" "}
                     <button
                       type="button"
                       onClick={() => setConsentModal("privacy")}
                       className="underline decoration-hertz-black-60 underline-offset-2 hover:decoration-hertz-yellow hover:text-hertz-black-90"
                     >
-                      Privacy Policy
+                      {t("signup.privacy_policy")}
                     </button>
                     <span className="text-red-600"> *</span>
                   </span>
@@ -450,7 +448,7 @@ function SignupContent() {
                     className="mt-1 h-4 w-4 rounded border-gray-300 text-hertz-yellow focus:ring-hertz-yellow"
                   />
                   <span>
-                    I agree to receive promotional offers and marketing emails from Hertz Thailand
+                    {t("signup.agree_marketing")}
                   </span>
                 </label>
               </div>
@@ -466,7 +464,7 @@ function SignupContent() {
               disabled={loading || !acceptTerms || !acceptPrivacy}
               className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Continue…" : "Continue"}
+              {loading ? t("signup.continue_loading") : t("signup.continue")}
             </button>
           </form>
 
@@ -474,7 +472,7 @@ function SignupContent() {
             open={consentModal === "terms"}
             onClose={() => setConsentModal(null)}
             onAccept={() => setAcceptTerms(true)}
-            title="Terms & Conditions"
+            title={t("signup.terms_conditions")}
           >
             {MOCK_TERMS_PARAGRAPHS.map((p, i) => (
               <p key={i} className="mb-3 last:mb-0">
@@ -486,7 +484,7 @@ function SignupContent() {
             open={consentModal === "privacy"}
             onClose={() => setConsentModal(null)}
             onAccept={() => setAcceptPrivacy(true)}
-            title="Privacy Policy"
+            title={t("signup.privacy_policy")}
           >
             {MOCK_PRIVACY_PARAGRAPHS.map((p, i) => (
               <p key={i} className="mb-3 last:mb-0">
@@ -500,10 +498,10 @@ function SignupContent() {
       {step === 2 && (
         <div className="animate-fade-in">
           <h1 className="mb-2 text-2xl font-bold text-hertz-black-90">
-            {verifyStep === "email" ? "Verify your email" : "Verify your phone"}
+            {verifyStep === "email" ? t("signup.verify_email") : t("signup.verify_phone")}
           </h1>
           <p className="mb-6 text-sm text-hertz-black-60">
-            We sent a 6-digit code to {verifyTarget}
+            {t("signup.otp_sent_to", { target: verifyTarget })}
           </p>
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-card">
             <OtpInput
@@ -512,7 +510,7 @@ function SignupContent() {
               length={6}
               disabled={loading}
               error={!!error}
-              aria-label="Verification code"
+              aria-label={t("signup.verification_code_aria")}
             />
             {error && (
               <p className="mt-3 text-sm text-red-600" role="alert">
@@ -525,7 +523,7 @@ function SignupContent() {
               disabled={loading || otp.replace(/\D/g, "").length !== 6}
               className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Verifying…" : "Verify"}
+              {loading ? t("auth.verifying") : t("auth.verify")}
             </button>
             <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
               <button
@@ -534,7 +532,7 @@ function SignupContent() {
                 disabled={loading || resendCooldown > 0}
                 className="text-sm font-medium text-hertz-black-80 disabled:opacity-50 hover:underline"
               >
-                {resendCooldown > 0 ? `Resend code (${resendCooldown}s)` : "Resend code"}
+                {resendCooldown > 0 ? t("signup.resend_code_seconds", { seconds: resendCooldown }) : t("signup.resend_code")}
               </button>
               <button
                 type="button"
@@ -542,11 +540,11 @@ function SignupContent() {
                 disabled={loading}
                 className="text-sm text-hertz-black-60 hover:underline"
               >
-                Edit information
+                {t("signup.edit_information")}
               </button>
             </div>
             <p className="mt-4 text-center text-xs text-hertz-black-60">
-              Mock: use code <strong>123456</strong>
+              {t("signup.mock_otp_code")} <strong>123456</strong>
             </p>
           </div>
         </div>
@@ -555,10 +553,10 @@ function SignupContent() {
       {step === 3 && (
         <div className="animate-fade-in">
           <h1 className="mb-2 text-2xl font-bold text-hertz-black-90">
-            Create password
+            {t("signup.create_password")}
           </h1>
           <p className="mb-6 text-sm text-hertz-black-60">
-            At least 8 characters, with letters and numbers.
+            {t("auth.password_hint")}
           </p>
           <form
             onSubmit={(e) => {
@@ -569,7 +567,7 @@ function SignupContent() {
           >
             <div className="space-y-4">
               <FormField
-                label="Password"
+                label={t("auth.password")}
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -577,7 +575,7 @@ function SignupContent() {
                 autoComplete="new-password"
               />
               <FormField
-                label="Confirm password"
+                label={t("signup.confirm_password")}
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -588,14 +586,14 @@ function SignupContent() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="inline-flex items-center gap-2 text-sm text-hertz-black-60 hover:text-hertz-black-80 hover:underline"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? t("auth.hide_password") : t("auth.show_password")}
               >
                 {showPassword ? (
                   <>
                     <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     </svg>
-                    Hide password
+                    {t("auth.hide_password")}
                   </>
                 ) : (
                   <>
@@ -603,7 +601,7 @@ function SignupContent() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    Show password
+                    {t("auth.show_password")}
                   </>
                 )}
               </button>
@@ -611,15 +609,15 @@ function SignupContent() {
             {password && password.length > 0 && (
               <ul className="mt-2 text-xs text-hertz-black-60">
                 <li className={password.length >= 8 ? "text-green-600" : ""}>
-                  {password.length >= 8 ? "✓" : "○"} At least 8 characters
+                  {password.length >= 8 ? "✓" : "○"} {t("signup.password_requirement_8")}
                 </li>
                 <li className={/[a-zA-Z]/.test(password) && /\d/.test(password) ? "text-green-600" : ""}>
-                  {/[a-zA-Z]/.test(password) && /\d/.test(password) ? "✓" : "○"} Letters and numbers
+                  {/[a-zA-Z]/.test(password) && /\d/.test(password) ? "✓" : "○"} {t("signup.password_requirement_letters")}
                 </li>
               </ul>
             )}
             {confirmPassword && password !== confirmPassword && (
-              <p className="mt-1 text-sm text-red-600">Passwords do not match</p>
+              <p className="mt-1 text-sm text-red-600">{t("auth.passwords_no_match")}</p>
             )}
             {error && (
               <p className="mt-3 text-sm text-red-600" role="alert">
@@ -631,16 +629,16 @@ function SignupContent() {
               disabled={loading || !passwordValid}
               className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-hertz-yellow font-semibold text-hertz-black-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Creating account…" : "Create account"}
+              {loading ? t("signup.creating_account") : t("signup.create_account")}
             </button>
           </form>
         </div>
       )}
 
       <p className="mt-6 text-center text-hertz-black-80">
-        Already have an account?{" "}
+        {t("signup.already_have_account")}{" "}
         <Link href={loginHref} className="font-medium text-hertz-yellow underline">
-          Log in
+          {t("auth.log_in")}
         </Link>
       </p>
     </div>

@@ -2,10 +2,24 @@
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { FilterSidebar } from "@/components/search/FilterSidebar";
 import { MobileFilterDrawer } from "@/components/search/MobileFilterDrawer";
 import type { SearchResultVehicleGroup } from "@/types";
+
+const CATEGORY_KEYS: Record<string, string> = {
+  economy: "filters.economy",
+  compact: "filters.compact",
+  "mid-size": "filters.mid_size",
+  suv: "filters.suv",
+  premium: "filters.premium",
+  luxury: "filters.luxury",
+  van: "filters.van",
+  hybrid: "filters.hybrid",
+  ev: "filters.ev",
+  pickup: "filters.pickup",
+};
 
 const PAGE_SIZE = 9;
 
@@ -30,6 +44,7 @@ function defaultDates() {
 function VehiclesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
 
   const category = searchParams.get("category") ?? "";
   const transmission = searchParams.get("transmission") ?? "";
@@ -114,9 +129,10 @@ function VehiclesContent() {
   const handleSortChange = (v: string) => updateParams({ sort: v });
   const handlePageChange = (p: number) => updateParams({ page: String(p) });
 
-  const pageTitle = category
-    ? `${category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, " ")} vehicles`
-    : "All vehicles";
+  const categoryLabel = category && CATEGORY_KEYS[category] ? t(CATEGORY_KEYS[category]) : "";
+  const pageTitle = category && categoryLabel
+    ? t("vehicles.page_title_category", { category: categoryLabel })
+    : t("vehicles.page_title_all");
 
   return (
     <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
@@ -126,9 +142,9 @@ function VehiclesContent() {
 
       {paymentCancelled && (
         <div className="mb-6 border border-hertz-border bg-hertz-gray p-4">
-          <p className="text-sm font-medium text-black">Payment was cancelled.</p>
+          <p className="text-sm font-medium text-black">{t("vehicles.payment_cancelled_title")}</p>
           <p className="mt-1 text-sm text-hertz-black-80">
-            You can select a vehicle and try again when ready.
+            {t("vehicles.payment_cancelled_body")}
           </p>
         </div>
       )}
@@ -150,22 +166,22 @@ function VehiclesContent() {
               onClick={() => setFilterOpen(true)}
               className="lg:hidden min-h-tap border border-hertz-border px-4 font-semibold text-black"
             >
-              Filters
+              {t("search.filters")}
             </button>
             <p className="text-sm text-hertz-black-80">
               {loading
-                ? "Loading…"
-                : `${total} vehicle${total !== 1 ? "s" : ""} found`}
+                ? t("search.searching")
+                : total === 1 ? t("search.vehicles_found_one") : t("search.vehicles_found", { count: total })}
             </p>
             <select
               className="ml-auto border border-hertz-border bg-white px-3 py-2 text-sm font-medium text-hertz-black-90"
               value={sort}
               onChange={(e) => handleSortChange(e.target.value)}
             >
-              <option value="">Sort by</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-              <option value="name_asc">Name: A–Z</option>
+              <option value="">{t("search.sort_by")}</option>
+              <option value="price_asc">{t("search.price_asc")}</option>
+              <option value="price_desc">{t("search.price_desc")}</option>
+              <option value="name_asc">{t("search.name_asc")}</option>
             </select>
           </div>
 
@@ -187,7 +203,7 @@ function VehiclesContent() {
           ) : vehicles.length === 0 ? (
             <div className="rounded border border-hertz-border bg-white p-12 text-center">
               <p className="text-hertz-black-80">
-                No vehicles match your filters. Try adjusting your selection.
+                {t("vehicles.no_match")}
               </p>
               <button
                 type="button"
@@ -201,7 +217,7 @@ function VehiclesContent() {
                 }
                 className="mt-4 font-bold text-black underline hover:no-underline"
               >
-                Clear filters
+                {t("vehicles.clear_filters")}
               </button>
             </div>
           ) : (
@@ -220,16 +236,16 @@ function VehiclesContent() {
               {totalPages > 1 && (
                 <nav
                   className="mt-8 flex flex-wrap items-center justify-center gap-2"
-                  aria-label="Pagination"
+                  aria-label={t("common.pagination")}
                 >
                   <button
                     type="button"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage <= 1}
                     className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
-                    aria-label="Previous page"
+                    aria-label={t("common.previous")}
                   >
-                    ← Previous
+                    ← {t("common.previous")}
                   </button>
                   <div className="flex items-center gap-1">
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -258,9 +274,9 @@ function VehiclesContent() {
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages}
                     className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
-                    aria-label="Next page"
+                    aria-label={t("common.next")}
                   >
-                    Next →
+                    {t("common.next")} →
                   </button>
                 </nav>
               )}

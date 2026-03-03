@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { FilterSidebar } from "@/components/search/FilterSidebar";
 import { MobileFilterDrawer } from "@/components/search/MobileFilterDrawer";
+import { usePromotionOptional } from "@/contexts/PromotionContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { SearchResultVehicleGroup } from "@/types";
 
 const PAGE_SIZE = 9;
@@ -20,19 +22,58 @@ interface SearchApiResponse {
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const promotion = usePromotionOptional();
+  const { t } = useLanguage();
 
   const pickup = searchParams.get("pickup") ?? "";
   const dropoff = searchParams.get("dropoff") ?? pickup;
   const pickupAt = searchParams.get("pickupAt") ?? "";
   const dropoffAt = searchParams.get("dropoffAt") ?? "";
+  const pickupName = searchParams.get("pickupName") ?? pickup;
+  const dropoffName = searchParams.get("dropoffName") ?? dropoff;
   const category = searchParams.get("category") ?? "";
   const transmission = searchParams.get("transmission") ?? "";
   const sort = searchParams.get("sort") ?? "";
   const page = searchParams.get("page") ?? "1";
 
+  const rentalDays = useMemo(() => {
+    if (!pickupAt || !dropoffAt) return 1;
+    const ms = new Date(dropoffAt).getTime() - new Date(pickupAt).getTime();
+    return Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+  }, [pickupAt, dropoffAt]);
+
   const [response, setResponse] = useState<SearchApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
+
+  const promoFromUrl = searchParams.get("promo") ?? "";
+  // Re-validate promotion only when search params or promo in URL change (do NOT depend on promotion object to avoid loop)
+  useEffect(() => {
+    const promo = promoFromUrl.trim().toUpperCase();
+    if (!promo || !pickupAt || !dropoffAt) return;
+    fetch("/api/promotion/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        promo_code: promo,
+        pickup_location: pickupName || pickup,
+        dropoff_location: dropoffName || dropoff,
+        pickup_date: pickupAt,
+        dropoff_date: dropoffAt,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        promotion?.setValidation({
+          status: data.valid ? "valid" : "invalid",
+          message: data.message,
+          reason: data.message,
+          discountLabel: data.discount_label,
+          conditions: data.conditions,
+        });
+      })
+      .catch(() => {});
+  }, [pickupAt, dropoffAt, pickup, dropoff, pickupName, dropoffName, promoFromUrl]);
 
   const updateParams = useCallback(
     (updates: Record<string, string>) => {
@@ -89,7 +130,7 @@ function SearchContent() {
   return (
     <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
       <h1 className="mb-6 text-2xl font-bold text-black lg:text-3xl">
-        Search results
+        {t("search.search_results")}
       </h1>
 
       <div className="flex gap-8">
@@ -109,20 +150,20 @@ function SearchContent() {
               onClick={() => setFilterOpen(true)}
               className="lg:hidden min-h-tap border border-hertz-border px-4 font-semibold text-black"
             >
-              Filters
+              {t("search.filters")}
             </button>
             <p className="text-sm text-hertz-black-80">
-              {loading ? "Searching…" : `${total} vehicle${total !== 1 ? "s" : ""} found`}
+              {loading ? t("search.searching") : total === 1 ? t("search.vehicles_found_one") : t("search.vehicles_found", { count: total })}
             </p>
             <select
               className="ml-auto border border-hertz-border bg-white px-3 py-2 text-sm font-medium text-hertz-black-90"
               value={sort}
               onChange={(e) => handleSortChange(e.target.value)}
             >
-              <option value="">Sort by</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-              <option value="name_asc">Name: A–Z</option>
+              <option value="">{t("search.sort_by")}</option>
+              <option value="price_asc">{t("search.price_asc")}</option>
+              <option value="price_desc">{t("search.price_desc")}</option>
+              <option value="name_asc">{t("search.name_asc")}</option>
             </select>
           </div>
 
@@ -144,7 +185,7 @@ function SearchContent() {
           ) : vehicles.length === 0 ? (
             <div className="rounded border border-hertz-border bg-white p-12 text-center">
               <p className="text-hertz-black-80">
-                No vehicles available for your search. Try adjusting your filters.
+                {t("search.no_vehicles")}
               </p>
             </div>
           ) : (
@@ -156,6 +197,7 @@ function SearchContent() {
                     vehicle={v}
                     searchParams={queryString}
                     showImage
+                    rentalDays={rentalDays}
                   />
                 ))}
               </div>
@@ -163,16 +205,16 @@ function SearchContent() {
               {totalPages > 1 && (
                 <nav
                   className="mt-8 flex flex-wrap items-center justify-center gap-2"
-                  aria-label="Pagination"
+                  aria-label={t("common.pagination")}
                 >
                   <button
                     type="button"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage <= 1}
                     className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
-                    aria-label="Previous page"
+                    aria-label={t("common.previous")}
                   >
-                    ← Previous
+                    ← {t("common.previous")}
                   </button>
                   <div className="flex items-center gap-1">
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -197,9 +239,9 @@ function SearchContent() {
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages}
                     className="min-h-tap min-w-tap border border-hertz-border px-3 text-sm font-medium text-hertz-black-80 transition-colors hover:border-black hover:text-black disabled:opacity-50 disabled:pointer-events-none"
-                    aria-label="Next page"
+                    aria-label={t("common.next")}
                   >
-                    Next →
+                    {t("common.next")} →
                   </button>
                 </nav>
               )}

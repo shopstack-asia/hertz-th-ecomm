@@ -1,12 +1,14 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { mockHandlers } from "@/lib/mock/handlers";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ groupCode: string }> }
 ) {
   const { groupCode } = await params;
-  const vehicle = await mockHandlers.vehicle.getByGroupCode(groupCode);
+  const locale = getLocaleFromRequest(request);
+  const vehicle = await mockHandlers.vehicle.getByGroupCode(groupCode, locale);
   if (!vehicle) {
     return Response.json({ error: "Vehicle not found" }, { status: 404 });
   }

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import {
-  SPECIAL_OFFERS,
+  getSpecialOffers,
   type SpecialOffer,
 } from "@/lib/mock/specialOffers";
 
@@ -35,6 +36,8 @@ function filterOffers(
 }
 
 export async function GET(request: NextRequest) {
+  const locale = getLocaleFromRequest(request);
+  const offers = getSpecialOffers(locale);
   const { searchParams } = new URL(request.url);
   const promotion_type = searchParams.get("promotion_type") ?? undefined;
   const is_member_only = searchParams.get("is_member_only") ?? undefined;
@@ -42,7 +45,7 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
   const page_size = Math.min(24, Math.max(1, parseInt(searchParams.get("page_size") ?? "6", 10) || 6));
 
-  const filtered = filterOffers(SPECIAL_OFFERS, {
+  const filtered = filterOffers(offers, {
     promotion_type,
     is_member_only,
     is_active,

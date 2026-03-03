@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { getSession } from "@/server/mock/session_store";
 import type { PointsRedemptionOption } from "@/types/loyalty";
 import { basePrices } from "@/lib/mock/data";
@@ -94,6 +95,7 @@ function buildMockOptions(
 }
 
 export async function GET(request: NextRequest) {
+  getLocaleFromRequest(request);
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 

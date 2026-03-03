@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LocationSelect } from "./LocationSelect";
 import { DateTimePicker } from "./DateTimePicker";
 import { useBooking } from "@/contexts/BookingContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePromotionOptional } from "@/contexts/PromotionContext";
 
 function toDatetimeLocal(d: Date): string {
   const pad = (n: number) => n.toString().padStart(2, "0");
@@ -19,6 +21,7 @@ interface BookingFormProps {
 export function BookingForm({ onSearch, dark = false }: BookingFormProps) {
   const router = useRouter();
   const { t } = useLanguage();
+  const promotion = usePromotionOptional();
   const {
     pickupLocation,
     pickupLocationName,
@@ -36,14 +39,22 @@ export function BookingForm({ onSearch, dark = false }: BookingFormProps) {
     setDropoffDateTime,
   } = useBooking();
 
+  const [promoInput, setPromoInput] = useState("");
   const today = new Date();
+
+  useEffect(() => {
+    const fromContext = promotion?.promoCode ?? "";
+    if (fromContext && promoInput === "") setPromoInput(fromContext);
+  }, [promotion?.promoCode]);
+
+  const promoDisplay = promoInput || (promotion?.promoCode ?? "");
   const minDate = toDatetimeLocal(today).slice(0, 10);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const pickupAt = `${pickupDate}T${pickupTime}:00`;
     const dropoffAt = `${dropoffDate}T${dropoffTime}:00`;
     const dropoff = sameAsPickup ? pickupLocation : dropoffLocation;
-    const dropoffName = sameAsPickup ? pickupLocationName : dropoffLocationName;
+    const dropoffName = sameAsPickup ? dropoffLocationName : dropoffLocationName;
     const params = new URLSearchParams({
       pickup: pickupLocation,
       dropoff,
@@ -52,6 +63,22 @@ export function BookingForm({ onSearch, dark = false }: BookingFormProps) {
       pickupName: pickupLocationName || pickupLocation,
       dropoffName: dropoffName || dropoff,
     });
+
+    const code = (promoInput || (promotion?.promoCode ?? "")).trim().toUpperCase();
+    if (code && promotion) {
+      promotion.setPromoCode(code);
+      await promotion.validatePromotion(
+        {
+          pickup_location: pickupLocationName || pickupLocation,
+          dropoff_location: dropoffName || dropoff,
+          pickup_date: pickupAt,
+          dropoff_date: dropoffAt,
+        },
+        code
+      );
+      params.set("promo", code);
+    }
+
     router.push(`/search?${params}`);
     onSearch?.();
   };
@@ -66,6 +93,7 @@ export function BookingForm({ onSearch, dark = false }: BookingFormProps) {
         onChange={(code, loc) => setPickupLocation(code, loc?.name ?? "")}
         placeholder="Enter city or airport"
         dark={dark}
+        displayName={pickupLocationName}
       />
       <DateTimePicker
         label={t("booking.pickup_date")}
@@ -98,6 +126,7 @@ export function BookingForm({ onSearch, dark = false }: BookingFormProps) {
           onChange={(code, loc) => setDropoffLocation(code, loc?.name ?? "")}
           placeholder="Enter city or airport"
           dark={dark}
+          displayName={dropoffLocationName}
         />
       )}
       <DateTimePicker
@@ -110,6 +139,28 @@ export function BookingForm({ onSearch, dark = false }: BookingFormProps) {
         minDate={pickupDate}
         dark={dark}
       />
+      <div>
+        <label
+          className={
+            dark
+              ? "mb-1 block text-sm font-medium text-white/90"
+              : "mb-1 block text-sm font-medium text-hertz-black-80"
+          }
+        >
+          Promotion code
+        </label>
+        <input
+          type="text"
+          value={promoDisplay}
+          onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+          placeholder="e.g. SAVE10"
+          className={
+            dark
+              ? "w-full border border-white/40 bg-black/30 px-4 py-3 text-white placeholder:text-white/50 focus:border-hertz-yellow focus:outline-none focus:ring-1 focus:ring-hertz-yellow"
+              : "w-full border border-hertz-border px-4 py-3 text-hertz-black-80 placeholder:text-hertz-black-60 focus:border-[#FFCC00] focus:outline-none focus:ring-1 focus:ring-[#FFCC00]"
+          }
+        />
+      </div>
       <button
         type="button"
         onClick={handleSearch}

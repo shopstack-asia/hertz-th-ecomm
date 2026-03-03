@@ -15,6 +15,8 @@ import { RenterFormSection } from "@/components/vehicle/RenterFormSection";
 import { StickyBottomBar } from "@/components/layout/StickyBottomBar";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/contexts/auth_context";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePromotionOptional } from "@/contexts/PromotionContext";
 import { proxyFetch } from "@/lib/api/proxy_fetch";
 import type { VehicleDetail } from "@/types";
 import type { Location } from "@/types";
@@ -58,6 +60,7 @@ function VehicleDetailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useLanguage();
   const groupCode = params.groupCode as string;
 
   const [vehicle, setVehicle] = useState<VehicleDetail | null>(null);
@@ -80,7 +83,27 @@ function VehicleDetailContent() {
   const [pickupName, setPickupName] = useState(pickupNameParam);
   const [dropoffName, setDropoffName] = useState(dropoffNameParam);
 
-  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
+  const promotion = usePromotionOptional();
+  const [localPromoCode, setLocalPromoCode] = useState<string | null>(null);
+  const appliedPromoCode = promotion?.promoCode ?? localPromoCode;
+  const setAppliedPromoCode = (code: string | null) => {
+    if (promotion) {
+      if (code) {
+        promotion.setPromoCode(code);
+        const next = new URLSearchParams(searchParams.toString());
+        next.set("promo", code);
+        router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+      } else {
+        promotion.clearPromotion();
+        const next = new URLSearchParams(searchParams.toString());
+        next.delete("promo");
+        const q = next.toString();
+        router.replace(pathname + (q ? `?${q}` : ""), { scroll: false });
+      }
+    } else {
+      setLocalPromoCode(code);
+    }
+  };
   const [appliedVouchers, setAppliedVouchers] = useState<VoucherDetail[]>([]);
   const [promoCodeError, setPromoCodeError] = useState<string | null>(null);
   const [voucherError, setVoucherError] = useState<string | null>(null);
@@ -190,6 +213,21 @@ function VehicleDetailContent() {
     if (dropoffNameParam) setDropoffName(dropoffNameParam);
   }, [pickupAtParam, dropoffAtParam, pickup, dropoff, pickupNameParam, dropoffNameParam]);
 
+  // Revalidate promotion only when dates/locations or promo change (do NOT depend on promotion object to avoid loop)
+  const promoCodeForValidate = promotion?.promoCode ?? null;
+  useEffect(() => {
+    if (!promoCodeForValidate || !pickupAt || !dropoffAt) return;
+    promotion?.validatePromotion(
+      {
+        pickup_location: pickupName || pickup,
+        dropoff_location: dropoffName || dropoff,
+        pickup_date: pickupAt,
+        dropoff_date: dropoffAt,
+      },
+      promoCodeForValidate
+    );
+  }, [pickupAt, dropoffAt, pickup, dropoff, pickupName, dropoffName, promoCodeForValidate]);
+
   useEffect(() => {
     if (vehicle && pickupAt && dropoffAt && new Date(dropoffAt) > new Date(pickupAt)) {
       fetchPrice();
@@ -276,11 +314,11 @@ function VehicleDetailContent() {
       setVoucherError(null);
       const trimmed = code.trim().toUpperCase();
       if (appliedVouchers.some((v) => v.code === trimmed)) {
-        setVoucherError("Voucher already applied");
+        setVoucherError(t("vehicleDetail.voucher_already_applied"));
         return;
       }
       if (appliedVouchers.some((v) => v.stackable === false)) {
-        setVoucherError("This voucher cannot be combined with other offers.");
+        setVoucherError(t("vehicleDetail.voucher_no_combine"));
         return;
       }
       try {
@@ -291,22 +329,22 @@ function VehicleDetailContent() {
         });
         const data = await res.json();
         if (!res.ok) {
-          setVoucherError(data.error ?? "Failed to apply voucher");
+          setVoucherError(data.error ?? t("vehicleDetail.voucher_apply_failed"));
           return;
         }
         if (data.voucher) {
           const v = data.voucher;
           if (v.stackable === false && appliedVouchers.length > 0) {
-            setVoucherError("This voucher cannot be combined with other offers.");
+            setVoucherError(t("vehicleDetail.voucher_no_combine"));
             return;
           }
           setAppliedVouchers((prev) => [...prev, v]);
         }
       } catch {
-        setVoucherError("Failed to apply voucher");
+        setVoucherError(t("vehicleDetail.voucher_apply_failed"));
       }
     },
-    [appliedVouchers]
+    [appliedVouchers, t]
   );
 
   const handleApplyMyVouchers = useCallback((vouchers: VoucherDetail[]) => {
@@ -326,16 +364,16 @@ function VehicleDetailContent() {
     }
     const combined = [...appliedVouchers, ...toAdd];
     if (combined.length > 1 && combined.some((v) => v.stackable === false)) {
-      setVoucherError("This voucher cannot be combined with other offers.");
+      setVoucherError(t("vehicleDetail.voucher_no_combine"));
       return;
     }
     if (toAdd.length > 0) {
       setAppliedVouchers((prev) => [...prev, ...toAdd]);
     }
     if (invalid.length > 0) {
-      setVoucherError(`Could not apply: ${invalid.join(", ")}`);
+      setVoucherError(t("vehicleDetail.voucher_apply_failed"));
     }
-  }, [appliedVouchers]);
+  }, [appliedVouchers, t]);
 
   const buildBookingPayload = useCallback(() => {
     const voucherCode = appliedVouchers[0]?.code;
@@ -483,10 +521,10 @@ function VehicleDetailContent() {
 
   const lineItems = pricing?.line_items ?? [
     {
-      description: `Rental (${rentalDays} day${rentalDays > 1 ? "s" : ""})`,
+      description: rentalDays === 1 ? t("vehicleDetail.rental_day") : t("vehicleDetail.rental_days", { days: rentalDays }),
       amount: 0,
     },
-    { description: "VAT (7%)", amount: 0 },
+    { description: t("thankYou.vat"), amount: 0 },
   ];
   const payLaterTotal = pricing?.pay_later_total ?? 0;
   const payNowTotal = pricing?.pay_now_total ?? 0;
@@ -505,9 +543,9 @@ function VehicleDetailContent() {
   if (!vehicle) {
     return (
       <div className="mx-auto max-w-container px-6 py-12 text-center">
-        <p className="text-hertz-black-80">Vehicle not found.</p>
+        <p className="text-hertz-black-80">{t("vehicleDetail.vehicle_not_found")}</p>
         <Link href="/vehicles" className="mt-4 inline-block font-bold text-black underline">
-          Browse vehicles
+          {t("vehicleDetail.browse_vehicles")}
         </Link>
       </div>
     );
@@ -523,7 +561,7 @@ function VehicleDetailContent() {
       {benefitVouchersApplied && (
         <div className="mb-3 flex items-center gap-2 border border-[#FFCC00] bg-[#FFCC00]/10 px-3 py-2">
           <span className="text-sm font-medium text-black">
-            Benefit Voucher Applied
+            {t("vehicleDetail.benefit_voucher_applied")}
           </span>
         </div>
       )}
@@ -592,22 +630,22 @@ function VehicleDetailContent() {
                 )}
                 <div className="mt-6 grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-xs text-hertz-black-60">Seats</span>
+                    <span className="text-xs text-hertz-black-60">{t("vehicleDetail.seats")}</span>
                     <p className="font-bold">{vehicle.seats}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-hertz-black-60">Transmission</span>
+                    <span className="text-xs text-hertz-black-60">{t("vehicleDetail.transmission")}</span>
                     <p className="font-bold">
-                      {vehicle.transmission === "A" ? "Automatic" : "Manual"}
+                      {vehicle.transmission === "A" ? t("vehicle.automatic") : t("vehicle.manual")}
                     </p>
                   </div>
                   <div>
-                    <span className="text-xs text-hertz-black-60">Luggage</span>
+                    <span className="text-xs text-hertz-black-60">{t("vehicle.luggage")}</span>
                     <p className="font-bold">{vehicle.luggage}</p>
                   </div>
                 </div>
                 <div className="mt-6 border-t border-hertz-border pt-6">
-                  <h2 className="text-lg font-bold text-black">Inclusions</h2>
+                  <h2 className="text-lg font-bold text-black">{t("vehicleDetail.inclusions")}</h2>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-hertz-black-80">
                     {vehicle.inclusions.map((i) => (
                       <li key={i}>{i}</li>
@@ -665,6 +703,37 @@ function VehicleDetailContent() {
             onSelectionChange={setSelectedAddonIds}
           />
 
+          {/* 4b. Global promotion eligibility (when promo is set) */}
+          {appliedPromoCode && (
+            <section className="border border-hertz-border bg-white p-6">
+              <h2 className="text-lg font-bold text-black">{t("vehicleDetail.promotion_title")}</h2>
+              {promotion?.validation?.status === "valid" && pricing?.promo_code ? (
+                <div className="mt-3 flex items-center gap-2 rounded border border-green-200 bg-green-50 px-3 py-2">
+                  <span className="text-green-700" aria-hidden>✓</span>
+                  <span className="text-sm font-medium text-green-800">
+                    {t("promotion.applied_with_discount", { code: appliedPromoCode, discount: promotion.validation.discountLabel ?? t("promotion.discount") })}
+                  </span>
+                  {pricing.promo_code.amount > 0 && (
+                    <span className="text-sm text-green-700">
+                      −฿{pricing.promo_code.amount.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-3 flex flex-col gap-1 rounded border border-amber-200 bg-[#FFF6CC] px-3 py-2">
+                  <span className="text-sm font-medium text-black">
+                    ⚠ {t("promotion.not_applicable", { code: appliedPromoCode })}
+                  </span>
+                  {(promoCodeError || promotion?.validation?.reason) && (
+                    <span className="text-sm text-hertz-black-70">
+                      {t("promotion.reason")}: {promoCodeError || promotion?.validation?.reason}
+                    </span>
+                  )}
+                </div>
+              )}
+            </section>
+          )}
+
           {/* 5. Promotions & discounts */}
           <PromotionsSection
             appliedPromoCode={appliedPromoCode}
@@ -710,11 +779,11 @@ function VehicleDetailContent() {
           {benefitVouchersApplied && (
             <div className="mb-3 flex items-center gap-2 border border-[#FFCC00] bg-[#FFCC00]/10 px-3 py-2">
               <span className="text-sm font-medium text-black">
-                Benefit Voucher Applied
+                {t("vehicleDetail.benefit_voucher_applied")}
               </span>
             </div>
           )}
-          <h3 className="text-lg font-bold text-black">Price summary</h3>
+          <h3 className="text-lg font-bold text-black">{t("vehicleDetail.price_summary")}</h3>
           <dl className="mt-3 space-y-2">
             {lineItems.map((item, i) => (
               <div key={i} className="flex justify-between text-sm">
@@ -755,7 +824,7 @@ function VehicleDetailContent() {
             disabled={!isValid || submitting || priceLoading}
             className="flex h-12 flex-1 items-center justify-center border-2 border-black bg-white font-bold text-black disabled:opacity-50"
           >
-            Pay later - ฿{payLaterTotal.toLocaleString()}
+            {t("vehicleDetail.pay_later_total", { amount: payLaterTotal.toLocaleString() })}
           </button>
           <button
             type="button"
@@ -763,7 +832,7 @@ function VehicleDetailContent() {
             disabled={!isValid || submitting || priceLoading}
             className="flex h-12 flex-1 items-center justify-center bg-[#FFCC00] font-bold text-black disabled:opacity-50"
           >
-            {submitting ? "Processing..." : `Pay now - ฿${payNowTotal.toLocaleString()}`}
+            {submitting ? t("checkout.processing") : t("vehicleDetail.pay_now_total", { amount: payNowTotal.toLocaleString() })}
           </button>
         </div>
       </StickyBottomBar>

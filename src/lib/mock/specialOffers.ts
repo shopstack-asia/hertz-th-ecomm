@@ -7,6 +7,8 @@ export type PromotionType =
   | "Early Bird"
   | "EV Promotion";
 
+export type MockLocale = "en" | "th" | "zh";
+
 export interface SpecialOffer {
   id: string;
   title: string;
@@ -301,3 +303,188 @@ export const SPECIAL_OFFERS: SpecialOffer[] = [
     is_active: true,
   },
 ];
+
+/** Per-offer translations for th and zh. en uses base SPECIAL_OFFERS. */
+const OFFER_TRANSLATIONS: Record<
+  MockLocale,
+  Partial<Record<string, { title: string; short_description: string; full_description: string; badge_label: string }>>
+> = {
+  en: {},
+  th: {
+    "po-001": {
+      title: "ชำระล่วงหน้า ลด 10%",
+      short_description: "จองและชำระล่วงหน้าเพื่ออัตราค่าบริการที่ดีที่สุด",
+      full_description: "เมื่อจองและชำระเงินตอนทำการจอง คุณจะได้ส่วนลด 10% จากอัตราฐาน ใช้ได้ทุกประเภทรถ ไม่ต้องใช้คูปอง—เลือกชำระทันทีที่เช็คเอาท์",
+      badge_label: "ลด 10%",
+    },
+    "po-002": {
+      title: "โปรเช่าสัปดาห์",
+      short_description: "เช่า 7 วันขึ้นไป ลดสูงสุด 15% เหมาะสำหรับเที่ยวยาว",
+      full_description: "วางแผนเที่ยวสัปดาห์? เช่า 7 วันขึ้นไป ลดสูงสุด 15% ใช้กับรถเศรษฐกิจ คอมแพ็กต์ กลาง",
+      badge_label: "ลดสูงสุด 15%",
+    },
+    "po-003": {
+      title: "Gold Plus อัปเกรดฟรี",
+      short_description: "สมาชิก Gold Plus ได้อัปเกรดระดับรถฟรีหนึ่งขั้น",
+      full_description: "สมาชิก Gold Plus Rewards ได้รับการอัปเกรดหนึ่งระดับฟรีที่สาขาที่ร่วมรายการ ตามความพร้อมที่รับรถ สมัคร Gold Plus ฟรี",
+      badge_label: "เฉพาะสมาชิก",
+    },
+    "po-004": {
+      title: "จองล่วงหน้า รับส่วนลดเพิ่ม 5%",
+      short_description: "จองก่อนรับรถ 30 วัน รับส่วนลดเพิ่ม 5%",
+      full_description: "จองล่วงหน้าอย่างน้อย 30 วันก่อนรับรถ รับส่วนลด 5% เพิ่มจากอัตราฐาน ใช้ร่วมกับโปรชำระล่วงหน้าได้",
+      badge_label: "จองล่วงหน้า",
+    },
+    "po-005": {
+      title: "โปร EV ลด 12%",
+      short_description: "ลด 12% เมื่อเช่ารถไฟฟ้า",
+      full_description: "ขับรถ EV เช่น BYD Atto 3, MG4 ลด 12% มีสายชาร์จให้ ใช้ได้ที่สนามบินและในเมือง",
+      badge_label: "ลด 12% EV",
+    },
+    "po-006": {
+      title: "โปรรับที่สนามบิน",
+      short_description: "อัตราพิเศษเมื่อรับรถที่สนามบินในประเทศไทย",
+      full_description: "รับรถที่สุวรรณภูมิ ดอนเมือง ภูเก็ต เชียงใหม่ หรือสนามบินอื่น รับอัตราพิเศษ คืนรถที่สาขาใดก็ได้ในวันเดียวกันไม่คิดค่าเพิ่ม",
+      badge_label: "โปรสนามบิน",
+    },
+    "po-007": {
+      title: "เที่ยวสุดสัปดาห์",
+      short_description: "อัตราพิเศษเช่าศุกร์–อาทิตย์",
+      full_description: "เช่า 2–3 วันศุกร์–อาทิตย์ ลด 8% รับรถศุกร์ คืนอาทิตย์ ใช้ได้ทุกสาขา",
+      badge_label: "สุดสัปดาห์ 8%",
+    },
+    "po-008": {
+      title: "สมาชิกได้คะแนน x2",
+      short_description: "รับคะแนน Gold Plus x2 ในการเช่าครั้งถัดไป",
+      full_description: "สมาชิก Gold Plus รับคะแนนสองเท่าในการเช่าที่เข้าร่วม ต้องล็อกอินและเป็นสมาชิก Gold Plus ตอนจอง",
+      badge_label: "เฉพาะสมาชิก",
+    },
+    "po-009": {
+      title: "โปร SUV ครอบครัว",
+      short_description: "เช่า SUV 5 วันขึ้นไป ลด 10%",
+      full_description: "เที่ยวกับครอบครัว? เช่า SUV 5 วันขึ้นไป ลด 10% Toyota Fortuner, Honda CR-V ฯลฯ",
+      badge_label: "10% SUV",
+    },
+    "po-010": {
+      title: "ไฮบริด ลด 15%",
+      short_description: "ลด 15% รถไฮบริด ประหยัดน้ำมัน ลดการปล่อยมลพิษ",
+      full_description: "ขับ Toyota Camry Hybrid หรือ Corolla Cross Hybrid ลด 15% รถไฮบริดประหยัดน้ำมัน ใช้ได้ที่สาขาหลักทั่วไทย",
+      badge_label: "15% ไฮบริด",
+    },
+    "po-011": {
+      title: "โปรภูเก็ต สนามบิน",
+      short_description: "ลด 10% เมื่อรับรถที่สนามบินภูเก็ต",
+      full_description: "ลงภูเก็ตแล้วขับต่อด้วยส่วนลด 10% เมื่อรับรถที่สนามบินภูเก็ต เหมาะสำหรับเที่ยวทะเล",
+      badge_label: "ภูเก็ต 10%",
+    },
+    "po-012": {
+      title: "อัตรารายเดือน เช่านาน",
+      short_description: "เช่าขยายระยะ? อัตรารายเดือน ลดสูงสุด 20%",
+      full_description: "ต้องการรถเป็นเดือนหรือมากกว่า? โปรเช่าขยายระยะลดสูงสุด 20% สำหรับเช่า 28 วันขึ้นไป เหมาะกับชาวต่างชาติ หรือเที่ยวยาว",
+      badge_label: "20% รายเดือน",
+    },
+    "po-013": {
+      title: "แฟลชเซลล์ จำกัดเวลา",
+      short_description: "ชำระทันที ลด 15% รถเศรษฐกิจและคอมแพ็กต์",
+      full_description: "แฟลชเซลล์: ลด 15% เมื่อชำระตอนจอง ใช้กับเศรษฐกิจและคอมแพ็กต์เท่านั้น มีจำนวนจำกัด จองเลยเพื่อล็อคราคา",
+      badge_label: "จำกัดเวลา",
+    },
+  },
+  zh: {
+    "po-001": {
+      title: "立即支付省 10%",
+      short_description: "提前预订并支付，享受最优惠租金。",
+      full_description: "在预订时支付，可享基础租金 10% 折扣。适用于所有车型，无需优惠码——结账时选择立即支付即可。",
+      badge_label: "省 10%",
+    },
+    "po-002": {
+      title: "周租优惠",
+      short_description: "租 7 天及以上省最多 15%，适合长途旅行。",
+      full_description: "计划一周行程？租 7 天及以上可省最多 15%。适用于经济型、紧凑型、中型车。至少连续租 7 天。",
+      badge_label: "省最多 15%",
+    },
+    "po-003": {
+      title: "Gold Plus 免费升级",
+      short_description: "Gold Plus 会员可享免费车型升级一档。",
+      full_description: "Gold Plus Rewards 会员在参与门店可享免费一档车型升级，视取车时供应情况而定。免费加入 Gold Plus。",
+      badge_label: "仅会员",
+    },
+    "po-004": {
+      title: "提前预订额外省 5%",
+      short_description: "提前 30 天预订，额外省 5%。",
+      full_description: "至少提前 30 天取车预订，可在基础费率上再享 5% 折扣。可与立即支付折扣叠加。",
+      badge_label: "提前预订",
+    },
+    "po-005": {
+      title: "电动车专享省 12%",
+      short_description: "电动车租赁省 12%。",
+      full_description: "租 BYD Atto 3、MG4 等电动车省 12%。含充电线。主要机场及市区门店可用。",
+      badge_label: "省 12% 电动车",
+    },
+    "po-006": {
+      title: "机场取车专享",
+      short_description: "在泰国任一机场取车享专属价格。",
+      full_description: "乘机抵达？在素万那普、廊曼、普吉、清迈等机场取车享专属价格。同日还至任意 Hertz 门店无额外费用。",
+      badge_label: "机场专享",
+    },
+    "po-007": {
+      title: "周末短途",
+      short_description: "周五至周日租赁特价。",
+      full_description: "周五至周日 2–3 天租赁省 8%。周五取车、周日还车。所有市区及机场门店可用。",
+      badge_label: "周末 8%",
+    },
+    "po-008": {
+      title: "会员双倍积分",
+      short_description: "下次租赁赚取双倍 Gold Plus 积分。",
+      full_description: "Gold Plus 会员本月符合条件租赁可获双倍积分。积分可兑换免租日。须在预订时登录并为 Gold Plus 会员。",
+      badge_label: "仅会员",
+    },
+    "po-009": {
+      title: "SUV 家庭套餐",
+      short_description: "SUV 租 5 天及以上省 10%。",
+      full_description: "家庭出游？租 SUV 5 天及以上省 10%。Toyota Fortuner、Honda CR-V 等。适合清迈、普吉或山区自驾。",
+      badge_label: "10% SUV",
+    },
+    "po-010": {
+      title: "混动省 15%",
+      short_description: "混动车省 15%，省油减排。",
+      full_description: "租 Toyota Camry Hybrid 或 Corolla Cross Hybrid 省 15%。混动车城郊均省油。泰国主要门店可用。",
+      badge_label: "15% 混动",
+    },
+    "po-011": {
+      title: "普吉机场欢迎礼",
+      short_description: "普吉国际机场取车省 10%。",
+      full_description: "抵达普吉即享省 10%。在普吉国际机场取车可享 10% 折扣。适合海滩与海岛游。",
+      badge_label: "普吉 10%",
+    },
+    "po-012": {
+      title: "长租月付价",
+      short_description: "长租？享受最优月租价，省最多 20%。",
+      full_description: "需要租一个月或更久？长租计划 28 天及以上省最多 20%。适合外派、项目或长假。",
+      badge_label: "20% 月租",
+    },
+    "po-013": {
+      title: "限时闪购",
+      short_description: "立即支付，精选经济型/紧凑型省 15%。",
+      full_description: "闪购：预订时支付省 15%。仅限经济型与紧凑型。数量有限，立即预订锁定价格。",
+      badge_label: "限时",
+    },
+  },
+};
+
+export function getSpecialOffers(locale?: MockLocale): SpecialOffer[] {
+  const effectiveLocale = locale && (locale === "en" || locale === "th" || locale === "zh") ? locale : "en";
+  const t = OFFER_TRANSLATIONS[effectiveLocale];
+  if (!t || Object.keys(t).length === 0) return [...SPECIAL_OFFERS];
+  return SPECIAL_OFFERS.map((offer) => {
+    const over = t[offer.id];
+    if (!over) return { ...offer };
+    return {
+      ...offer,
+      title: over.title,
+      short_description: over.short_description,
+      full_description: over.full_description,
+      badge_label: over.badge_label,
+    };
+  });
+}

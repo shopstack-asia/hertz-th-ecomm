@@ -1,4 +1,6 @@
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { getSession } from "@/server/mock/session_store";
 import type { LoyaltyProfile } from "@/types/account";
 
@@ -13,7 +15,8 @@ const MOCK_LOYALTY: LoyaltyProfile = {
   qualification_end: "2026-12-31",
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  getLocaleFromRequest(request);
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 

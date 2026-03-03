@@ -37,7 +37,7 @@ export function MobileDrawer({ open, onClose, loginHref, registerHref, authentic
   const pathname = usePathname();
   const loginUrl = loginHref ?? `/account/login?returnUrl=${encodeURIComponent(pathname ?? "/")}`;
   const registerUrl = registerHref ?? `/account/register?returnUrl=${encodeURIComponent(pathname ?? "/")}`;
-  const { t, locale, setLocale } = useLanguage();
+  const { t, locale, setLocale, availableLocales } = useLanguage();
   const [bookExpanded, setBookExpanded] = useState(false);
 
   useEffect(() => {
@@ -60,12 +60,12 @@ export function MobileDrawer({ open, onClose, loginHref, registerHref, authentic
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-sm overflow-y-auto border-l border-hertz-border bg-white lg:hidden">
         <div className="flex flex-col p-6">
           <div className="mb-6 flex items-center justify-between">
-            <span className="text-lg font-bold text-black">Menu</span>
+            <span className="text-lg font-bold text-black">{t("common.menu")}</span>
             <button
               type="button"
               onClick={onClose}
               className="flex min-h-tap min-w-tap items-center justify-center text-hertz-black-80 hover:text-black"
-              aria-label="Close menu"
+              aria-label={t("common.close_menu")}
               aria-expanded={open}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,25 +131,20 @@ export function MobileDrawer({ open, onClose, loginHref, registerHref, authentic
           {/* Language */}
           <div className="mt-8 flex items-center gap-2 border-t border-hertz-border pt-6">
             <span className="text-sm text-hertz-black-60">Language</span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setLocale("th")}
-                className={`min-h-tap px-4 font-medium ${
-                  locale === "th" ? "font-bold text-black underline" : "text-hertz-black-60"
-                }`}
-              >
-                ไทย
-              </button>
-              <button
-                type="button"
-                onClick={() => setLocale("en")}
-                className={`min-h-tap px-4 font-medium ${
-                  locale === "en" ? "font-bold text-black underline" : "text-hertz-black-60"
-                }`}
-              >
-                English
-              </button>
+            <div className="flex flex-wrap gap-2">
+              {availableLocales.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => setLocale(lang.code)}
+                  className={`min-h-tap px-4 font-medium ${
+                    locale === lang.code ? "font-bold text-black underline" : "text-hertz-black-60"
+                  }`}
+                >
+                  {lang.flag && <span className="mr-1">{lang.flag}</span>}
+                  {lang.label}
+                </button>
+              ))}
             </div>
           </div>
 

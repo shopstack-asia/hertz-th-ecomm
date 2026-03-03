@@ -1,9 +1,27 @@
+export type BranchType = "Airport" | "Downtown" | "Mall";
+
+/** Canonical province key for filtering (unchanged by locale). Frontend sends English name; API normalizes to this. */
+export type ProvinceCode =
+  | "bangkok"
+  | "chiang_mai"
+  | "phuket"
+  | "khon_kaen"
+  | "udon_thani"
+  | "songkhla"
+  | "surat_thani"
+  | "chonburi"
+  | "phitsanulok"
+  | "krabi"
+  | "samut_prakan";
+
 export interface LocationBranch {
   id: string;
   code: string;
   name: string;
-  branch_type: "Airport" | "Downtown" | "Mall";
+  branch_type: BranchType;
+  /** Display province (localized). Use province_code for filtering. */
   province: string;
+  province_code: ProvinceCode;
   district: string;
   address: string;
   postal_code: string;
@@ -15,6 +33,8 @@ export interface LocationBranch {
   is_24_hours: boolean;
 }
 
+export type MockLocale = "en" | "th" | "zh";
+
 /** Thailand branch coordinates: lat 5–21°N, lng 97–106°E */
 export const LOCATIONS_BRANCHES: LocationBranch[] = [
   {
@@ -23,6 +43,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Suvarnabhumi Airport",
     branch_type: "Airport",
     province: "Bangkok",
+    province_code: "samut_prakan",
     district: "Bang Phli",
     address: "999 Moo 1, Nong Prue, Bang Phli, Samut Prakan",
     postal_code: "10540",
@@ -39,6 +60,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Don Mueang Airport",
     branch_type: "Airport",
     province: "Bangkok",
+    province_code: "bangkok",
     district: "Don Mueang",
     address: "222 Don Mueang, Don Mueang District",
     postal_code: "10210",
@@ -55,6 +77,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Sathorn",
     branch_type: "Downtown",
     province: "Bangkok",
+    province_code: "bangkok",
     district: "Sathorn",
     address: "123 Sathorn Road, Yannawa",
     postal_code: "10120",
@@ -71,6 +94,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Siam Paragon",
     branch_type: "Mall",
     province: "Bangkok",
+    province_code: "bangkok",
     district: "Pathum Wan",
     address: "991 Siam Paragon, Rama I Road",
     postal_code: "10330",
@@ -87,6 +111,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Sukhumvit",
     branch_type: "Downtown",
     province: "Bangkok",
+    province_code: "bangkok",
     district: "Watthana",
     address: "88 Sukhumvit Road, Soi 24",
     postal_code: "10110",
@@ -103,6 +128,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Chiang Mai International Airport",
     branch_type: "Airport",
     province: "Chiang Mai",
+    province_code: "chiang_mai",
     district: "Suthep",
     address: "60 Mahidol Road, Suthep",
     postal_code: "50200",
@@ -119,6 +145,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Nimman Chiang Mai",
     branch_type: "Downtown",
     province: "Chiang Mai",
+    province_code: "chiang_mai",
     district: "Suthep",
     address: "123 Nimmanhaemin Road",
     postal_code: "50200",
@@ -135,6 +162,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Phuket International Airport",
     branch_type: "Airport",
     province: "Phuket",
+    province_code: "phuket",
     district: "Thalang",
     address: "222 Moo 6, Mai Khao, Thalang",
     postal_code: "83110",
@@ -151,6 +179,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Patong Beach",
     branch_type: "Downtown",
     province: "Phuket",
+    province_code: "phuket",
     district: "Kathu",
     address: "155 Thaweewong Road, Patong",
     postal_code: "83150",
@@ -167,6 +196,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Kata Beach",
     branch_type: "Downtown",
     province: "Phuket",
+    province_code: "phuket",
     district: "Karon",
     address: "88 Kata Road, Karon",
     postal_code: "83100",
@@ -183,6 +213,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Khon Kaen Airport",
     branch_type: "Airport",
     province: "Khon Kaen",
+    province_code: "khon_kaen",
     district: "Mueang Khon Kaen",
     address: "Ban Ped, Mueang Khon Kaen",
     postal_code: "40000",
@@ -199,6 +230,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Khon Kaen City",
     branch_type: "Downtown",
     province: "Khon Kaen",
+    province_code: "khon_kaen",
     district: "Mueang Khon Kaen",
     address: "456 Mittraphap Road",
     postal_code: "40002",
@@ -215,6 +247,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Udon Thani International Airport",
     branch_type: "Airport",
     province: "Udon Thani",
+    province_code: "udon_thani",
     district: "Mueang Udon Thani",
     address: "Ban Mai, Mueang Udon Thani",
     postal_code: "41000",
@@ -231,6 +264,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Udon Thani City",
     branch_type: "Downtown",
     province: "Udon Thani",
+    province_code: "udon_thani",
     district: "Mueang Udon Thani",
     address: "222 Phosri Road",
     postal_code: "41000",
@@ -247,6 +281,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Hat Yai International Airport",
     branch_type: "Airport",
     province: "Songkhla",
+    province_code: "songkhla",
     district: "Khlong Hoi Khong",
     address: "99 Sanambin Nam, Khlong Hoi Khong",
     postal_code: "90115",
@@ -263,6 +298,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Hat Yai City",
     branch_type: "Downtown",
     province: "Songkhla",
+    province_code: "songkhla",
     district: "Hat Yai",
     address: "123 Niphat Uthit 3 Road",
     postal_code: "90110",
@@ -279,6 +315,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Ko Samui Airport",
     branch_type: "Airport",
     province: "Surat Thani",
+    province_code: "surat_thani",
     district: "Ko Samui",
     address: "Bo Put, Ko Samui",
     postal_code: "84320",
@@ -295,6 +332,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Chaweng Beach",
     branch_type: "Downtown",
     province: "Surat Thani",
+    province_code: "surat_thani",
     district: "Ko Samui",
     address: "78 Chaweng Beach Road",
     postal_code: "84320",
@@ -311,6 +349,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Pattaya U-Tapao Airport",
     branch_type: "Airport",
     province: "Chonburi",
+    province_code: "chonburi",
     district: "Bang Lamung",
     address: "Na Kluea, Bang Lamung",
     postal_code: "20150",
@@ -327,6 +366,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Pattaya Beach",
     branch_type: "Downtown",
     province: "Chonburi",
+    province_code: "chonburi",
     district: "Bang Lamung",
     address: "456 Beach Road, Pattaya",
     postal_code: "20150",
@@ -343,6 +383,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Central Festival Pattaya",
     branch_type: "Mall",
     province: "Chonburi",
+    province_code: "chonburi",
     district: "Bang Lamung",
     address: "333/99 Moo 9, Beach Road",
     postal_code: "20150",
@@ -359,6 +400,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Phitsanulok Airport",
     branch_type: "Airport",
     province: "Phitsanulok",
+    province_code: "phitsanulok",
     district: "Mueang Phitsanulok",
     address: "97/1 Boromtri Lokanat Road",
     postal_code: "65000",
@@ -375,6 +417,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Surat Thani Airport",
     branch_type: "Airport",
     province: "Surat Thani",
+    province_code: "surat_thani",
     district: "Phunphin",
     address: "Moo 3, Phunphin",
     postal_code: "84130",
@@ -391,6 +434,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Krabi Airport",
     branch_type: "Airport",
     province: "Krabi",
+    province_code: "krabi",
     district: "Mueang Krabi",
     address: "199 Moo 4, Nong Thale",
     postal_code: "81180",
@@ -407,6 +451,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Ao Nang Beach",
     branch_type: "Downtown",
     province: "Krabi",
+    province_code: "krabi",
     district: "Mueang Krabi",
     address: "123 Ao Nang Beach Road",
     postal_code: "81180",
@@ -423,6 +468,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Mega Bangna",
     branch_type: "Mall",
     province: "Bangkok",
+    province_code: "bangkok",
     district: "Bang Phli",
     address: "39 Bangna-Trad Road, Km 8",
     postal_code: "10540",
@@ -439,6 +485,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Central Festival Chiang Mai",
     branch_type: "Mall",
     province: "Chiang Mai",
+    province_code: "chiang_mai",
     district: "Mueang Chiang Mai",
     address: "99/3 Superhighway Road",
     postal_code: "50200",
@@ -455,6 +502,7 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     name: "Hertz Central Festival Phuket",
     branch_type: "Mall",
     province: "Phuket",
+    province_code: "phuket",
     district: "Talang",
     address: "74-75 Moo 5, Bypass Road",
     postal_code: "83110",
@@ -468,6 +516,441 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
 ];
 
 const THAILAND_BOUNDS = { latMin: 5.5, latMax: 20.5, lngMin: 97, lngMax: 106 };
+
+/** Per-branch localized fields for th/zh. en uses base LOCATIONS_BRANCHES. */
+type BranchOverlay = Partial<{
+  name: string;
+  address: string;
+  branch_type: BranchType;
+  province: string;
+  district: string;
+  opening_hours: string;
+}>;
+
+const BRANCH_TRANSLATIONS: Record<MockLocale, Partial<Record<string, BranchOverlay>>> = {
+  en: {},
+  th: {
+    "bkk-suv": {
+      name: "เฮิร์ตซ์ สนามบินสุวรรณภูมิ",
+      address: "999 หมู่ 1 ต.หนองปรือ อ.บางพลี สมุทรปราการ",
+      branch_type: "Airport",
+      province: "สมุทรปราการ",
+      district: "บางพลี",
+      opening_hours: "24 ชั่วโมง",
+    },
+    "bkk-dmk": {
+      name: "เฮิร์ตซ์ สนามบินดอนเมือง",
+      address: "222 ถ.ดอนเมือง เขตดอนเมือง",
+      branch_type: "Airport",
+      province: "กรุงเทพฯ",
+      district: "ดอนเมือง",
+      opening_hours: "24 ชั่วโมง",
+    },
+    "bkk-sathorn": {
+      name: "เฮิร์ตซ์ สาทร",
+      address: "123 ถ.สาทร แขวงยานนาวา",
+      branch_type: "Downtown",
+      province: "กรุงเทพฯ",
+      district: "สาทร",
+    },
+    "bkk-siam": {
+      name: "เฮิร์ตซ์ สยามพารากอน",
+      address: "991 สยามพารากอน ถ.พระราม 1",
+      branch_type: "Mall",
+      province: "กรุงเทพฯ",
+      district: "ปทุมวัน",
+    },
+    "bkk-sukhumvit": {
+      name: "เฮิร์ตซ์ สุขุมวิท",
+      address: "88 ถ.สุขุมวิท ซอย 24",
+      branch_type: "Downtown",
+      province: "กรุงเทพฯ",
+      district: "วัฒนา",
+    },
+    "cnx-airport": {
+      name: "เฮิร์ตซ์ สนามบินเชียงใหม่",
+      address: "60 ถ.มหิดล ต.สุเทพ",
+      branch_type: "Airport",
+      province: "เชียงใหม่",
+      district: "สุเทพ",
+    },
+    "cnx-nimman": {
+      name: "เฮิร์ตซ์ นิมมานเหมินทร์ เชียงใหม่",
+      address: "123 ถ.นิมมานเหมินทร์",
+      branch_type: "Downtown",
+      province: "เชียงใหม่",
+      district: "สุเทพ",
+    },
+    "hkt-airport": {
+      name: "เฮิร์ตซ์ สนามบินภูเก็ต",
+      address: "222 หมู่ 6 ต.ไม้ขาว อ.ถลาง",
+      branch_type: "Airport",
+      province: "ภูเก็ต",
+      district: "ถลาง",
+      opening_hours: "24 ชั่วโมง",
+    },
+    "hkt-patong": {
+      name: "เฮิร์ตซ์ ป่าตอง บีช",
+      address: "155 ถ.ท้าวเวียง ต.ป่าตอง",
+      branch_type: "Downtown",
+      province: "ภูเก็ต",
+      district: "กะทู้",
+    },
+    "hkt-kata": {
+      name: "เฮิร์ตซ์ คาร์ตา บีช",
+      address: "88 ถ.กะตะ ต.กะรน",
+      branch_type: "Downtown",
+      province: "ภูเก็ต",
+      district: "กะรน",
+    },
+    "kkc-airport": {
+      name: "เฮิร์ตซ์ สนามบินขอนแก่น",
+      address: "บ้านเป็ด อ.เมืองขอนแก่น",
+      branch_type: "Airport",
+      province: "ขอนแก่น",
+      district: "เมืองขอนแก่น",
+    },
+    "kkc-downtown": {
+      name: "เฮิร์ตซ์ ขอนแก่น ตัวเมือง",
+      address: "456 ถ.มิตรภาพ",
+      branch_type: "Downtown",
+      province: "ขอนแก่น",
+      district: "เมืองขอนแก่น",
+    },
+    "uth-airport": {
+      name: "เฮิร์ตซ์ สนามบินอุดรธานี",
+      address: "บ้านใหม่ อ.เมืองอุดรธานี",
+      branch_type: "Airport",
+      province: "อุดรธานี",
+      district: "เมืองอุดรธานี",
+    },
+    "uth-downtown": {
+      name: "เฮิร์ตซ์ อุดรธานี ตัวเมือง",
+      address: "222 ถ.โพศรี",
+      branch_type: "Downtown",
+      province: "อุดรธานี",
+      district: "เมืองอุดรธานี",
+    },
+    "hdy-airport": {
+      name: "เฮิร์ตซ์ สนามบินหาดใหญ่",
+      address: "99 สนามบินน้ำ คลองหอยโข่ง",
+      branch_type: "Airport",
+      province: "สงขลา",
+      district: "คลองหอยโข่ง",
+    },
+    "hdy-downtown": {
+      name: "เฮิร์ตซ์ หาดใหญ่ ตัวเมือง",
+      address: "123 ถ.นิพัทธ์อุทิศ 3",
+      branch_type: "Downtown",
+      province: "สงขลา",
+      district: "หาดใหญ่",
+    },
+    "usm-airport": {
+      name: "เฮิร์ตซ์ สนามบินเกาะสมุย",
+      address: "บ่อผุด เกาะสมุย",
+      branch_type: "Airport",
+      province: "สุราษฎร์ธานี",
+      district: "เกาะสมุย",
+    },
+    "usm-chaweng": {
+      name: "เฮิร์ตซ์ หาดเฉวง",
+      address: "78 ถ.หาดเฉวง",
+      branch_type: "Downtown",
+      province: "สุราษฎร์ธานี",
+      district: "เกาะสมุย",
+    },
+    "utp-airport": {
+      name: "เฮิร์ตซ์ สนามบินอู่ตะเภา พัทยา",
+      address: "นาเกลือ บางละมุง",
+      branch_type: "Airport",
+      province: "ชลบุรี",
+      district: "บางละมุง",
+    },
+    "pattaya-beach": {
+      name: "เฮิร์ตซ์ พัทยา บีช",
+      address: "456 ถ.ชายหาด พัทยา",
+      branch_type: "Downtown",
+      province: "ชลบุรี",
+      district: "บางละมุง",
+    },
+    "pattaya-central": {
+      name: "เฮิร์ตซ์ เซ็นทรัลเฟสติวัล พัทยา",
+      address: "333/99 หมู่ 9 ถ.ชายหาด",
+      branch_type: "Mall",
+      province: "ชลบุรี",
+      district: "บางละมุง",
+    },
+    "pits-airport": {
+      name: "เฮิร์ตซ์ สนามบินพิษณุโลก",
+      address: "97/1 ถ.บรมไตรโลกนาถ",
+      branch_type: "Airport",
+      province: "พิษณุโลก",
+      district: "เมืองพิษณุโลก",
+    },
+    "urt-surat": {
+      name: "เฮิร์ตซ์ สนามบินสุราษฎร์ธานี",
+      address: "หมู่ 3 พุนพิน",
+      branch_type: "Airport",
+      province: "สุราษฎร์ธานี",
+      district: "พุนพิน",
+    },
+    "kbit-airport": {
+      name: "เฮิร์ตซ์ สนามบินกระบี่",
+      address: "199 หมู่ 4 ต.หนองทะเล",
+      branch_type: "Airport",
+      province: "กระบี่",
+      district: "เมืองกระบี่",
+    },
+    "kbit-ao-nang": {
+      name: "เฮิร์ตซ์ อ่าวนาง",
+      address: "123 ถ.อ่าวนาง",
+      branch_type: "Downtown",
+      province: "กระบี่",
+      district: "เมืองกระบี่",
+    },
+    "bkk-mega": {
+      name: "เฮิร์ตซ์ เมกาบางนา",
+      address: "39 ถ.บางนา-ตราด กม. 8",
+      branch_type: "Mall",
+      province: "กรุงเทพฯ",
+      district: "บางพลี",
+    },
+    "cnx-central": {
+      name: "เฮิร์ตซ์ เซ็นทรัลเฟสติวัล เชียงใหม่",
+      address: "99/3 ถ.ซูเปอร์ไฮเวย์",
+      branch_type: "Mall",
+      province: "เชียงใหม่",
+      district: "เมืองเชียงใหม่",
+    },
+    "hkt-central": {
+      name: "เฮิร์ตซ์ เซ็นทรัลเฟสติวัล ภูเก็ต",
+      address: "74-75 หมู่ 5 ถ.บายพาส",
+      branch_type: "Mall",
+      province: "ภูเก็ต",
+      district: "ถลาง",
+    },
+  },
+  zh: {
+    "bkk-suv": {
+      name: "赫兹 素万那普机场",
+      address: "999 邦普里 农普鲁 北榄府",
+      branch_type: "Airport",
+      province: "北榄府",
+      district: "邦普里",
+      opening_hours: "24 小时",
+    },
+    "bkk-dmk": {
+      name: "赫兹 廊曼机场",
+      address: "222 廊曼区 廊曼",
+      branch_type: "Airport",
+      province: "曼谷",
+      district: "廊曼",
+      opening_hours: "24 小时",
+    },
+    "bkk-sathorn": {
+      name: "赫兹 沙吞",
+      address: "123 沙吞路 扬纳瓦",
+      branch_type: "Downtown",
+      province: "曼谷",
+      district: "沙吞",
+    },
+    "bkk-siam": {
+      name: "赫兹 暹罗百丽宫",
+      address: "991 拉玛一路 暹罗百丽宫",
+      branch_type: "Mall",
+      province: "曼谷",
+      district: "巴吞旺",
+    },
+    "bkk-sukhumvit": {
+      name: "赫兹 素坤逸",
+      address: "88 素坤逸路 24 巷",
+      branch_type: "Downtown",
+      province: "曼谷",
+      district: "瓦塔纳",
+    },
+    "cnx-airport": {
+      name: "赫兹 清迈国际机场",
+      address: "60 玛希敦路 素贴",
+      branch_type: "Airport",
+      province: "清迈",
+      district: "素贴",
+    },
+    "cnx-nimman": {
+      name: "赫兹 清迈宁曼",
+      address: "123 宁曼海明路",
+      branch_type: "Downtown",
+      province: "清迈",
+      district: "素贴",
+    },
+    "hkt-airport": {
+      name: "赫兹 普吉国际机场",
+      address: "222 迈考 塔朗 6 村",
+      branch_type: "Airport",
+      province: "普吉",
+      district: "塔朗",
+      opening_hours: "24 小时",
+    },
+    "hkt-patong": {
+      name: "赫兹 芭东海滩",
+      address: "155 塔威旺路 芭东",
+      branch_type: "Downtown",
+      province: "普吉",
+      district: "卡图",
+    },
+    "hkt-kata": {
+      name: "赫兹 卡塔海滩",
+      address: "88 卡塔路 卡伦",
+      branch_type: "Downtown",
+      province: "普吉",
+      district: "卡伦",
+    },
+    "kkc-airport": {
+      name: "赫兹 孔敬机场",
+      address: "班佩 孔敬府治",
+      branch_type: "Airport",
+      province: "孔敬府",
+      district: "孔敬府治",
+    },
+    "kkc-downtown": {
+      name: "赫兹 孔敬市区",
+      address: "456 友谊路",
+      branch_type: "Downtown",
+      province: "孔敬府",
+      district: "孔敬府治",
+    },
+    "uth-airport": {
+      name: "赫兹 乌隆他尼国际机场",
+      address: "班迈 乌隆他尼府治",
+      branch_type: "Airport",
+      province: "乌隆他尼府",
+      district: "乌隆他尼府治",
+    },
+    "uth-downtown": {
+      name: "赫兹 乌隆他尼市区",
+      address: "222 波西里路",
+      branch_type: "Downtown",
+      province: "乌隆他尼府",
+      district: "乌隆他尼府治",
+    },
+    "hdy-airport": {
+      name: "赫兹 合艾国际机场",
+      address: "99 桑南宾南 空怀空",
+      branch_type: "Airport",
+      province: "宋卡府",
+      district: "空怀空",
+    },
+    "hdy-downtown": {
+      name: "赫兹 合艾市区",
+      address: "123 尼帕乌提 3 路",
+      branch_type: "Downtown",
+      province: "宋卡府",
+      district: "合艾",
+    },
+    "usm-airport": {
+      name: "赫兹 苏梅岛机场",
+      address: "波普 苏梅岛",
+      branch_type: "Airport",
+      province: "素叻他尼府",
+      district: "苏梅岛",
+    },
+    "usm-chaweng": {
+      name: "赫兹 查汶海滩",
+      address: "78 查汶海滩路",
+      branch_type: "Downtown",
+      province: "素叻他尼府",
+      district: "苏梅岛",
+    },
+    "utp-airport": {
+      name: "赫兹 芭堤雅乌塔堡机场",
+      address: "那格洛 邦拉蒙",
+      branch_type: "Airport",
+      province: "春武里府",
+      district: "邦拉蒙",
+    },
+    "pattaya-beach": {
+      name: "赫兹 芭堤雅海滩",
+      address: "456 海滩路 芭堤雅",
+      branch_type: "Downtown",
+      province: "春武里府",
+      district: "邦拉蒙",
+    },
+    "pattaya-central": {
+      name: "赫兹 芭堤雅尚泰百货",
+      address: "333/99 海滩路 9 村",
+      branch_type: "Mall",
+      province: "春武里府",
+      district: "邦拉蒙",
+    },
+    "pits-airport": {
+      name: "赫兹 彭世洛机场",
+      address: "97/1 波隆特里洛迦纳路",
+      branch_type: "Airport",
+      province: "彭世洛府",
+      district: "彭世洛府治",
+    },
+    "urt-surat": {
+      name: "赫兹 素叻他尼机场",
+      address: "3 村 蓬平",
+      branch_type: "Airport",
+      province: "素叻他尼府",
+      district: "蓬平",
+    },
+    "kbit-airport": {
+      name: "赫兹 甲米机场",
+      address: "199 农塔莱 4 村",
+      branch_type: "Airport",
+      province: "甲米府",
+      district: "甲米府治",
+    },
+    "kbit-ao-nang": {
+      name: "赫兹 奥南海滩",
+      address: "123 奥南海滩路",
+      branch_type: "Downtown",
+      province: "甲米府",
+      district: "甲米府治",
+    },
+    "bkk-mega": {
+      name: "赫兹 曼谷麦加邦纳",
+      address: "39 邦纳-达叻路 8 公里",
+      branch_type: "Mall",
+      province: "曼谷",
+      district: "邦普里",
+    },
+    "cnx-central": {
+      name: "赫兹 清迈尚泰百货",
+      address: "99/3 超级公路",
+      branch_type: "Mall",
+      province: "清迈",
+      district: "清迈府治",
+    },
+    "hkt-central": {
+      name: "赫兹 普吉尚泰百货",
+      address: "74-75 绕道 5 村",
+      branch_type: "Mall",
+      province: "普吉",
+      district: "塔朗",
+    },
+  },
+};
+
+export function getLocationsBranches(locale?: MockLocale): LocationBranch[] {
+  const effectiveLocale = locale && (locale === "en" || locale === "th" || locale === "zh") ? locale : "en";
+  const t = BRANCH_TRANSLATIONS[effectiveLocale];
+  if (!t || Object.keys(t).length === 0) return [...LOCATIONS_BRANCHES];
+  return LOCATIONS_BRANCHES.map((b) => {
+    const over = t[b.id];
+    if (!over) return { ...b };
+    return {
+      ...b,
+      ...(over.name != null && { name: over.name }),
+      ...(over.address != null && { address: over.address }),
+      ...(over.branch_type != null && { branch_type: over.branch_type }),
+      ...(over.province != null && { province: over.province }),
+      ...(over.district != null && { district: over.district }),
+      ...(over.opening_hours != null && { opening_hours: over.opening_hours }),
+    };
+  });
+}
 
 /** Convert lat/lng to percentage position for map placeholder (0–100) */
 export function coordsToPosition(lat: number, lng: number) {

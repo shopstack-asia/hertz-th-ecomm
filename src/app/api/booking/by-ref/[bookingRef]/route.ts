@@ -1,11 +1,13 @@
 import { NextRequest } from "next/server";
+import { getLocaleFromRequest } from "@/lib/request-locale";
 import { mockHandlers } from "@/lib/mock/handlers";
 import { bookingRefToReservationNo } from "@/lib/mock/data";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ bookingRef: string }> }
 ) {
+  getLocaleFromRequest(request);
   const { bookingRef } = await params;
   const reservationNo = bookingRefToReservationNo[bookingRef];
   if (!reservationNo) {

@@ -1,25 +1,26 @@
 "use client";
 
 import { useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const categories = [
-  { value: "", label: "All" },
-  { value: "economy", label: "Economy" },
-  { value: "compact", label: "Compact" },
-  { value: "mid-size", label: "Mid-size" },
-  { value: "suv", label: "SUV" },
-  { value: "premium", label: "Premium" },
-  { value: "luxury", label: "Luxury" },
-  { value: "van", label: "Van" },
-  { value: "hybrid", label: "Hybrid" },
-  { value: "ev", label: "EV" },
-  { value: "pickup", label: "Pickup" },
+const categories: { value: string; key: string }[] = [
+  { value: "", key: "filters.all" },
+  { value: "economy", key: "filters.economy" },
+  { value: "compact", key: "filters.compact" },
+  { value: "mid-size", key: "filters.mid_size" },
+  { value: "suv", key: "filters.suv" },
+  { value: "premium", key: "filters.premium" },
+  { value: "luxury", key: "filters.luxury" },
+  { value: "van", key: "filters.van" },
+  { value: "hybrid", key: "filters.hybrid" },
+  { value: "ev", key: "filters.ev" },
+  { value: "pickup", key: "filters.pickup" },
 ];
 
-const transmission = [
-  { value: "", label: "All" },
-  { value: "A", label: "Automatic" },
-  { value: "M", label: "Manual" },
+const transmissionOptions: { value: string; key: string }[] = [
+  { value: "", key: "filters.all" },
+  { value: "A", key: "filters.automatic" },
+  { value: "M", key: "filters.manual" },
 ];
 
 interface MobileFilterDrawerProps {
@@ -39,6 +40,8 @@ export function MobileFilterDrawer({
   onCategoryChange,
   onTransmissionChange,
 }: MobileFilterDrawerProps) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -58,12 +61,12 @@ export function MobileFilterDrawer({
       />
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-sm overflow-y-auto border-l border-hertz-border bg-white p-6 lg:hidden">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-black">Filters</h2>
+          <h2 className="text-lg font-bold text-black">{t("common.filters")}</h2>
           <button
             type="button"
             onClick={onClose}
             className="min-h-tap min-w-tap p-2 text-hertz-black-80 hover:text-black"
-            aria-label="Close"
+            aria-label={t("common.close")}
           >
             ✕
           </button>
@@ -71,7 +74,7 @@ export function MobileFilterDrawer({
         <div className="mt-6 space-y-6">
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-              Vehicle class
+              {t("filters.vehicle_class")}
             </h3>
             <ul className="mt-3 space-y-1">
               {categories.map((c) => (
@@ -87,7 +90,7 @@ export function MobileFilterDrawer({
                         : "text-hertz-black-80"
                     }`}
                   >
-                    {c.label}
+                    {t(c.key)}
                   </button>
                 </li>
               ))}
@@ -95,21 +98,21 @@ export function MobileFilterDrawer({
           </div>
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-black">
-              Transmission
+              {t("filters.transmission")}
             </h3>
             <ul className="mt-3 space-y-1">
-              {transmission.map((t) => (
-                <li key={t.value}>
+              {transmissionOptions.map((opt) => (
+                <li key={opt.value}>
                   <button
                     type="button"
-                    onClick={() => onTransmissionChange(t.value)}
+                    onClick={() => onTransmissionChange(opt.value)}
                     className={`block w-full py-2 text-left text-sm ${
-                      selectedTransmission === t.value
+                      selectedTransmission === opt.value
                         ? "font-bold text-black"
                         : "text-hertz-black-80"
                     }`}
                   >
-                    {t.label}
+                    {t(opt.key)}
                   </button>
                 </li>
               ))}
@@ -121,7 +124,7 @@ export function MobileFilterDrawer({
           onClick={onClose}
           className="mt-8 flex h-12 w-full items-center justify-center bg-hertz-yellow font-bold text-black"
         >
-          Apply filters
+          {t("filters.apply_filters")}
         </button>
       </div>
     </>
