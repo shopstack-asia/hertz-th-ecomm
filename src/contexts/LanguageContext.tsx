@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { GlobalLoadingScreen } from "@/components/ui/GlobalLoadingScreen";
 import { installApiLocaleHeader } from "@/lib/api-locale-client";
@@ -76,6 +77,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     useState<LocaleOption[]>(FALLBACK_LOCALES);
   const [defaultLocale, setDefaultLocale] = useState<string>(FALLBACK_DEFAULT);
   const [languagesLoaded, setLanguagesLoaded] = useState(false);
+  const localeRef = useRef(locale);
+  localeRef.current = locale;
 
   useEffect(() => {
     setMounted(true);
@@ -124,17 +127,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
 
     setLoading(true);
-    fetch(`/api/i18n?locale=${locale}`)
+    const requestedLocale = locale;
+    fetch(`/api/i18n?locale=${requestedLocale}`)
       .then((res) => res.json())
       .then((data: { locale?: string; messages?: Messages }) => {
         const next = data.messages && typeof data.messages === "object" ? data.messages : {};
-        messagesCache[locale] = next;
-        setMessages(next);
-        setIsReady(true);
+        messagesCache[requestedLocale] = next;
+        if (localeRef.current === requestedLocale) {
+          setMessages(next);
+          setIsReady(true);
+        }
       })
       .catch(() => {
-        setMessages({});
-        setIsReady(true);
+        if (localeRef.current === requestedLocale) {
+          setMessages({});
+          setIsReady(true);
+        }
       })
       .finally(() => setLoading(false));
   }, [locale, mounted, languagesLoaded, availableLocales]);
