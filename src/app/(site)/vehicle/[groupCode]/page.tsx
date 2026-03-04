@@ -595,7 +595,7 @@ function VehicleDetailContent() {
               <div>
                 <div className="aspect-[4/3] bg-hertz-gray">
                   <div
-                    className="h-full w-full bg-cover bg-center bg-no-repeat"
+                    className="h-full w-full bg-contain bg-center bg-no-repeat"
                     style={{
                       backgroundImage: `url(${images[imageIndex]?.url ?? images[0].url})`,
                     }}
@@ -613,7 +613,7 @@ function VehicleDetailContent() {
                         }`}
                       >
                         <div
-                          className="h-full w-full bg-cover bg-center"
+                          className="h-full w-full bg-contain bg-center"
                           style={{ backgroundImage: `url(${images[i].url})` }}
                         />
                       </button>
