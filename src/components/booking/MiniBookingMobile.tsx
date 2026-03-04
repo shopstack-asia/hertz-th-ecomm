@@ -96,7 +96,7 @@ export function MiniBookingMobile({ onOpenSheet }: MiniBookingMobileProps) {
               <>
                 <span className="flex items-center gap-1.5 text-xs font-medium text-amber-800">
                   <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" aria-hidden />
-                  {t("promotion.not_applicable", { code: promotion.promoCode })}
+                  {t("promotion.not_applicable", { code: promotion.promoCode ?? "" })}
                 </span>
                 {promoReason && (
                   <p className="text-xs text-hertz-black-70">

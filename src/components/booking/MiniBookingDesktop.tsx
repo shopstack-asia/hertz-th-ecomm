@@ -107,7 +107,7 @@ export function MiniBookingDesktop({ onOpenModal }: MiniBookingDesktopProps) {
               isPromoInvalid ? (
                 <span className="flex items-center gap-1.5 text-xs font-medium text-amber-800">
                   <AlertTriangle {...ICON_PROPS} className="shrink-0 text-amber-600" />
-                  {t("promotion.not_applicable", { code: promotion.promoCode })}
+                  {t("promotion.not_applicable", { code: promotion.promoCode ?? "" })}
                 </span>
               ) : (
                 <span
