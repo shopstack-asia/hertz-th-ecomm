@@ -29,7 +29,7 @@ interface ApiBranch {
   latitude: number;
   longitude: number;
   is_24_hours: boolean;
-  images?: string[];
+  image?: string;
 }
 
 const PROVINCES = [

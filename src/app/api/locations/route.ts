@@ -5,7 +5,6 @@ import {
   type LocationBranch,
   type ProvinceCode,
 } from "@/lib/mock/locationsBranches";
-import { generateLocationImages } from "@/lib/locationImages";
 
 /** Normalize frontend province (e.g. "Bangkok", "Chiang Mai") to province_code for filtering. */
 function provinceParamToCode(province: string): ProvinceCode | null {
@@ -75,7 +74,6 @@ function filterBranches(
 }
 
 function toApiBranch(b: LocationBranch) {
-  const images = generateLocationImages(b.id, b.name, b.branch_type, b.province);
   return {
     id: b.id,
     code: b.code,
@@ -89,7 +87,7 @@ function toApiBranch(b: LocationBranch) {
     latitude: b.latitude,
     longitude: b.longitude,
     is_24_hours: b.is_24_hours,
-    images,
+    image: b.image,
   };
 }
 

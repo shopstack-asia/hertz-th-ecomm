@@ -18,7 +18,8 @@ export interface BranchDetail {
   opening_hours: string;
   latitude: number;
   longitude: number;
-  images?: string[];
+  /** Location-type image (airport, downtown, mall, beach). */
+  image?: string;
 }
 
 interface BranchDetailViewProps {
@@ -50,8 +51,7 @@ export function BranchDetailView({ branch, t, onClose, onUseForFilter }: BranchD
     );
   }
 
-  const images =
-    branch.images?.length ? branch.images : [LOCATION_IMAGE_FALLBACK];
+  const images = branch.image ? [branch.image] : [LOCATION_IMAGE_FALLBACK];
   const isAirport = branch.branch_type === "Airport";
 
   return (

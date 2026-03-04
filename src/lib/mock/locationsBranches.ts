@@ -1,3 +1,5 @@
+import { getLocationImage } from "@/utils/get_location_image";
+
 export type BranchType = "Airport" | "Downtown" | "Mall";
 
 /** Canonical province key for filtering (unchanged by locale). Frontend sends English name; API normalizes to this. */
@@ -31,12 +33,14 @@ export interface LocationBranch {
   longitude: number;
   supports_after_hours: boolean;
   is_24_hours: boolean;
+  /** Location-type image path (airport, downtown, mall, beach). */
+  image: string;
 }
 
 export type MockLocale = "en" | "th" | "zh";
 
 /** Thailand branch coordinates: lat 5–21°N, lng 97–106°E */
-export const LOCATIONS_BRANCHES: LocationBranch[] = [
+const rawLocations: Omit<LocationBranch, "image">[] = [
   {
     id: "bkk-suv",
     code: "BKK",
@@ -514,6 +518,11 @@ export const LOCATIONS_BRANCHES: LocationBranch[] = [
     is_24_hours: false,
   },
 ];
+
+export const LOCATIONS_BRANCHES: LocationBranch[] = rawLocations.map((branch) => ({
+  ...branch,
+  image: getLocationImage(branch.branch_type, branch.name),
+}));
 
 const THAILAND_BOUNDS = { latMin: 5.5, latMax: 20.5, lngMin: 97, lngMax: 106 };
 
