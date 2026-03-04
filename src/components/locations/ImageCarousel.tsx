@@ -2,19 +2,33 @@
 
 import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
+import { LOCATION_IMAGE_FALLBACK } from "@/lib/locationImages";
 
 interface ImageCarouselProps {
   images: string[];
   alt: string;
   className?: string;
+  /** Used when an image fails to load (e.g. generic car rental). */
+  fallbackSrc?: string;
 }
 
 const SWIPE_THRESHOLD = 50;
 
-export function ImageCarousel({ images, alt, className = "" }: ImageCarouselProps) {
+export function ImageCarousel({
+  images,
+  alt,
+  className = "",
+  fallbackSrc = LOCATION_IMAGE_FALLBACK,
+}: ImageCarouselProps) {
   const [index, setIndex] = useState(0);
+  const [failedIndices, setFailedIndices] = useState<Set<number>>(new Set());
   const touchStart = useRef<number | null>(null);
   const count = images.length;
+
+  const effectiveSrc = failedIndices.has(index) ? fallbackSrc : (images[index] ?? fallbackSrc);
+  const onImageError = useCallback(() => {
+    setFailedIndices((prev) => new Set(prev).add(index));
+  }, [index]);
 
   const goPrev = useCallback(() => {
     setIndex((i) => (i <= 0 ? count - 1 : i - 1));
@@ -49,12 +63,13 @@ export function ImageCarousel({ images, alt, className = "" }: ImageCarouselProp
     >
       <div className="relative aspect-[16/10] w-full">
         <Image
-          src={images[index]}
+          src={effectiveSrc}
           alt={`${alt} ${index + 1}`}
           fill
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 60vw"
-          unoptimized={images[index]?.startsWith("http")}
+          unoptimized={false}
+          onError={onImageError}
         />
         {count > 1 && (
           <>

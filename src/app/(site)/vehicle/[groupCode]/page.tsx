@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/auth_context";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePromotionOptional } from "@/contexts/PromotionContext";
 import { proxyFetch } from "@/lib/api/proxy_fetch";
+import { LOCATION_IMAGE_FALLBACK } from "@/lib/locationImages";
 import type { VehicleDetail } from "@/types";
 import type { Location } from "@/types";
 import type { PointsRedemptionOption } from "@/types/loyalty";
@@ -554,7 +555,7 @@ function VehicleDetailContent() {
   const images =
     vehicle.images?.length > 0
       ? vehicle.images
-      : [{ url: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800" }];
+      : [{ url: LOCATION_IMAGE_FALLBACK, alt: vehicle.name }];
 
   const pricePanel = (
     <>

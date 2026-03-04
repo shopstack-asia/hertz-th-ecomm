@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
+import { LOCATION_IMAGE_FALLBACK } from "@/lib/locationImages";
 import { ImageCarousel } from "./ImageCarousel";
 
 type TFunction = (key: string) => string;
@@ -49,7 +50,8 @@ export function BranchDetailView({ branch, t, onClose, onUseForFilter }: BranchD
     );
   }
 
-  const images = branch.images?.length ? branch.images : ["https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80"];
+  const images =
+    branch.images?.length ? branch.images : [LOCATION_IMAGE_FALLBACK];
   const isAirport = branch.branch_type === "Airport";
 
   return (

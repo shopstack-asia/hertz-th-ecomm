@@ -1,4 +1,5 @@
 import type { SearchResultVehicleGroup, VehicleDetail } from "@/types";
+import { getCarImageUrl, CAR_MODELS_FOR_MOCK } from "@/lib/locationImages";
 
 /** Locale code for API mock responses (en | th | zh). */
 export type MockLocale = "en" | "th" | "zh";
@@ -75,39 +76,60 @@ export interface SearchVehicleSeed {
   dailyPayLater: number;
 }
 
-/** Seed data for search – 30 unique vehicles across categories */
-const VEHICLE_SEEDS: SearchVehicleSeed[] = [
-  { id: "v1", groupCode: "ECAR1", name: "Toyota Yaris or similar", category: "Economy", transmission: "A", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80", dailyPayNow: 990, dailyPayLater: 1100 },
-  { id: "v2", groupCode: "ECAR2", name: "Honda Brio or similar", category: "Economy", transmission: "A", seats: 5, luggage: "2 medium bags", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600&q=80", dailyPayNow: 1080, dailyPayLater: 1200 },
-  { id: "v3", groupCode: "ECAR3", name: "Nissan Almera or similar", category: "Economy", transmission: "M", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80", dailyPayNow: 900, dailyPayLater: 1000 },
-  { id: "v4", groupCode: "ECAR4", name: "Suzuki Ciaz or similar", category: "Economy", transmission: "A", seats: 5, luggage: "2 medium + 1 small", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80", dailyPayNow: 1170, dailyPayLater: 1300 },
-  { id: "v5", groupCode: "CCAR1", name: "Honda City or similar", category: "Compact", transmission: "A", seats: 5, luggage: "2 medium + 1 small", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=600&q=80", dailyPayNow: 1350, dailyPayLater: 1500 },
-  { id: "v6", groupCode: "CCAR2", name: "Toyota Vios or similar", category: "Compact", transmission: "A", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&q=80", dailyPayNow: 1260, dailyPayLater: 1400 },
-  { id: "v7", groupCode: "CCAR3", name: "Mazda 2 or similar", category: "Compact", transmission: "A", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80", dailyPayNow: 1530, dailyPayLater: 1700 },
-  { id: "v8", groupCode: "CCAR4", name: "Hyundai Accent or similar", category: "Compact", transmission: "M", seats: 5, luggage: "2 medium bags", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80", dailyPayNow: 1080, dailyPayLater: 1200 },
-  { id: "v9", groupCode: "MCAR1", name: "Toyota Camry or similar", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=600&q=80", dailyPayNow: 1980, dailyPayLater: 2200 },
-  { id: "v10", groupCode: "MCAR2", name: "Honda Accord or similar", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=600&q=80", dailyPayNow: 2160, dailyPayLater: 2400 },
-  { id: "v11", groupCode: "MCAR3", name: "Mazda 6 or similar", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=600&q=80", dailyPayNow: 2250, dailyPayLater: 2500 },
-  { id: "v12", groupCode: "SUV1", name: "Toyota Fortuner or similar", category: "SUV", transmission: "A", seats: 7, luggage: "5 large suitcases", fuelType: "Diesel", imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80", dailyPayNow: 3150, dailyPayLater: 3500 },
-  { id: "v13", groupCode: "SUV2", name: "Honda CR-V or similar", category: "SUV", transmission: "A", seats: 5, luggage: "4 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80", dailyPayNow: 2700, dailyPayLater: 3000 },
-  { id: "v14", groupCode: "SUV3", name: "Mazda CX-5 or similar", category: "SUV", transmission: "A", seats: 5, luggage: "4 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600&q=80", dailyPayNow: 2880, dailyPayLater: 3200 },
-  { id: "v15", groupCode: "SUV4", name: "Isuzu MU-X or similar", category: "SUV", transmission: "A", seats: 7, luggage: "5 large suitcases", fuelType: "Diesel", imageUrl: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=600&q=80", dailyPayNow: 3240, dailyPayLater: 3600 },
-  { id: "v16", groupCode: "PCAR1", name: "Toyota Camry Hybrid or similar", category: "Premium", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Hybrid", imageUrl: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=600&q=80", dailyPayNow: 3780, dailyPayLater: 4200 },
-  { id: "v17", groupCode: "PCAR2", name: "Lexus ES or similar", category: "Premium", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80", dailyPayNow: 4500, dailyPayLater: 5000 },
-  { id: "v18", groupCode: "PCAR3", name: "BMW 3 Series or similar", category: "Premium", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=600&q=80", dailyPayNow: 5400, dailyPayLater: 6000 },
-  { id: "v19", groupCode: "LCAR1", name: "BMW 5 Series or similar", category: "Luxury", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=600&q=80", dailyPayNow: 6750, dailyPayLater: 7500 },
-  { id: "v20", groupCode: "LCAR2", name: "Mercedes-Benz E-Class or similar", category: "Luxury", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=600&q=80", dailyPayNow: 7200, dailyPayLater: 8000 },
-  { id: "v21", groupCode: "VAN1", name: "Toyota Commuter or similar", category: "Van", transmission: "A", seats: 11, luggage: "8 large suitcases", fuelType: "Diesel", imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80", dailyPayNow: 4950, dailyPayLater: 5500 },
-  { id: "v22", groupCode: "VAN2", name: "Toyota Hiace or similar", category: "Van", transmission: "M", seats: 9, luggage: "6 large suitcases", fuelType: "Diesel", imageUrl: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80", dailyPayNow: 3600, dailyPayLater: 4000 },
-  { id: "v23", groupCode: "HCAR1", name: "Toyota Corolla Cross Hybrid", category: "Hybrid", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Hybrid", imageUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&q=80", dailyPayNow: 2700, dailyPayLater: 3000 },
-  { id: "v24", groupCode: "HCAR2", name: "Honda HR-V Hybrid or similar", category: "Hybrid", transmission: "A", seats: 5, luggage: "4 large suitcases", fuelType: "Hybrid", imageUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&q=80", dailyPayNow: 2880, dailyPayLater: 3200 },
-  { id: "v25", groupCode: "EV1", name: "BYD Atto 3 or similar", category: "EV", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Electric", imageUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&q=80", dailyPayNow: 4050, dailyPayLater: 4500 },
-  { id: "v26", groupCode: "EV2", name: "MG4 Electric or similar", category: "EV", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Electric", imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80", dailyPayNow: 3600, dailyPayLater: 4000 },
-  { id: "v27", groupCode: "PT1", name: "Toyota Hilux Revo or similar", category: "Pickup", transmission: "A", seats: 5, luggage: "4 large + cargo bed", fuelType: "Diesel", imageUrl: "https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=600&q=80", dailyPayNow: 2880, dailyPayLater: 3200 },
-  { id: "v28", groupCode: "PT2", name: "Isuzu D-Max or similar", category: "Pickup", transmission: "A", seats: 5, luggage: "4 large + cargo bed", fuelType: "Diesel", imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80", dailyPayNow: 2700, dailyPayLater: 3000 },
-  { id: "v29", groupCode: "PT3", name: "Ford Ranger or similar", category: "Pickup", transmission: "M", seats: 5, luggage: "4 large + cargo bed", fuelType: "Diesel", imageUrl: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=600&q=80", dailyPayNow: 2520, dailyPayLater: 2800 },
-  { id: "v30", groupCode: "MCAR4", name: "Nissan Teana or similar", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", imageUrl: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80", dailyPayNow: 1800, dailyPayLater: 2000 },
+/** Category + groupCode + extra fields per seed (keep original groupCodes for API compatibility). */
+const SEED_META: Pick<
+  SearchVehicleSeed,
+  "groupCode" | "category" | "transmission" | "seats" | "luggage" | "fuelType" | "dailyPayNow" | "dailyPayLater"
+>[] = [
+  { groupCode: "ECAR1", category: "Economy", transmission: "A", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", dailyPayNow: 990, dailyPayLater: 1100 },
+  { groupCode: "CCAR1", category: "Compact", transmission: "A", seats: 5, luggage: "2 medium + 1 small", fuelType: "Gasoline", dailyPayNow: 1350, dailyPayLater: 1500 },
+  { groupCode: "CCAR2", category: "Compact", transmission: "A", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", dailyPayNow: 1260, dailyPayLater: 1400 },
+  { groupCode: "SUV1", category: "SUV", transmission: "A", seats: 7, luggage: "5 large suitcases", fuelType: "Diesel", dailyPayNow: 3150, dailyPayLater: 3500 },
+  { groupCode: "VAN1", category: "Van", transmission: "A", seats: 7, luggage: "5 large suitcases", fuelType: "Diesel", dailyPayNow: 2700, dailyPayLater: 3000 },
+  { groupCode: "PT1", category: "Pickup", transmission: "A", seats: 5, luggage: "4 large + cargo bed", fuelType: "Diesel", dailyPayNow: 2880, dailyPayLater: 3200 },
+  { groupCode: "CCAR3", category: "Compact", transmission: "A", seats: 5, luggage: "2 medium + 1 small", fuelType: "Gasoline", dailyPayNow: 1530, dailyPayLater: 1700 },
+  { groupCode: "SUV2", category: "SUV", transmission: "A", seats: 5, luggage: "4 large suitcases", fuelType: "Gasoline", dailyPayNow: 2700, dailyPayLater: 3000 },
+  { groupCode: "SUV3", category: "SUV", transmission: "A", seats: 5, luggage: "4 large suitcases", fuelType: "Gasoline", dailyPayNow: 2880, dailyPayLater: 3200 },
+  { groupCode: "CCAR4", category: "Compact", transmission: "A", seats: 5, luggage: "2 medium + 1 small", fuelType: "Gasoline", dailyPayNow: 1080, dailyPayLater: 1200 },
+  { groupCode: "LCAR1", category: "Luxury", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 7200, dailyPayLater: 8000 },
+  { groupCode: "ECAR2", category: "Economy", transmission: "A", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", dailyPayNow: 1080, dailyPayLater: 1200 },
+  { groupCode: "MCAR1", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 1980, dailyPayLater: 2200 },
+  { groupCode: "MCAR2", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 2160, dailyPayLater: 2400 },
+  { groupCode: "SUV4", category: "SUV", transmission: "A", seats: 7, luggage: "5 large suitcases", fuelType: "Diesel", dailyPayNow: 3240, dailyPayLater: 3600 },
+  { groupCode: "PCAR1", category: "Premium", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Hybrid", dailyPayNow: 3780, dailyPayLater: 4200 },
+  { groupCode: "PCAR2", category: "Premium", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 4500, dailyPayLater: 5000 },
+  { groupCode: "PCAR3", category: "Premium", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 5400, dailyPayLater: 6000 },
+  { groupCode: "LCAR2", category: "Luxury", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 6750, dailyPayLater: 7500 },
+  { groupCode: "VAN2", category: "Van", transmission: "M", seats: 9, luggage: "6 large suitcases", fuelType: "Diesel", dailyPayNow: 3600, dailyPayLater: 4000 },
+  { groupCode: "HCAR1", category: "Hybrid", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Hybrid", dailyPayNow: 2700, dailyPayLater: 3000 },
+  { groupCode: "HCAR2", category: "Hybrid", transmission: "A", seats: 5, luggage: "4 large suitcases", fuelType: "Hybrid", dailyPayNow: 2880, dailyPayLater: 3200 },
+  { groupCode: "EV1", category: "EV", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Electric", dailyPayNow: 4050, dailyPayLater: 4500 },
+  { groupCode: "EV2", category: "EV", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Electric", dailyPayNow: 3600, dailyPayLater: 4000 },
+  { groupCode: "PT2", category: "Pickup", transmission: "A", seats: 5, luggage: "4 large + cargo bed", fuelType: "Diesel", dailyPayNow: 2700, dailyPayLater: 3000 },
+  { groupCode: "PT3", category: "Pickup", transmission: "M", seats: 5, luggage: "4 large + cargo bed", fuelType: "Diesel", dailyPayNow: 2520, dailyPayLater: 2800 },
+  { groupCode: "ECAR3", category: "Economy", transmission: "M", seats: 5, luggage: "2 large suitcases", fuelType: "Gasoline", dailyPayNow: 900, dailyPayLater: 1000 },
+  { groupCode: "ECAR4", category: "Economy", transmission: "A", seats: 5, luggage: "2 medium + 1 small", fuelType: "Gasoline", dailyPayNow: 1170, dailyPayLater: 1300 },
+  { groupCode: "MCAR3", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 2250, dailyPayLater: 2500 },
+  { groupCode: "MCAR4", category: "Mid-size", transmission: "A", seats: 5, luggage: "3 large suitcases", fuelType: "Gasoline", dailyPayNow: 1800, dailyPayLater: 2000 },
 ];
+
+/** Seed data for search – aligned with image files in public/car; all imageUrl from /car/ */
+const VEHICLE_SEEDS: SearchVehicleSeed[] = SEED_META.map((meta, i) => {
+  const model = CAR_MODELS_FOR_MOCK[i % CAR_MODELS_FOR_MOCK.length];
+  return {
+    id: `v${i + 1}`,
+    groupCode: meta.groupCode,
+    name: model.name,
+    imageUrl: getCarImageUrl(model.filename),
+    category: meta.category,
+    transmission: meta.transmission,
+    seats: meta.seats,
+    luggage: meta.luggage,
+    fuelType: meta.fuelType,
+    dailyPayNow: meta.dailyPayNow,
+    dailyPayLater: meta.dailyPayLater,
+  };
+});
 
 function seedToSearchResult(
   seed: SearchVehicleSeed,

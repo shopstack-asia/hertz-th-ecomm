@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePromotionOptional } from "@/contexts/PromotionContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { LOCATION_IMAGE_FALLBACK } from "@/lib/locationImages";
 import type { SearchResultVehicleGroup } from "@/types";
 import type { VehicleEligibility } from "@/contexts/PromotionContext";
 
@@ -111,7 +112,7 @@ export function VehicleCard({
             <div
               className="h-full w-full bg-cover bg-center bg-no-repeat"
               style={{
-                backgroundImage: `url(${vehicle.images?.[0]?.url ?? "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80"})`,
+                backgroundImage: `url(${vehicle.images?.[0]?.url ?? LOCATION_IMAGE_FALLBACK})`,
               }}
             />
           </div>
