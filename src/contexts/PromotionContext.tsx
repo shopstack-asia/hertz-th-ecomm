@@ -8,7 +8,7 @@ import {
   useMemo,
   useEffect,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const PROMO_STORAGE_KEY = "hertz_promo_code";
 
@@ -58,8 +58,12 @@ interface PromotionContextValue extends PromotionState {
 
 const PromotionContext = createContext<PromotionContextValue | null>(null);
 
+const PAGES_WITH_PROMO_IN_URL = ["/search", "/vehicles"] as const;
+
 export function PromotionProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const [promoCode, setPromoCodeState] = useState<string | null>(null);
   const [validation, setValidation] = useState<PromotionValidation | null>(null);
@@ -86,21 +90,30 @@ export function PromotionProvider({ children }: { children: React.ReactNode }) {
     }
   }, [searchParams]);
 
-  const setPromoCode = useCallback((code: string | null) => {
-    setPromoCodeState(code);
-    if (typeof window !== "undefined") {
-      try {
-        if (code) localStorage.setItem(PROMO_STORAGE_KEY, code);
-        else localStorage.removeItem(PROMO_STORAGE_KEY);
-      } catch {
-        // ignore
+  const setPromoCode = useCallback(
+    (code: string | null) => {
+      setPromoCodeState(code);
+      if (typeof window !== "undefined") {
+        try {
+          if (code) localStorage.setItem(PROMO_STORAGE_KEY, code);
+          else localStorage.removeItem(PROMO_STORAGE_KEY);
+        } catch {
+          // ignore
+        }
       }
-    }
-    if (!code) {
-      setValidation(null);
-      setEligibilityMap({});
-    }
-  }, []);
+      if (!code) {
+        setValidation(null);
+        setEligibilityMap({});
+      }
+      // Keep URL in sync on search/vehicles so badge shows and survives refresh
+      if (code && pathname && PAGES_WITH_PROMO_IN_URL.includes(pathname as "/search" | "/vehicles")) {
+        const next = new URLSearchParams(searchParams.toString());
+        next.set("promo", code);
+        router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+      }
+    },
+    [pathname, router, searchParams]
+  );
 
   const setEligibility = useCallback((vehicleId: string, eligibility: VehicleEligibility) => {
     setEligibilityMap((prev) => ({ ...prev, [vehicleId]: eligibility }));

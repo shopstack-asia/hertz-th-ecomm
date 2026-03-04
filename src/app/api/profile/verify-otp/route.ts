@@ -43,12 +43,23 @@ export async function POST(request: NextRequest) {
     phone: session.user.phone,
   };
 
+  let updatedSession: ReturnType<typeof updateSessionUser> = null;
   if (type === "email") {
     updateProfile(userId, { ...existing, email: new_value }, existing);
-    updateSessionUser(sessionId, { email: new_value });
+    updatedSession = updateSessionUser(sessionId, { email: new_value });
   } else {
     updateProfile(userId, { ...existing, phone: new_value }, existing);
-    updateSessionUser(sessionId, { phone: new_value });
+    updatedSession = updateSessionUser(sessionId, { phone: new_value });
+  }
+
+  if (updatedSession && updatedSession.session_id !== sessionId) {
+    cookieStore.set(SESSION_COOKIE, updatedSession.session_id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: Math.floor((updatedSession.expires_at - Date.now()) / 1000),
+      path: "/",
+    });
   }
 
   return Response.json({ success: true });

@@ -2,7 +2,7 @@
 
 /**
  * Shown until translations are ready. Prevents translation key flash (FOUC).
- * Minimal: white background, centered Hertz-style loading indicator.
+ * Minimal: white background, Hertz logo + spinner.
  */
 export function GlobalLoadingScreen() {
   return (
@@ -12,7 +12,9 @@ export function GlobalLoadingScreen() {
       aria-label="Loading"
     >
       <div className="flex flex-col items-center gap-6">
-        <div className="h-10 w-32 bg-[#FFCC00]/20 rounded" aria-hidden />
+        <div className="inline-block border-b-2 border-[#FFCC00] pb-0.5" aria-hidden>
+          <span className="text-3xl font-bold text-black">Hertz</span>
+        </div>
         <div
           className="h-8 w-8 animate-spin rounded-full border-2 border-[#FFCC00] border-t-transparent"
           aria-hidden

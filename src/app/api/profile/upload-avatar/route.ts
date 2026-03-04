@@ -48,8 +48,18 @@ export async function POST(request: NextRequest) {
     phone: session.user.phone,
   };
 
-  const updated = updateProfile(userId, { ...existing, avatar_url: dataUrl }, existing);
-  updateSessionUser(sessionId, { avatar_url: dataUrl });
+  const updatedProfile = updateProfile(userId, { ...existing, avatar_url: dataUrl }, existing);
+  const updatedSession = updateSessionUser(sessionId, { avatar_url: dataUrl });
+
+  if (updatedSession && updatedSession.session_id !== sessionId) {
+    cookieStore.set(SESSION_COOKIE, updatedSession.session_id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: Math.floor((updatedSession.expires_at - Date.now()) / 1000),
+      path: "/",
+    });
+  }
 
   return Response.json({ avatar_url: dataUrl });
 }

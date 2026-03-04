@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { useBooking } from "@/contexts/BookingContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePromotionOptional } from "@/contexts/PromotionContext";
@@ -42,6 +43,8 @@ export function MiniBookingMobile({ onOpenSheet }: MiniBookingMobileProps) {
   const dropoffDisplay = sameAsPickup ? pickupDisplay : dropoffLocationName || "—";
 
   const hasPromo = promotion?.promoCode != null && promotion.promoCode !== "";
+  const isPromoInvalid = hasPromo && promotion?.validation?.status === "invalid";
+  const promoReason = promotion?.validation?.reason;
 
   const blockBase =
     "flex min-h-tap flex-col justify-center py-3 text-left transition-colors duration-150 hover:bg-gray-50/80 active:bg-gray-100";
@@ -87,14 +90,28 @@ export function MiniBookingMobile({ onOpenSheet }: MiniBookingMobileProps) {
         className={`${blockBase} cursor-pointer`}
       >
         <span className="text-xs text-hertz-black-60">{t("booking.apply_promotion")}</span>
-        <div className="mt-1 flex items-center gap-1.5">
+        <div className="mt-1 flex flex-col gap-0.5">
           {hasPromo ? (
-            <span
-              className="inline-flex items-center rounded border border-[#e5c700] bg-[#FFF6CC] px-2.5 py-1.5 text-xs font-bold leading-none uppercase tracking-wide text-black transition-opacity duration-150"
-              role="status"
-            >
-              {promotion.promoCode}
-            </span>
+            isPromoInvalid ? (
+              <>
+                <span className="flex items-center gap-1.5 text-xs font-medium text-amber-800">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" aria-hidden />
+                  {t("promotion.not_applicable", { code: promotion.promoCode })}
+                </span>
+                {promoReason && (
+                  <p className="text-xs text-hertz-black-70">
+                    {t("promotion.reason")}: {promoReason}
+                  </p>
+                )}
+              </>
+            ) : (
+              <span
+                className="inline-flex w-fit items-center rounded border border-[#e5c700] bg-[#FFF6CC] px-2.5 py-1.5 text-xs font-bold leading-none uppercase tracking-wide text-black transition-opacity duration-150"
+                role="status"
+              >
+                {promotion.promoCode}
+              </span>
+            )
           ) : (
             <span className="text-sm font-medium text-hertz-black-70 underline decoration-hertz-black-50 underline-offset-2">
               {t("booking.apply_promotion")}

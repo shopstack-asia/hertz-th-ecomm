@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useBooking } from "@/contexts/BookingContext";
+import { usePromotionOptional } from "@/contexts/PromotionContext";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { FilterSidebar } from "@/components/search/FilterSidebar";
 import { MobileFilterDrawer } from "@/components/search/MobileFilterDrawer";
@@ -45,16 +47,36 @@ function VehiclesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLanguage();
+  const booking = useBooking();
+  const promotion = usePromotionOptional();
 
   const category = searchParams.get("category") ?? "";
   const transmission = searchParams.get("transmission") ?? "";
   const sort = searchParams.get("sort") ?? "";
   const page = searchParams.get("page") ?? "1";
   const paymentCancelled = searchParams.get("payment") === "cancelled";
+  const promoFromUrl = searchParams.get("promo") ?? "";
 
   const [response, setResponse] = useState<SearchApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
+
+  // Validate promotion when promo is in URL so sticky bar can show invalid + reason
+  useEffect(() => {
+    const promo = promoFromUrl.trim().toUpperCase();
+    if (!promo || !promotion?.validatePromotion || !booking.pickupDate || !booking.dropoffDate) return;
+    promotion
+      .validatePromotion(
+        {
+          pickup_location: booking.pickupLocation ?? "",
+          dropoff_location: booking.dropoffLocation ?? "",
+          pickup_date: booking.pickupDate,
+          dropoff_date: booking.dropoffDate,
+        },
+        promo
+      )
+      .catch(() => {});
+  }, [promoFromUrl, promotion?.validatePromotion, booking.pickupLocation, booking.dropoffLocation, booking.pickupDate, booking.dropoffDate]);
 
   const updateParams = useCallback(
     (updates: Record<string, string>) => {

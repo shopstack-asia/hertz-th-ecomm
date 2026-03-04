@@ -63,12 +63,22 @@ export async function PUT(request: NextRequest) {
   // email and phone are updated only via verify-otp flow
 
   const profile = updateProfile(userId, updates, existing);
-  updateSessionUser(sessionId, {
+  const updatedSession = updateSessionUser(sessionId, {
     first_name: profile.firstName,
     last_name: profile.lastName,
     phone: profile.phone,
     avatar_url: profile.avatar_url,
   });
+
+  if (updatedSession && updatedSession.session_id !== sessionId) {
+    cookieStore.set(SESSION_COOKIE, updatedSession.session_id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: Math.floor((updatedSession.expires_at - Date.now()) / 1000),
+      path: "/",
+    });
+  }
 
   return Response.json(profile);
 }

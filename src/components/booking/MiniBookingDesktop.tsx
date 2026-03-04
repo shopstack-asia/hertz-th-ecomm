@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, RotateCcw, Tag } from "lucide-react";
+import { MapPin, RotateCcw, Tag, AlertTriangle } from "lucide-react";
 import { useBooking } from "@/contexts/BookingContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePromotionOptional } from "@/contexts/PromotionContext";
@@ -52,15 +52,14 @@ export function MiniBookingDesktop({ onOpenModal }: MiniBookingDesktopProps) {
   const dropoffDisplay = sameAsPickup ? pickupDisplay : dropoffLocationName || "—";
 
   const hasPromo = promotion?.promoCode != null && promotion.promoCode !== "";
+  const isPromoInvalid = hasPromo && promotion?.validation?.status === "invalid";
+  const promoReason = promotion?.validation?.reason;
 
   const columnBase =
     "flex min-w-0 flex-col justify-center gap-0.5 px-4 py-3 text-left transition-colors duration-150 hover:bg-gray-50/70 active:bg-gray-100 cursor-pointer";
 
   return (
-    <div
-      className="mx-auto grid max-w-container grid-cols-[2fr_2fr_1fr] gap-0 px-4 lg:px-6"
-      style={{ maxHeight: 72 }}
-    >
+    <div className="mx-auto grid max-w-container grid-cols-[2fr_2fr_1fr] gap-0 px-4 lg:px-6">
       {/* Column 1 – Pickup */}
       <div
         role="button"
@@ -101,17 +100,31 @@ export function MiniBookingDesktop({ onOpenModal }: MiniBookingDesktopProps) {
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenModal(); } }}
         className={columnBase}
       >
-        <div className="flex min-w-0 items-center" style={{ gap: "8px" }}>
-          <Tag {...ICON_PROPS} />
-          {hasPromo ? (
-            <span
-              className="inline-flex items-center rounded border border-[#e5c700] bg-[#FFF6CC] px-2 py-1 text-xs font-semibold uppercase tracking-wide text-black"
-              role="status"
-            >
-              {promotion.promoCode}
-            </span>
-          ) : (
-            <span className="text-sm text-[#666]">{t("booking.apply_promotion")}</span>
+        <div className="flex min-w-0 flex-col gap-0.5" style={{ gap: "4px" }}>
+          <div className="flex min-w-0 items-center" style={{ gap: "8px" }}>
+            <Tag {...ICON_PROPS} />
+            {hasPromo ? (
+              isPromoInvalid ? (
+                <span className="flex items-center gap-1.5 text-xs font-medium text-amber-800">
+                  <AlertTriangle {...ICON_PROPS} className="shrink-0 text-amber-600" />
+                  {t("promotion.not_applicable", { code: promotion.promoCode })}
+                </span>
+              ) : (
+                <span
+                  className="inline-flex items-center rounded border border-[#e5c700] bg-[#FFF6CC] px-2 py-1 text-xs font-semibold uppercase tracking-wide text-black"
+                  role="status"
+                >
+                  {promotion.promoCode}
+                </span>
+              )
+            ) : (
+              <span className="text-sm text-[#666]">{t("booking.apply_promotion")}</span>
+            )}
+          </div>
+          {isPromoInvalid && promoReason && (
+            <p className="pl-[26px] text-xs text-hertz-black-70">
+              {t("promotion.reason")}: {promoReason}
+            </p>
           )}
         </div>
       </div>
