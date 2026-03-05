@@ -8,6 +8,7 @@ import type { AccountProfile } from "@/types/account";
 const API = {
   profile: "/api/account/profile",
   uploadAvatar: "/api/profile/upload-avatar",
+  uploadDocument: "/api/profile/upload-document",
   requestOtp: "/api/profile/request-otp",
   verifyOtp: "/api/profile/verify-otp",
   session: "/api/session",
@@ -30,6 +31,41 @@ export async function updateProfile(
   });
   if (!res.ok) throw new Error("Failed to update profile");
   return res.json();
+}
+
+export type DocumentType = "identity" | "driver_license";
+
+export async function uploadDocument(
+  type: DocumentType,
+  file: File
+): Promise<{ url: string; extracted_expiry?: string }> {
+  const form = new FormData();
+  form.append("type", type);
+  form.append("file", file);
+  const res = await fetch(API.uploadDocument, {
+    method: "POST",
+    credentials: "include",
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error ?? "Upload failed");
+  return data;
+}
+
+export const DOCUMENT_RULES = {
+  maxSizeBytes: 10 * 1024 * 1024,
+  allowedTypes: ["image/jpeg", "image/png", "application/pdf"],
+  allowedExtensions: [".jpg", ".jpeg", ".png", ".pdf"],
+} as const;
+
+export function validateDocumentFile(file: File): { ok: boolean; error?: string } {
+  if (!DOCUMENT_RULES.allowedTypes.includes(file.type as "image/jpeg" | "image/png" | "application/pdf")) {
+    return { ok: false, error: "JPG, PNG or PDF only" };
+  }
+  if (file.size > DOCUMENT_RULES.maxSizeBytes) {
+    return { ok: false, error: "Max size 10MB" };
+  }
+  return { ok: true };
 }
 
 export async function uploadAvatar(file: File): Promise<{ avatar_url: string }> {

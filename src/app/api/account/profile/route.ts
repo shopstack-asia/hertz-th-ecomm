@@ -60,6 +60,13 @@ export async function PUT(request: NextRequest) {
   if (typeof body.firstName === "string") updates.firstName = body.firstName;
   if (typeof body.lastName === "string") updates.lastName = body.lastName;
   if (body.avatar_url !== undefined) updates.avatar_url = body.avatar_url === "" || body.avatar_url == null ? undefined : body.avatar_url;
+  if (body.identity_document_type !== undefined && (body.identity_document_type === "id_card" || body.identity_document_type === "passport")) {
+    updates.identity_document_type = body.identity_document_type;
+  }
+  if (body.identity_document_url !== undefined) updates.identity_document_url = body.identity_document_url === "" || body.identity_document_url == null ? undefined : body.identity_document_url;
+  if (typeof body.identity_document_expiry === "string") updates.identity_document_expiry = body.identity_document_expiry || undefined;
+  if (body.driver_license_url !== undefined) updates.driver_license_url = body.driver_license_url === "" || body.driver_license_url == null ? undefined : body.driver_license_url;
+  if (typeof body.driver_license_expiry === "string") updates.driver_license_expiry = body.driver_license_expiry || undefined;
   // email and phone are updated only via verify-otp flow
 
   const profile = updateProfile(userId, updates, existing);

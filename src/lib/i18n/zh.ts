@@ -199,6 +199,7 @@ export const zh = {
     reason: "原因",
     remove: "移除",
     discount: "折扣",
+    select_locations_first: "请先选择取车和还车地点。",
   },
   pwa: {
     install_title: "安装 Hertz Thailand",
@@ -428,6 +429,20 @@ export const zh = {
     detail_parking: "停车",
     detail_public_transport: "公共交通",
     open_in_google_maps: "在 Google 地图中打开",
+  },
+  profile: {
+    identity_document: "身份证明文件（身份证 / 护照）",
+    identity_document_hint: "上传身份证或护照以供核验",
+    identity_document_type_placeholder: "选择证件类型",
+    identity_document_type_id_card: "身份证",
+    identity_document_type_passport: "护照",
+    document_expiry: "证件到期日",
+    document_expiry_read_from_doc: "从文件读取",
+    driver_license: "驾驶证",
+    driver_license_hint: "上传驾驶证",
+    upload_document: "上传文件",
+    document_uploaded: "已上传",
+    remove_document: "删除",
   },
   cookie: {
     title: "Cookie 偏好",

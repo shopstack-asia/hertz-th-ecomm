@@ -199,6 +199,7 @@ export const th = {
     reason: "เหตุผล",
     remove: "ลบ",
     discount: "ส่วนลด",
+    select_locations_first: "กรุณาเลือกสถานที่รับ-คืนรถก่อน",
   },
   pwa: {
     install_title: "ติดตั้ง Hertz Thailand",
@@ -428,6 +429,20 @@ export const th = {
     detail_parking: "ที่จอดรถ",
     detail_public_transport: "ขนส่งสาธารณะ",
     open_in_google_maps: "เปิดใน Google Maps",
+  },
+  profile: {
+    identity_document: "เอกสารยืนยันตัวตน (บัตรประชาชน / Passport)",
+    identity_document_hint: "อัปโหลดบัตรประชาชนหรือพาสปอร์ตเพื่อยืนยันตัวตน",
+    identity_document_type_placeholder: "เลือกประเภทเอกสาร",
+    identity_document_type_id_card: "บัตรประชาชน",
+    identity_document_type_passport: "พาสปอร์ต",
+    document_expiry: "วันหมดอายุของเอกสาร",
+    document_expiry_read_from_doc: "อ่านจากเอกสาร",
+    driver_license: "ใบขับขี่รถยนต์",
+    driver_license_hint: "อัปโหลดใบขับขี่",
+    upload_document: "อัปโหลดเอกสาร",
+    document_uploaded: "อัปโหลดเอกสารแล้ว",
+    remove_document: "ลบ",
   },
   cookie: {
     title: "การตั้งค่าคุกกี้",

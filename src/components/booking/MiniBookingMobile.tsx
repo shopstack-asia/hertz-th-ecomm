@@ -30,6 +30,7 @@ export function MiniBookingMobile({ onOpenSheet }: MiniBookingMobileProps) {
   const { t } = useLanguage();
   const promotion = usePromotionOptional();
   const {
+    pickupLocation,
     pickupLocationName,
     dropoffLocationName,
     sameAsPickup,
@@ -43,8 +44,15 @@ export function MiniBookingMobile({ onOpenSheet }: MiniBookingMobileProps) {
   const dropoffDisplay = sameAsPickup ? pickupDisplay : dropoffLocationName || "—";
 
   const hasPromo = promotion?.promoCode != null && promotion.promoCode !== "";
-  const isPromoInvalid = hasPromo && promotion?.validation?.status === "invalid";
-  const promoReason = promotion?.validation?.reason;
+  const noLocationSelected = !pickupLocation?.trim();
+  const isPromoInvalid =
+    hasPromo &&
+    (noLocationSelected
+      ? true
+      : promotion?.validation?.status === "invalid");
+  const promoReason = noLocationSelected
+    ? t("promotion.select_locations_first")
+    : promotion?.validation?.reason;
 
   const blockBase =
     "flex min-h-tap flex-col justify-center py-3 text-left transition-colors duration-150 hover:bg-gray-50/80 active:bg-gray-100";

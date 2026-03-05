@@ -199,6 +199,7 @@ export const en = {
     reason: "Reason",
     remove: "Remove",
     discount: "discount",
+    select_locations_first: "Please select pickup and return locations first.",
   },
   pwa: {
     install_title: "Install Hertz Thailand",
@@ -428,6 +429,20 @@ export const en = {
     detail_parking: "Parking",
     detail_public_transport: "Public transport",
     open_in_google_maps: "Open in Google Maps",
+  },
+  profile: {
+    identity_document: "Identity document (ID card / Passport)",
+    identity_document_hint: "Upload ID card or passport for verification",
+    identity_document_type_placeholder: "Select document type",
+    identity_document_type_id_card: "ID card (National ID)",
+    identity_document_type_passport: "Passport",
+    document_expiry: "Document expiry date",
+    document_expiry_read_from_doc: "Read from document",
+    driver_license: "Driver's license",
+    driver_license_hint: "Upload driver's license",
+    upload_document: "Upload document",
+    document_uploaded: "Document uploaded",
+    remove_document: "Remove",
   },
   cookie: {
     title: "Cookie preferences",

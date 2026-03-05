@@ -4,14 +4,17 @@ import { useEffect, useState, useCallback } from "react";
 import { FormField } from "@/components/ui/FormField";
 import { LoyaltyCard } from "@/components/loyalty-card/LoyaltyCard";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
+import { DocumentUploadWithExpiry } from "@/components/profile/DocumentUploadWithExpiry";
 import { OtpModal } from "@/components/profile/OtpModal";
 import * as profileService from "@/services/profile.service";
 import * as loyaltyService from "@/services/loyalty.service";
 import type { AccountProfile, LoyaltyProfile } from "@/types/account";
 import { useAuth } from "@/contexts/auth_context";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ProfilePage() {
   const { refreshAuth } = useAuth();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState<AccountProfile | null>(null);
   const [loyalty, setLoyalty] = useState<LoyaltyProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,6 +73,11 @@ export default function ProfilePage() {
       const updated = await profileService.updateProfile({
         firstName: profile.firstName,
         lastName: profile.lastName,
+        identity_document_type: profile.identity_document_type,
+        identity_document_url: profile.identity_document_url ?? undefined,
+        identity_document_expiry: profile.identity_document_expiry || undefined,
+        driver_license_url: profile.driver_license_url ?? undefined,
+        driver_license_expiry: profile.driver_license_expiry || undefined,
       });
       setProfile(updated);
       await refreshAuth();
@@ -123,28 +131,29 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-8 md:py-12">
-      {/* 2 columns: left = title + avatar, right = loyalty + form (same width) */}
-      <div className="grid grid-cols-1 gap-x-10 gap-y-8 lg:grid-cols-[auto_1fr] lg:items-start">
-        {/* Left column: title + avatar */}
-        <div className="flex flex-col items-center gap-8 lg:items-end">
-          <h1 className="w-full text-2xl font-bold text-hertz-black-90 lg:w-auto">
-            My profile
-          </h1>
-          <ProfileAvatar
-            avatarUrl={profile.avatar_url}
-            onUploaded={handleAvatarUploaded}
-            onRemove={handleAvatarRemove}
-            size="xl"
-            compact
-          />
-        </div>
+      <h1 className="mb-8 text-2xl font-bold text-hertz-black-90">
+        My profile
+      </h1>
 
-        {/* Right column: loyalty + form (same width) */}
-        <div className="flex min-w-0 flex-col gap-8">
-          {loyalty && (
+      {/* Row: profile photo + member card */}
+      <div className="mb-8 flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-10">
+        <ProfileAvatar
+          avatarUrl={profile.avatar_url}
+          onUploaded={handleAvatarUploaded}
+          onRemove={handleAvatarRemove}
+          size="xl"
+          compact
+        />
+        {loyalty && (
+          <div className="min-w-0 flex-1">
             <LoyaltyCard data={loyalty} variant="header" />
-          )}
-          <div className="rounded-2xl border border-hertz-border bg-white p-6 shadow-sm md:p-8">
+          </div>
+        )}
+      </div>
+
+      {/* Form */}
+      <div className="flex min-w-0 flex-col gap-8">
+        <div className="rounded-2xl border border-hertz-border bg-white p-6 shadow-sm md:p-8">
             <form onSubmit={handleSubmit} className="flex flex-col">
               <div className="space-y-6">
                 <div className="grid gap-6 sm:grid-cols-2">
@@ -191,6 +200,80 @@ export default function ProfilePage() {
                 Changing email or phone requires verification via code sent to
                 the new value.
               </p>
+
+              <div className="mt-8 space-y-6">
+                <DocumentUploadWithExpiry
+                  label={t("profile.identity_document")}
+                  hint={t("profile.identity_document_hint")}
+                  documentUrl={profile.identity_document_url}
+                  expiry={profile.identity_document_expiry ?? ""}
+                  onDocumentChange={(url) =>
+                    setProfile((p) =>
+                      p
+                        ? {
+                            ...p,
+                            identity_document_url: url ?? undefined,
+                            ...(url == null && {
+                              identity_document_expiry: undefined,
+                            }),
+                          }
+                        : null
+                    )
+                  }
+                  onExpiryChange={(value) =>
+                    setProfile((p) =>
+                      p ? { ...p, identity_document_expiry: value || undefined } : null
+                    )
+                  }
+                  docType="identity"
+                  expiryLabel={t("profile.document_expiry")}
+                  uploadLabel={t("profile.upload_document")}
+                  uploadedLabel={t("profile.document_uploaded")}
+                  removeLabel={t("profile.remove_document")}
+                  documentTypeDropdown={{
+                    value: profile.identity_document_type ?? "",
+                    placeholder: t("profile.identity_document_type_placeholder"),
+                    options: [
+                      { value: "id_card", label: t("profile.identity_document_type_id_card") },
+                      { value: "passport", label: t("profile.identity_document_type_passport") },
+                    ],
+                    onChange: (value) =>
+                      setProfile((p) =>
+                        p ? { ...p, identity_document_type: value } : null
+                      ),
+                  }}
+                  expiryReadonly
+                />
+                <DocumentUploadWithExpiry
+                  label={t("profile.driver_license")}
+                  hint={t("profile.driver_license_hint")}
+                  documentUrl={profile.driver_license_url}
+                  expiry={profile.driver_license_expiry ?? ""}
+                  onDocumentChange={(url) =>
+                    setProfile((p) =>
+                      p
+                        ? {
+                            ...p,
+                            driver_license_url: url ?? undefined,
+                            ...(url == null && { driver_license_expiry: undefined }),
+                          }
+                        : null
+                    )
+                  }
+                  onExpiryChange={(value) =>
+                    setProfile((p) =>
+                      p ? { ...p, driver_license_expiry: value || undefined } : null
+                    )
+                  }
+                  docType="driver_license"
+                  expiryLabel={t("profile.document_expiry")}
+                  uploadLabel={t("profile.upload_document")}
+                  uploadedLabel={t("profile.document_uploaded")}
+                  removeLabel={t("profile.remove_document")}
+                  expiryReadonly
+                />
+              </div>
+
               <div className="mt-8">
                 <button
                   type="submit"
@@ -202,7 +285,6 @@ export default function ProfilePage() {
               </div>
             </form>
           </div>
-        </div>
       </div>
 
       {otpModal.open && (

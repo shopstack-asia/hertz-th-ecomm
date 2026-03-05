@@ -105,7 +105,7 @@ export function Header() {
                     </svg>
                   </button>
                   {profileOpen && (
-                    <div className="absolute right-0 top-full z-30 mt-1 min-w-[160px] border border-hertz-border bg-white shadow">
+                    <div className="absolute right-0 top-full z-[9999] mt-1 min-w-[160px] border border-hertz-border bg-white shadow">
                       <Link
                         href="/account/profile"
                         onClick={() => setProfileOpen(false)}
