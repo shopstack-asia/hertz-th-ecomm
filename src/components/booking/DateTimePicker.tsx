@@ -11,6 +11,8 @@ interface DateTimePickerProps {
   id?: string;
   disabled?: boolean;
   dark?: boolean;
+  hideLabel?: boolean;
+  compact?: boolean;
 }
 
 const inputBase = "min-h-tap px-4 py-3 focus:border-hertz-yellow focus:ring-2 focus:ring-hertz-yellow/30";
@@ -28,18 +30,20 @@ export function DateTimePicker({
   id,
   disabled,
   dark = false,
+  hideLabel = false,
+  compact = false,
 }: DateTimePickerProps) {
   const fieldId = id ?? label.toLowerCase().replace(/\s+/g, "-");
   const inputClass = `${inputBase} ${dark ? inputDark : inputLight}`;
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex flex-col ${hideLabel ? "gap-0" : "gap-2"}`}>
       <label
         htmlFor={fieldId}
-        className={`text-sm font-medium ${dark ? "text-white/90" : "text-hertz-black-80"}`}
+        className={`${hideLabel ? "sr-only" : "text-sm font-medium"} ${dark ? "text-white/90" : "text-hertz-black-80"}`}
       >
         {label}
       </label>
-      <div className="flex gap-2">
+      <div className={`flex ${compact ? "gap-0" : "gap-2"}`}>
         <input
           id={fieldId}
           type="date"
