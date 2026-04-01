@@ -100,15 +100,13 @@ export function VehicleCard({
     : vehicle.payNowPrice;
 
   const isPromoEligible = !!(promoCode && eligibility !== undefined && eligible);
+  const isUnavailable = vehicle.availabilityStatus === "UNAVAILABLE";
 
-  return (
-    <Link
-      href={href}
-      className="group block border border-hertz-border bg-white shadow-card transition-shadow hover:shadow-elevated"
-    >
+  const cardContent = (
+    <>
       {showImage && (
         <div className="relative overflow-hidden rounded-xl">
-          <div className="aspect-[16/10] bg-hertz-gray">
+          <div className={`aspect-[16/10] bg-hertz-gray ${isUnavailable ? "opacity-55" : ""}`}>
             <div
               className="h-full w-full bg-cover bg-center bg-no-repeat"
               style={{
@@ -128,6 +126,11 @@ export function VehicleCard({
               {discountAmount > 0 ? t("vehicle.save_amount", { amount: discountAmount.toLocaleString() }) : t("vehicle.promo_applied")}
             </span>
           )}
+          {isUnavailable && (
+            <span className="absolute left-3 top-3 z-20 rounded bg-black px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white">
+              {t("vehicle.not_available")} ({t("vehicle.sold_out")})
+            </span>
+          )}
         </div>
       )}
       <div className="p-4 lg:p-5">
@@ -142,46 +145,76 @@ export function VehicleCard({
           <span>{vehicle.transmission === "A" ? t("vehicle.automatic") : t("vehicle.manual")}</span>
           <span>{vehicle.luggage} {t("vehicle.luggage")}</span>
         </div>
-        <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-hertz-border pt-4">
-          <div>
-            <span className="text-xs text-hertz-black-60">{t("vehicle.pay_now")}</span>
-            {eligible && discountAmount > 0 ? (
-              <div>
+        {isUnavailable ? (
+          <div className="mt-4 border-t border-hertz-border pt-4">
+            <p className="text-sm font-semibold uppercase tracking-wide text-hertz-black-70">
+              {t("vehicle.not_available")} ({t("vehicle.sold_out")})
+            </p>
+            <p className="mt-2 text-sm text-hertz-black-80">
+              {t("vehicle.unavailable_hint")}
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-hertz-border pt-4">
+            <div>
+              <span className="text-xs text-hertz-black-60">{t("vehicle.pay_now")}</span>
+              {eligible && discountAmount > 0 ? (
+                <div>
+                  <p className="text-xl font-bold text-black">
+                    ฿{discountedPayNow.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-hertz-black-60 line-through">
+                    ฿{vehicle.payNowPrice.toLocaleString()}
+                  </p>
+                </div>
+              ) : (
                 <p className="text-xl font-bold text-black">
-                  ฿{discountedPayNow.toLocaleString()}
-                </p>
-                <p className="text-sm text-hertz-black-60 line-through">
                   ฿{vehicle.payNowPrice.toLocaleString()}
                 </p>
-              </div>
-            ) : (
-              <p className="text-xl font-bold text-black">
-                ฿{vehicle.payNowPrice.toLocaleString()}
-              </p>
-            )}
-          </div>
-          <div className="text-right">
-            <span className="text-xs text-hertz-black-60">{t("vehicle.pay_later")}</span>
-            {eligible && discountAmount > 0 ? (
-              <div>
+              )}
+            </div>
+            <div className="text-right">
+              <span className="text-xs text-hertz-black-60">{t("vehicle.pay_later")}</span>
+              {eligible && discountAmount > 0 ? (
+                <div>
+                  <p className="text-base font-semibold text-hertz-black-90">
+                    ฿{discountedPayLater.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-hertz-black-60 line-through">
+                    ฿{vehicle.payLaterPrice.toLocaleString()}
+                  </p>
+                </div>
+              ) : (
                 <p className="text-base font-semibold text-hertz-black-90">
-                  ฿{discountedPayLater.toLocaleString()}
-                </p>
-                <p className="text-sm text-hertz-black-60 line-through">
                   ฿{vehicle.payLaterPrice.toLocaleString()}
                 </p>
-              </div>
-            ) : (
-              <p className="text-base font-semibold text-hertz-black-90">
-                ฿{vehicle.payLaterPrice.toLocaleString()}
-              </p>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-        <span className="mt-3 inline-block text-sm font-semibold text-black group-hover:underline">
-          {t("vehicle.view_details")} →
-        </span>
+        )}
+        {!isUnavailable && (
+          <span className="mt-3 inline-block text-sm font-semibold text-black group-hover:underline">
+            {t("vehicle.view_details")} →
+          </span>
+        )}
       </div>
+    </>
+  );
+
+  if (isUnavailable) {
+    return (
+      <div className="group block border border-hertz-border bg-white shadow-card">
+        {cardContent}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className="group block border border-hertz-border bg-white shadow-card transition-shadow hover:shadow-elevated"
+    >
+      {cardContent}
     </Link>
   );
 }

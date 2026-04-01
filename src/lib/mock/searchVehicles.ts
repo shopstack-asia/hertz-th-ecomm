@@ -131,6 +131,8 @@ const VEHICLE_SEEDS: SearchVehicleSeed[] = SEED_META.map((meta, i) => {
   };
 });
 
+const UNAVAILABLE_GROUP_CODES = new Set(["LCAR1", "EV2"]);
+
 function seedToSearchResult(
   seed: SearchVehicleSeed,
   days: number,
@@ -153,7 +155,7 @@ function seedToSearchResult(
     payLaterPrice,
     payNowPrice,
     currency: "THB",
-    availabilityStatus: "AVAILABLE",
+    availabilityStatus: UNAVAILABLE_GROUP_CODES.has(seed.groupCode) ? "UNAVAILABLE" : "AVAILABLE",
   };
 }
 
@@ -278,7 +280,7 @@ export function getVehicleDetailByGroupCode(
     description,
     images: [{ url: seed.imageUrl, alt: seed.name }],
     inclusions,
-    availabilityStatus: "AVAILABLE",
+    availabilityStatus: UNAVAILABLE_GROUP_CODES.has(seed.groupCode) ? "UNAVAILABLE" : "AVAILABLE",
     dailyPayNow: seed.dailyPayNow,
     dailyPayLater: seed.dailyPayLater,
   };
