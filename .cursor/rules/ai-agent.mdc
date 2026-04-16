@@ -1,0 +1,102 @@
+---
+alwaysApply: true
+---
+
+# AI agent rules — hertz-th-ecomm
+
+This repository is a **Next.js (App Router)** e-commerce frontend for Hertz Thailand: TypeScript, Tailwind CSS, React Context API, BFF via `src/app/api/*`, i18n (EN / TH / ZH and others from API) via `LanguageContext`, session-based auth, PWA via `@ducanh2912/next-pwa`.
+
+## 1. Core principles
+
+- The AI is an **executor**, not a product owner. It does not invent requirements, business rules, or API contracts.
+- **Feature-area documentation** under `doc/features/<feature-area>/` is the **source of truth** for domain behavior. Code must align with those docs; if code and docs disagree, **fix the code or update the docs** explicitly—never leave silent drift.
+- Prefer **evidence from the repo** (existing handlers, types, patterns) over assumptions.
+
+## 2. Team implementation principles (stakeholder checklist)
+
+Same five expectations as **`doc/README.md`** (*Team implementation principles*); the doc folder has the canonical wording and links.
+
+1. **Structure** — Extend existing layers and patterns; do not invent product rules or API contracts without feature-area docs or provable code.
+2. **Documentation** — When behavior, validation, user flows, or BFF contracts change, update **`doc/features/<feature-area>/`** per `doc/rules/documentation.md`.
+3. **Coding standards** — Follow **`doc/rules/coding.md`**, **`doc/rules/testing.md`**, and **`doc/rules/lint.md`**.
+4. **CMS** — Prefer CMS-backed site config and pages for editorial or site-wide content where appropriate (**`cms`** feature area, `src/lib/cms/`, `src/app/api/cms/*`).
+5. **BFF / proxy (“proxy page”)** — Browser code calls **`/api/*` only** (e.g. `@/lib/api/proxy_fetch`); Route Handlers under `src/app/api/` proxy to Commerce Suite / upstream. Never call external backend base URLs from client code for business operations.
+
+## 3. Feature-area-first documentation (mandatory)
+
+Before changing behavior in a feature area, resolve intent from that area’s doc folder:
+
+`doc/features/<feature-area>/`
+
+**Read in this order:**
+
+1. `README.md` — purpose, scope, reading order  
+2. `domain-features.md` — high-level behaviors  
+3. `feature-logic-summary.md` — index into detailed docs  
+4. Detailed files under `features/` (domain-behavior names, not component names)
+
+If that folder or required files are missing, **create or complete** them per `doc/rules/feature-area-documentation.md` before substantive implementation.
+
+## 4. Before writing any code
+
+1. Identify the **feature area** from the task and touched paths (see `doc/feature-logic-summary.md`).  
+2. Read that area’s docs in the order above.  
+3. Inspect related **pages** (`src/app/(site)/`), **components** (`src/components/`), **API routes** (`src/app/api/`), **contexts** (`src/contexts/`), and **services** (`src/services/`) as needed.  
+4. Implement following **existing patterns in the same feature area**.  
+5. If behavior changes, update docs and tests as required.
+
+## 5. BFF pattern (mandatory)
+
+- **All calls to external / core backend APIs** MUST go through **Next.js Route Handlers** under `src/app/api/*` (exposed as `/api/*`).  
+- **Never** call external HTTP APIs directly from React components, client hooks, or other browser-executed code.  
+- Client code may call **`/api/*`** (same-origin) only.  
+- **Secrets, tokens, and server-only configuration** MUST live in API routes (or modules used exclusively from the server), never in client bundles.
+
+## 6. Architecture boundaries
+
+| Layer | Location | Responsibility |
+|--------|-----------|----------------|
+| Pages | `src/app/(site)/` | Routing, composition, **data fetching** for the page (Server Components preferred where applicable). No business logic unrelated to the page. |
+| Components | `src/components/` | UI and **local** UI state. **No** direct calls to external APIs. May call `/api/*` when needed for interactivity; prefer patterns used in the same feature. |
+| API routes | `src/app/api/` | **BFF**: auth/token injection, proxying to backends, error mapping, response shaping. |
+| Contexts | `src/contexts/` | **Global client state** (e.g. language, auth, booking, promotion, cookie consent). |
+| Services | `src/services/` | **Reusable server-side logic** invoked from API routes (or server-only code paths), not from client components. |
+
+## 7. Cross-feature communication
+
+- Features MUST NOT import **another feature’s internals** (deep imports into another feature’s private folders).  
+- **Shared client state** crosses boundaries via **React Contexts** (or props at clear composition boundaries).  
+- **Shared UI** belongs in `src/components/ui/` (or other explicitly shared component areas), not duplicated inside a feature module.
+
+## 8. i18n rule
+
+- **All user-visible strings** in interactive UI MUST go through **`useLanguage()`** from `@/contexts/LanguageContext` (typically the **`t`** function for message keys).  
+- Do not hardcode Thai, English, or other locale-specific copy in components for user-facing text.  
+- Keys and message structure follow existing translation patterns in the repo.
+
+## 9. Testing and quality
+
+- Add or update **tests** for meaningful logic (API error mapping, validation, utilities, non-trivial state).  
+- Run **`npm test`** to verify all tests pass after implementation.  
+- Run **`npx tsc --noEmit`** and **`npm run lint`**.  
+- Do not treat a task as complete if **new** TypeScript or ESLint failures were introduced and left unfixed.  
+- See `doc/rules/testing.md` and `doc/rules/lint.md`.
+
+## 10. Documentation rules
+
+- When **business logic**, **validation**, **user flows**, or **BFF contracts** change, update the **relevant feature area** docs under `doc/features/<feature-area>/`.  
+- Never leave feature docs **outdated** relative to shipped behavior.
+
+## 11. Forbidden
+
+- Inventing domain rules or API shapes without doc or code evidence.  
+- Skipping tests for meaningful logic when the project has a test command or after a test runner is added.  
+- Hardcoding user-facing strings outside `t` / agreed i18n patterns.  
+- Calling **external** APIs from the client or embedding secrets in client code.  
+- Importing another feature’s private implementation details.  
+- Drive-by large refactors unrelated to the task.  
+- Completing work while ignoring **new** TS/ESLint failures.
+
+## 12. Final principle
+
+Behave as a **deterministic executor**: scope, read docs, read code, implement minimally, verify types and lint, update tests and docs, report outcomes. **Logic and contracts** come from **feature docs** plus **validated code evidence** in this repository.
