@@ -1,6 +1,8 @@
 import { HeroSection } from "@/components/home/HeroSection";
 import { getWebsiteConfig } from "@/lib/cms/site-config";
 import { resolveHomeHeroCarousel } from "@/lib/cms/websiteHomeHeroCarousel";
+import { resolveMembersLoyaltyProgramSection } from "@/lib/cms/websiteHomeMembersLoyalty";
+import { MembersLoyaltyProgramSection } from "@/components/home/MembersLoyaltyProgramSection";
 import { StickyBookingBar } from "@/components/booking/StickyBookingBar";
 import { SpecialOffersSection } from "@/components/home/SpecialOffersSection";
 import { CategorySection } from "@/components/home/CategorySection";
@@ -15,10 +17,12 @@ import { AppDownloadSection } from "@/components/home/AppDownloadSection";
 export default async function HomePage() {
   const site = await getWebsiteConfig();
   const heroCarousel = resolveHomeHeroCarousel(site.home_page);
+  const membersLoyalty = resolveMembersLoyaltyProgramSection(site.home_page);
 
   return (
     <>
       <HeroSection carousel={heroCarousel} />
+      <MembersLoyaltyProgramSection data={membersLoyalty} />
       <StickyBookingBar />
       <SpecialOffersSection />
       <CategorySection />

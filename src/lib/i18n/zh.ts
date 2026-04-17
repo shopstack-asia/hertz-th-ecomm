@@ -52,6 +52,11 @@ export const zh = {
       headline_country: "泰国租车",
       tagline: "立即预订您的假期行程",
     },
+    members: {
+      loyalty: {
+        bg_aria: "会员忠诚计划",
+      },
+    },
   },
   auth: {
     mock_phase_credentials: "演示阶段：可使用任意邮箱和密码（如 demo@example.com / 1234）",

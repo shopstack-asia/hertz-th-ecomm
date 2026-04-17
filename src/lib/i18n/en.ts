@@ -52,6 +52,11 @@ export const en = {
       headline_country: "Car Rental Thailand",
       tagline: "Book your vacation now",
     },
+    members: {
+      loyalty: {
+        bg_aria: "Members loyalty program",
+      },
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: Use any email and any password (e.g. demo@example.com / 1234)",

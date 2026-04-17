@@ -52,6 +52,11 @@ export const th = {
       headline_country: "เช่ารถในประเทศไทย",
       tagline: "จองวันหยุดของคุณได้เลยวันนี้",
     },
+    members: {
+      loyalty: {
+        bg_aria: "โปรแกรมสมาชิกและสะสมคะแนน",
+      },
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: ใช้อีเมลและรหัสผ่านอะไรก็ได้ (เช่น demo@example.com / 1234)",
