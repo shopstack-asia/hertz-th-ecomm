@@ -44,6 +44,15 @@ export const zh = {
     lang: "EN",
     my_booking: "我的预订",
   },
+  home: {
+    hero: {
+      carousel_aria: "首页宣传背景",
+      search_availability: "查询可订车辆",
+      headline_explore: "一起出发",
+      headline_country: "泰国租车",
+      tagline: "立即预订您的假期行程",
+    },
+  },
   auth: {
     mock_phase_credentials: "演示阶段：可使用任意邮箱和密码（如 demo@example.com / 1234）",
     login_title: "登录",

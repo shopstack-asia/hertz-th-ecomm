@@ -169,20 +169,23 @@ export function Header() {
       {/* Mobile header (<1024px) */}
       <header className="lg:hidden">
         <div className="sticky top-0 z-50 border-b border-hertz-border bg-white">
-          <div className="flex h-[60px] items-center justify-between px-4">
+          <div className="flex h-[60px] items-center justify-between gap-2 px-4">
             <Link href="/" className="text-xl font-bold text-black">
               Hertz
             </Link>
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-2">
+              <LanguageSwitcher />
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="flex min-h-tap min-w-tap items-center justify-center text-hertz-black-80"
+              className="flex min-h-tap min-w-tap shrink-0 items-center justify-center text-hertz-black-80"
               aria-label={t("common.open_menu")}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            </div>
           </div>
         </div>
         <div className="h-0.5 bg-hertz-yellow" />

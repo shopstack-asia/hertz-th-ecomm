@@ -1,4 +1,6 @@
 import { HeroSection } from "@/components/home/HeroSection";
+import { getWebsiteConfig } from "@/lib/cms/site-config";
+import { resolveHomeHeroCarousel } from "@/lib/cms/websiteHomeHeroCarousel";
 import { StickyBookingBar } from "@/components/booking/StickyBookingBar";
 import { SpecialOffersSection } from "@/components/home/SpecialOffersSection";
 import { CategorySection } from "@/components/home/CategorySection";
@@ -10,10 +12,13 @@ import { WhyChooseSection } from "@/components/home/WhyChooseSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { AppDownloadSection } from "@/components/home/AppDownloadSection";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const site = await getWebsiteConfig();
+  const heroCarousel = resolveHomeHeroCarousel(site.home_page);
+
   return (
     <>
-      <HeroSection />
+      <HeroSection carousel={heroCarousel} />
       <StickyBookingBar />
       <SpecialOffersSection />
       <CategorySection />

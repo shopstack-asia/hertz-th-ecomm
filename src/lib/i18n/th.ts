@@ -44,6 +44,15 @@ export const th = {
     lang: "EN",
     my_booking: "การจองของฉัน",
   },
+  home: {
+    hero: {
+      carousel_aria: "ภาพโปรโมชันหน้าแรก",
+      search_availability: "ค้นหาความพร้อมให้บริการ",
+      headline_explore: "ออกไปสำรวจ",
+      headline_country: "เช่ารถในประเทศไทย",
+      tagline: "จองวันหยุดของคุณได้เลยวันนี้",
+    },
+  },
   auth: {
     mock_phase_credentials: "Mock phase: ใช้อีเมลและรหัสผ่านอะไรก็ได้ (เช่น demo@example.com / 1234)",
     login_title: "เข้าสู่ระบบ",

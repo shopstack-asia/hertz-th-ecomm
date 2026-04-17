@@ -10,14 +10,14 @@ function LocaleFlag({ lang }: { lang: LocaleOption }) {
       <img
         src={lang.flagUrl}
         alt=""
-        className="h-5 w-6 shrink-0 rounded-sm border border-hertz-border object-cover"
+        className="h-5 w-6 shrink-0 rounded-sm object-cover"
       />
     );
   }
   if (lang.flag) {
     return (
       <span
-        className="flex h-5 w-6 shrink-0 items-center justify-center rounded-sm border border-hertz-border text-base"
+        className="flex h-5 w-6 shrink-0 items-center justify-center text-base leading-none"
         aria-hidden
       >
         {lang.flag}
@@ -36,11 +36,25 @@ export function LanguageSwitcher() {
 
   useEffect(() => {
     if (!open) return;
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+    window.addEventListener("keydown", onKeyDown);
+
+    let removePointer: (() => void) | undefined;
+    const t = window.setTimeout(() => {
+      const handlePointerDown = (e: PointerEvent) => {
+        if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      };
+      document.addEventListener("pointerdown", handlePointerDown);
+      removePointer = () => document.removeEventListener("pointerdown", handlePointerDown);
+    }, 0);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.clearTimeout(t);
+      removePointer?.();
+    };
   }, [open]);
 
   if (availableLocales.length === 0) return null;
@@ -63,7 +77,7 @@ export function LanguageSwitcher() {
       </button>
       {open && (
         <ul
-          className="absolute right-0 top-full z-30 mt-1 min-w-[120px] border border-hertz-border bg-white shadow"
+          className="absolute right-0 top-full z-[200] min-w-[140px] border border-hertz-border bg-white pt-1 shadow-lg"
           role="menu"
         >
           {availableLocales.map((lang) => (

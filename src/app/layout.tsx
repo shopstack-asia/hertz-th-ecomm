@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={ibmThai.variable}>
+    <html lang="en" className={ibmThai.variable} suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -43,7 +43,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${ibmThai.className} min-h-screen`}>
+      <body className={`${ibmThai.className} min-h-screen`} suppressHydrationWarning>
         <LanguageProvider>
           <CookieConsentProvider>
             {children}

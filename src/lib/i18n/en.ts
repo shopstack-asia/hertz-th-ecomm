@@ -44,6 +44,15 @@ export const en = {
     lang: "TH",
     my_booking: "My Booking",
   },
+  home: {
+    hero: {
+      carousel_aria: "Home promotional backgrounds",
+      search_availability: "Search availability",
+      headline_explore: "Let's Explore",
+      headline_country: "Car Rental Thailand",
+      tagline: "Book your vacation now",
+    },
+  },
   auth: {
     mock_phase_credentials: "Mock phase: Use any email and any password (e.g. demo@example.com / 1234)",
     login_title: "Log in",

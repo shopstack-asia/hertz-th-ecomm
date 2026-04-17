@@ -1,4 +1,5 @@
 import { env } from "@/lib/config/env";
+import { MOCK_HERO_SECTION_CAROUSEL_BLOCKS } from "@/lib/mock/heroSection";
 
 /**
  * Public website document aligned with cs-core `src/modules/cms/site/site.schema.ts`.
@@ -50,7 +51,7 @@ function getMockWebsiteConfig(code: string): CmsSitePublic {
       name: "Hertz Thailand",
       domain: "https://hertz-ecom-dev.vinobe.com",
       enabled: true,
-      home_page: undefined,
+      home_page: [...MOCK_HERO_SECTION_CAROUSEL_BLOCKS],
       header_layout: undefined,
       footer_layout: undefined,
       settings: mockSiteSettings(),
