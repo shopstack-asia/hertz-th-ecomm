@@ -54,8 +54,8 @@ export function HeroSection({ carousel }: HeroSectionProps) {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto flex min-h-[min(88vh,760px)] max-w-container flex-col px-6 pb-10 pt-8 lg:pb-14 lg:pt-10">
-        <div className="animate-fade-in rounded-md border border-white/25 bg-black/55 p-4 shadow-elevated backdrop-blur-md">
+      <div className="relative z-10 mx-auto flex min-h-[min(88vh,760px)] max-w-container flex-col px-12 pb-10 pt-8 lg:pb-14 lg:pt-10">
+        <div className="animate-fade-in mx-auto w-full max-w-[1280px] rounded-md border border-white/25 bg-black/55 p-4 shadow-elevated backdrop-blur-md">
           <h2 className="text-base font-bold text-white">{t("home.hero.search_availability")}</h2>
 
           <div className="hidden lg:block lg:mt-3">
@@ -66,21 +66,21 @@ export function HeroSection({ carousel }: HeroSectionProps) {
           </div>
         </div>
 
-        <div className="min-h-6 flex-1" aria-hidden />
-
-        <div className="animate-fade-in-delay mt-8 max-w-xl lg:mt-0">
-          <p className="text-4xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-sm sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
-            {t("home.hero.headline_explore")}
-          </p>
-          <div className="mt-2 inline-flex max-w-full flex-col items-stretch gap-2 sm:gap-2.5">
-            <div className="h-1 w-full bg-hertz-yellow" aria-hidden />
-            <p className="text-3xl font-bold leading-[1.12] tracking-tight text-hertz-yellow drop-shadow-sm sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl">
-              {t("home.hero.headline_country")}
+        <div className="flex min-h-0 flex-1 flex-col justify-center items-start py-8 lg:py-12">
+          <div className="animate-fade-in-delay max-w-xl self-start">
+            <p className="text-4xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-sm sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
+              {t("home.hero.headline_explore")}
+            </p>
+            <div className="mt-2 inline-flex max-w-full flex-col items-stretch gap-2 sm:gap-2.5">
+              <div className="h-1 w-full bg-hertz-yellow" aria-hidden />
+              <p className="text-3xl font-bold leading-[1.12] tracking-tight text-hertz-yellow drop-shadow-sm sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl">
+                {t("home.hero.headline_country")}
+              </p>
+            </div>
+            <p className="mt-4 max-w-md text-sm font-normal leading-snug text-white/95 drop-shadow-sm sm:text-base md:text-lg">
+              {t("home.hero.tagline")}
             </p>
           </div>
-          <p className="mt-4 max-w-md text-sm font-normal leading-snug text-white/95 drop-shadow-sm sm:text-base md:text-lg">
-            {t("home.hero.tagline")}
-          </p>
         </div>
       </div>
     </section>

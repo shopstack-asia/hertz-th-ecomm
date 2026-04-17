@@ -36,7 +36,7 @@ interface BenefitsGridProps {
 export function BenefitsGrid({ section }: BenefitsGridProps) {
   return (
     <section className="border-b border-hertz-border bg-hertz-gray py-12 lg:py-16">
-      <div className="mx-auto max-w-container px-6">
+      <div className="mx-auto max-w-container px-12">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {section.items.map((item, i) => (
             <div

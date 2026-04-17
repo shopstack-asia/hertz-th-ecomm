@@ -227,7 +227,7 @@ export function ExclusiveOffersSection({ data }: ExclusiveOffersSectionProps) {
     item.itemCtaLabel?.trim() || ctaLabel?.trim() || t("home.exclusive_offers.learn_more");
 
   return (
-    <FadeInSection className="mt-[-1px]">
+    <FadeInSection>
       <section
         className="relative overflow-hidden border-b border-white/10 bg-[#070707] py-12 text-white lg:py-16"
         role="region"
@@ -254,49 +254,13 @@ export function ExclusiveOffersSection({ data }: ExclusiveOffersSectionProps) {
           }}
         />
 
-        <div className="relative z-[1] mx-auto max-w-container px-6">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="max-w-3xl">
-              <h2 className="text-2xl font-semibold tracking-tight text-white lg:text-3xl">
-                {heading}
-              </h2>
-              {subheading ? (
-                <p className="mt-2 text-sm text-white/75 lg:text-base">{subheading}</p>
-              ) : null}
-            </div>
-            {pageCount > 1 ? (
-              <div className="flex shrink-0 items-center gap-3 sm:pt-1">
-                <button
-                  type="button"
-                  onClick={goPrev}
-                  className="flex min-h-tap min-w-tap items-center justify-center border border-white/30 bg-black/30 text-white/90 backdrop-blur-sm transition-colors hover:border-white/50 hover:bg-black/45 hover:text-white"
-                  aria-label={t("common.previous")}
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={goNext}
-                  className="flex min-h-tap min-w-tap items-center justify-center border border-white/30 bg-black/30 text-white/90 backdrop-blur-sm transition-colors hover:border-white/50 hover:bg-black/45 hover:text-white"
-                  aria-label={t("common.next")}
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </div>
+        <div className="relative z-[1] mx-auto max-w-container px-12">
+          <div className="mb-8 max-w-3xl">
+            <h2 className="text-2xl font-semibold tracking-tight text-white lg:text-3xl">
+              {heading}
+            </h2>
+            {subheading ? (
+              <p className="mt-2 text-sm text-white/75 lg:text-base">{subheading}</p>
             ) : null}
           </div>
 
@@ -334,26 +298,26 @@ export function ExclusiveOffersSection({ data }: ExclusiveOffersSectionProps) {
                           : `${item.uid}-loop`
                       }
                       href={item.href}
-                      className="group flex min-h-0 flex-col gap-2 text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070707]"
+                      className="group flex h-full min-h-0 flex-col gap-3 text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070707]"
                     >
-                      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl bg-[#BDBDBD] shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-shadow duration-300 ease-out motion-safe:group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.45)]">
-                        <div className="relative aspect-square w-full shrink-0 bg-neutral-400">
+                      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-black/10 bg-[#E8E8E8] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-shadow duration-300 ease-out motion-safe:group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.45)] sm:p-5">
+                        <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-neutral-400">
                           <OfferImage src={item.imageSrc} alt={item.imageAlt} />
                         </div>
-                        <div className="flex min-h-0 flex-col px-4 py-4 lg:px-5 lg:py-5">
-                          <p className="text-xs font-bold uppercase tracking-wide text-black lg:text-[0.7rem]">
+                        <div className="mt-4 flex min-h-0 flex-1 flex-col text-left">
+                          <p className="text-sm font-black uppercase leading-tight tracking-wide text-black sm:text-[0.9375rem]">
                             {item.cardTitle.trim() || t("home.exclusive_offers.card_heading")}
                           </p>
-                          <p className="mt-2 line-clamp-3 text-sm leading-snug text-black/90">
+                          <p className="mt-2.5 line-clamp-3 text-sm font-normal leading-relaxed text-black/90 sm:text-[0.9375rem]">
                             {item.cardDescription?.trim() ||
                               t("home.exclusive_offers.card_description")}
                           </p>
                         </div>
                       </div>
-                      <div className="flex min-h-0 shrink-0 items-center rounded-xl bg-[#BDBDBD] px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-shadow duration-300 ease-out motion-safe:group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.45)] lg:px-5">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-black">
+                      <div className="shrink-0 rounded-2xl border border-black/10 bg-[#E8E8E8] px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-shadow duration-300 ease-out motion-safe:group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.45)] sm:px-5 sm:py-3.5">
+                        <span className="text-sm font-black uppercase leading-none tracking-wide text-black sm:text-base">
                           {rowCta(item)}
-                          <span aria-hidden className="ml-1 inline-block">
+                          <span aria-hidden className="ml-1.5 inline-block translate-y-px font-black">
                             →
                           </span>
                         </span>

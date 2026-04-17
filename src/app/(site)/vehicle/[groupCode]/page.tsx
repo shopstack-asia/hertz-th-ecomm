@@ -535,7 +535,7 @@ function VehicleDetailContent() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12">
+      <div className="mx-auto max-w-container px-12 py-12">
         <div className="h-96 animate-pulse bg-hertz-gray" />
       </div>
     );
@@ -543,7 +543,7 @@ function VehicleDetailContent() {
 
   if (!vehicle) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12 text-center">
+      <div className="mx-auto max-w-container px-12 py-12 text-center">
         <p className="text-hertz-black-80">{t("vehicleDetail.vehicle_not_found")}</p>
         <Link href="/vehicles" className="mt-4 inline-block font-bold text-black underline">
           {t("vehicleDetail.browse_vehicles")}
@@ -585,7 +585,7 @@ function VehicleDetailContent() {
   );
 
   return (
-    <div className="mx-auto max-w-container px-6 py-8 pb-28 lg:pb-12 lg:py-12">
+    <div className="mx-auto max-w-container px-12 py-8 pb-28 lg:pb-12 lg:py-12">
       <div className="lg:grid lg:grid-cols-[65%_35%] lg:gap-8">
         {/* Left column 65% */}
         <div className="space-y-6">
@@ -845,7 +845,7 @@ export default function VehicleDetailPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-container px-6 py-12">
+        <div className="mx-auto max-w-container px-12 py-12">
           <div className="h-96 animate-pulse bg-hertz-gray" />
         </div>
       }

@@ -108,7 +108,7 @@ function ThankYouContent() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-container px-4 py-12 sm:px-6">
+      <div className="mx-auto max-w-container px-8 py-12 sm:px-12">
         <div className="mx-auto max-w-2xl rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-sm">
           <p className="text-hertz-black-80">{t("thankYou.loading")}</p>
         </div>
@@ -118,7 +118,7 @@ function ThankYouContent() {
 
   if (error || !data) {
     return (
-      <div className="mx-auto max-w-container px-4 py-12 sm:px-6">
+      <div className="mx-auto max-w-container px-8 py-12 sm:px-12">
         <div className="mx-auto max-w-lg rounded-2xl border border-[#E5E7EB] bg-white p-8 text-center shadow-sm">
           <p className="text-red-600">{error ? t(error) : t("thankYou.not_found")}</p>
           <Link
@@ -135,7 +135,7 @@ function ThankYouContent() {
   const p = data.pricing;
 
   return (
-    <div className="mx-auto max-w-container px-4 pb-32 pt-8 sm:px-6 sm:pb-12 md:pt-12">
+    <div className="mx-auto max-w-container px-8 pb-32 pt-8 sm:px-12 sm:pb-12 md:pt-12">
       {/* Top confirmation header */}
       <header className="mx-auto max-w-2xl text-center">
         <div
@@ -380,7 +380,7 @@ export default function ThankYouPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-container px-4 py-12 sm:px-6">
+        <div className="mx-auto max-w-container px-8 py-12 sm:px-12">
           <div className="mx-auto max-w-lg rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-sm">
             <p className="text-hertz-black-80">Loading...</p>
           </div>

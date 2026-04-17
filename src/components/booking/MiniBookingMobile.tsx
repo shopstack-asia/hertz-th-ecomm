@@ -58,7 +58,7 @@ export function MiniBookingMobile({ onOpenSheet }: MiniBookingMobileProps) {
     "flex min-h-tap flex-col justify-center py-3 text-left transition-colors duration-150 hover:bg-gray-50/80 active:bg-gray-100";
 
   return (
-    <div className="flex flex-col px-4">
+    <div className="flex flex-col px-8">
       {/* Block 1 – Pickup */}
       <div
         role="button"

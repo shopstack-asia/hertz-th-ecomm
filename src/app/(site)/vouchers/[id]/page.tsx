@@ -46,7 +46,7 @@ export default function VoucherDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12">
+      <div className="mx-auto max-w-container px-12 py-12">
         <div className="h-96 animate-pulse bg-hertz-gray" />
       </div>
     );
@@ -54,7 +54,7 @@ export default function VoucherDetailPage() {
 
   if (!voucher) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12 text-center">
+      <div className="mx-auto max-w-container px-12 py-12 text-center">
         <p className="text-hertz-black-80">Voucher not found.</p>
         <Link href="/vouchers" className="mt-4 inline-block font-bold text-black underline">
           Back to vouchers
@@ -76,7 +76,7 @@ export default function VoucherDetailPage() {
         : voucher.product_category;
 
   return (
-    <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
+    <div className="mx-auto max-w-container px-12 py-8 lg:py-12">
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
         <div>
           <div className="overflow-hidden rounded border border-hertz-border">

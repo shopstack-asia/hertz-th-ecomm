@@ -85,7 +85,7 @@ export function ExploreLocationsSection({ data }: ExploreLocationsSectionProps) 
 
   return (
     <section
-      className="relative overflow-hidden border-b border-hertz-border bg-black px-0 pb-10 pt-5 text-white sm:pb-12 sm:pt-6 lg:pb-16 lg:pt-8"
+      className="relative overflow-hidden bg-black px-0 pb-10 pt-5 text-white sm:pb-12 sm:pt-6 lg:pb-16 lg:pt-8"
       aria-labelledby="explore-locations-heading"
     >
       <div
@@ -97,7 +97,7 @@ export function ExploreLocationsSection({ data }: ExploreLocationsSectionProps) 
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black via-black/65 to-black"
         aria-hidden
       />
-      <div className="relative z-10 mx-auto max-w-container px-6">
+      <div className="relative z-10 mx-auto max-w-container px-12">
         <h2
           id="explore-locations-heading"
           className={`${headingMarginClass} max-w-3xl text-2xl font-bold tracking-tight text-hertz-yellow lg:text-3xl`}

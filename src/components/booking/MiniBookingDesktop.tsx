@@ -64,10 +64,10 @@ export function MiniBookingDesktop({ onOpenModal }: MiniBookingDesktopProps) {
     : promotion?.validation?.reason;
 
   const columnBase =
-    "flex min-w-0 flex-col justify-center gap-0.5 px-4 py-3 text-left transition-colors duration-150 hover:bg-gray-50/70 active:bg-gray-100 cursor-pointer";
+    "flex min-w-0 flex-col justify-center gap-0.5 px-8 py-3 text-left transition-colors duration-150 hover:bg-gray-50/70 active:bg-gray-100 cursor-pointer";
 
   return (
-    <div className="mx-auto grid max-w-container grid-cols-[2fr_2fr_1fr] gap-0 px-4 lg:px-6">
+    <div className="mx-auto grid max-w-container grid-cols-[2fr_2fr_1fr] gap-0 px-8 lg:px-12">
       {/* Column 1 – Pickup */}
       <div
         role="button"

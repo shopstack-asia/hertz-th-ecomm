@@ -156,7 +156,7 @@ export function SpecialOffersSection() {
         aria-roledescription="carousel"
         aria-label="Special offers this month"
       >
-        <div className="mx-auto max-w-container px-6">
+        <div className="mx-auto max-w-container px-12">
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-black lg:text-3xl">
               Special offers this month

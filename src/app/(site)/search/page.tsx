@@ -128,7 +128,7 @@ function SearchContent() {
   const handlePageChange = (p: number) => updateParams({ page: String(p) });
 
   return (
-    <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
+    <div className="mx-auto max-w-container px-12 py-8 lg:py-12">
       <h1 className="mb-6 text-2xl font-bold text-black lg:text-3xl">
         {t("search.search_results")}
       </h1>
@@ -255,7 +255,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-container px-6 py-12" />}>
+    <Suspense fallback={<div className="mx-auto max-w-container px-12 py-12" />}>
       <SearchContent />
     </Suspense>
   );

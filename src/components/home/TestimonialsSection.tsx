@@ -38,7 +38,7 @@ export function TestimonialsSection() {
   return (
     <FadeInSection>
       <section className="border-b border-hertz-border bg-[#FAFAFA] py-12 lg:py-16">
-        <div className="mx-auto max-w-container px-6">
+        <div className="mx-auto max-w-container px-12">
           <h2 className="mb-10 text-left text-2xl font-bold text-black lg:mb-12 lg:text-3xl">
             {t("home.testimonials.title")}
           </h2>

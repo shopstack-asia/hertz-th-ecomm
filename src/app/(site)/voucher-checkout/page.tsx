@@ -80,7 +80,7 @@ function VoucherCheckoutContent() {
 
   if (!authenticated) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12">
+      <div className="mx-auto max-w-container px-12 py-12">
         <p className="text-hertz-black-80">Redirecting to login...</p>
       </div>
     );
@@ -88,7 +88,7 @@ function VoucherCheckoutContent() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12">
+      <div className="mx-auto max-w-container px-12 py-12">
         <div className="h-96 animate-pulse bg-hertz-gray" />
       </div>
     );
@@ -96,7 +96,7 @@ function VoucherCheckoutContent() {
 
   if (!voucherId || !voucher) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12 text-center">
+      <div className="mx-auto max-w-container px-12 py-12 text-center">
         <p className="text-hertz-black-80">Voucher not found or missing.</p>
         <Link href="/vouchers" className="mt-4 inline-block font-bold text-black underline">
           Browse vouchers
@@ -111,7 +111,7 @@ function VoucherCheckoutContent() {
       : `${voucher.value}% off`;
 
   return (
-    <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
+    <div className="mx-auto max-w-container px-12 py-8 lg:py-12">
       <h1 className="mb-8 text-2xl font-bold text-black">Voucher checkout</h1>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
@@ -183,7 +183,7 @@ export default function VoucherCheckoutPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-container px-6 py-12">
+        <div className="mx-auto max-w-container px-12 py-12">
           <p className="text-hertz-black-80">Loading...</p>
         </div>
       }

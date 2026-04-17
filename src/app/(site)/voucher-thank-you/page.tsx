@@ -55,7 +55,7 @@ function VoucherThankYouContent() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12">
+      <div className="mx-auto max-w-container px-12 py-12">
         <div className="mx-auto max-w-lg border border-hertz-border bg-white p-8">
           <p className="text-hertz-black-80">Loading your order...</p>
         </div>
@@ -65,7 +65,7 @@ function VoucherThankYouContent() {
 
   if (error || !order) {
     return (
-      <div className="mx-auto max-w-container px-6 py-12">
+      <div className="mx-auto max-w-container px-12 py-12">
         <div className="mx-auto max-w-lg border border-hertz-border bg-white p-8 text-center">
           <p className="text-red-600">{error ?? "Order not found"}</p>
           <Link
@@ -80,7 +80,7 @@ function VoucherThankYouContent() {
   }
 
   return (
-    <div className="mx-auto max-w-container px-6 py-12">
+    <div className="mx-auto max-w-container px-12 py-12">
       <div className="mx-auto max-w-lg border border-hertz-border bg-white p-8">
         <h1 className="text-2xl font-bold text-black">Thank you</h1>
         <p className="mt-2 text-hertz-black-80">
@@ -163,7 +163,7 @@ export default function VoucherThankYouPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-container px-6 py-12">
+        <div className="mx-auto max-w-container px-12 py-12">
           <div className="mx-auto max-w-lg border border-hertz-border bg-white p-8">
             <p className="text-hertz-black-80">Loading...</p>
           </div>

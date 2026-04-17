@@ -65,7 +65,7 @@ function RewardsContent() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-container px-6 py-24">
+      <div className="mx-auto max-w-container px-12 py-24">
         <div className="h-12 w-48 animate-pulse bg-hertz-gray" />
         <div className="mt-8 h-64 animate-pulse bg-hertz-gray" />
       </div>
@@ -81,7 +81,7 @@ function RewardsContent() {
       <HeroSection hero={page.hero} />
 
       <div className="mx-auto max-w-container">
-        <nav aria-label="Breadcrumb" className="border-b border-hertz-border px-6 py-4">
+        <nav aria-label="Breadcrumb" className="border-b border-hertz-border px-12 py-4">
           <ol className="flex flex-wrap gap-2 text-sm text-hertz-black-60">
             <li>
               <Link href="/" className="hover:text-black hover:underline">

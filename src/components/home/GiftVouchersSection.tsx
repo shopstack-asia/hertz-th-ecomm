@@ -76,7 +76,7 @@ export function GiftVouchersSection() {
   return (
     <FadeInSection>
       <section className="border-b border-hertz-border bg-[#F8F8F8] py-14 lg:py-20">
-        <div className="mx-auto max-w-container px-6">
+        <div className="mx-auto max-w-container px-12">
           <h2 className="mb-10 text-2xl font-bold text-black lg:text-3xl">
             Gift Vouchers &amp; Special Deals
           </h2>

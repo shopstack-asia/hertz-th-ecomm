@@ -42,7 +42,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-hertz-border bg-white">
-      <div className="mx-auto max-w-container px-6 py-12 lg:py-16">
+      <div className="mx-auto max-w-container px-12 py-12 lg:py-16">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           <div>
             <p className="text-xl font-bold text-black">Hertz</p>

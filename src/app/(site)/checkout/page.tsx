@@ -190,7 +190,7 @@ function CheckoutContent() {
   ];
 
   return (
-    <div className="mx-auto max-w-container px-6 py-8 pb-28 lg:pb-12 lg:py-12">
+    <div className="mx-auto max-w-container px-12 py-8 pb-28 lg:pb-12 lg:py-12">
       <StepIndicator current={step} steps={stepLabels} />
 
       <div className="mt-8 lg:flex lg:gap-12">
@@ -501,7 +501,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-container px-6 py-12" />}>
+    <Suspense fallback={<div className="mx-auto max-w-container px-12 py-12" />}>
       <CheckoutContent />
     </Suspense>
   );

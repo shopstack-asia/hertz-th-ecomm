@@ -56,7 +56,7 @@ export function InstallPromptBanner() {
       role="banner"
       aria-label={t("pwa.install_app")}
     >
-      <div className="mx-auto flex max-w-container items-center justify-between gap-4 px-6">
+      <div className="mx-auto flex max-w-container items-center justify-between gap-4 px-12">
         <div>
           <p className="font-bold text-black">{t("pwa.install_title")}</p>
           <p className="text-sm text-hertz-black-80">

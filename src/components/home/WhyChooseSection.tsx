@@ -60,7 +60,7 @@ export function WhyChooseSection() {
         isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
       }`}
     >
-      <div className="mx-auto max-w-container px-6">
+      <div className="mx-auto max-w-container px-12">
         <h2 className="mb-8 text-2xl font-bold text-black lg:text-3xl">
           Why choose Hertz
         </h2>

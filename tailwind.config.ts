@@ -30,8 +30,9 @@ const config: Config = {
         sans: ["var(--font-ibm-plex-sans-thai)", "sans-serif"],
         ride: ["var(--font-ibm-plex-sans-thai)", "sans-serif"],
       },
+      // Full-width band: `max-w-container` uncapped; sections use horizontal padding for gutters.
       maxWidth: {
-        container: "1280px",
+        container: "none",
         "container-narrow": "960px",
       },
       spacing: {

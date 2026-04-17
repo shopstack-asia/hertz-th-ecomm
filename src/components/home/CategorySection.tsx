@@ -16,7 +16,7 @@ export function CategorySection() {
   return (
     <FadeInSection>
       <section className="border-b border-hertz-border bg-[#FAFAFA] py-12 lg:py-16">
-        <div className="mx-auto max-w-container px-6">
+        <div className="mx-auto max-w-container px-12">
           <h2 className="mb-8 text-2xl font-bold text-black lg:text-3xl">
             Browse by category
           </h2>

@@ -64,7 +64,7 @@ export function Header() {
       {/* Desktop header (≥1024px) */}
       <header className="hidden lg:block">
         <div className="relative border-b border-hertz-border bg-white">
-          <div className="mx-auto flex h-[72px] max-w-container items-center justify-between px-6">
+          <div className="mx-auto flex h-[72px] max-w-container items-center justify-between px-12">
             <Link
               href="/"
               className="inline-block border-b-2 border-hertz-yellow pb-0.5"

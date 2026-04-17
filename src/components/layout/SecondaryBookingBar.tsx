@@ -54,7 +54,7 @@ export function SecondaryBookingBar() {
 
   return (
     <div className="border-b border-hertz-border bg-[#FAFAFA]">
-      <div className="mx-auto max-w-container px-6 py-4">
+      <div className="mx-auto max-w-container px-12 py-4">
         <div className="flex flex-wrap items-end gap-4 lg:gap-6">
           <div className="w-full min-w-[200px] lg:w-48">
             <LocationSelect

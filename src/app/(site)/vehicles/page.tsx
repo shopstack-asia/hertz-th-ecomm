@@ -157,7 +157,7 @@ function VehiclesContent() {
     : t("vehicles.page_title_all");
 
   return (
-    <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
+    <div className="mx-auto max-w-container px-12 py-8 lg:py-12">
       <h1 className="mb-6 text-2xl font-bold text-black lg:text-3xl">
         {pageTitle}
       </h1>
@@ -312,7 +312,7 @@ function VehiclesContent() {
 
 export default function VehiclesPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-container px-6 py-12" />}>
+    <Suspense fallback={<div className="mx-auto max-w-container px-12 py-12" />}>
       <VehiclesContent />
     </Suspense>
   );

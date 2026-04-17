@@ -13,7 +13,7 @@ interface PageTemplateProps {
 
 export function PageTemplate({ title, breadcrumb, children }: PageTemplateProps) {
   return (
-    <div className="mx-auto max-w-container px-6 py-8 lg:py-12">
+    <div className="mx-auto max-w-container px-12 py-8 lg:py-12">
       <nav aria-label="Breadcrumb" className="mb-6">
         <ol className="flex flex-wrap gap-2 text-sm text-hertz-black-60">
           {breadcrumb.map((item, i) => (

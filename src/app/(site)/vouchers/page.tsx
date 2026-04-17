@@ -117,7 +117,7 @@ function VouchersContent() {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      <div className="mx-auto max-w-container px-6 py-10 lg:py-14">
+      <div className="mx-auto max-w-container px-12 py-10 lg:py-14">
         <h1 className="mb-8 text-2xl font-bold text-black lg:text-3xl">
           {t("vouchers.page_title")}
         </h1>
@@ -253,7 +253,7 @@ function VouchersContent() {
 
 export default function VouchersPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-container px-6 py-12" />}>
+    <Suspense fallback={<div className="mx-auto max-w-container px-12 py-12" />}>
       <VouchersContent />
     </Suspense>
   );

@@ -7,7 +7,7 @@ export function AppDownloadSection() {
   return (
     <FadeInSection>
       <section className="border-b border-hertz-border bg-black py-12 text-white lg:py-16">
-        <div className="mx-auto flex max-w-container flex-col items-center gap-8 px-6 lg:flex-row lg:justify-between">
+        <div className="mx-auto flex max-w-container flex-col items-center gap-8 px-12 lg:flex-row lg:justify-between">
           <div className="flex-1 text-center lg:text-left">
             <h2 className="text-2xl font-bold lg:text-3xl">
               Book on the go

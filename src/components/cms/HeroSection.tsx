@@ -15,7 +15,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
         style={{ backgroundImage: `url(${hero.background_image})` }}
       />
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative mx-auto flex min-h-[320px] max-w-container flex-col justify-center px-6 py-16 lg:min-h-[400px] lg:py-24">
+      <div className="relative mx-auto flex min-h-[320px] max-w-container flex-col justify-center px-12 py-16 lg:min-h-[400px] lg:py-24">
         <h1 className="text-3xl font-bold text-white drop-shadow-md lg:text-5xl">
           {hero.heading}
         </h1>
