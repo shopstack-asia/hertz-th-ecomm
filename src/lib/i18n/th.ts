@@ -57,6 +57,11 @@ export const th = {
         bg_aria: "โปรแกรมสมาชิกและสะสมคะแนน",
       },
     },
+    explore_locations: {
+      title: "สำรวจสถานที่ของเราในประเทศไทย",
+      contact: "ติดต่อ",
+      tile_book_aria: "จองรับรถที่ {title}",
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: ใช้อีเมลและรหัสผ่านอะไรก็ได้ (เช่น demo@example.com / 1234)",

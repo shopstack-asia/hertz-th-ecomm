@@ -57,6 +57,11 @@ export const en = {
         bg_aria: "Members loyalty program",
       },
     },
+    explore_locations: {
+      title: "Explore Our Locations in Thailand",
+      contact: "Contact",
+      tile_book_aria: "Book pickup in {title}",
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: Use any email and any password (e.g. demo@example.com / 1234)",

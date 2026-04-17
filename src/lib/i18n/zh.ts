@@ -57,6 +57,11 @@ export const zh = {
         bg_aria: "会员忠诚计划",
       },
     },
+    explore_locations: {
+      title: "探索我们在泰国的门店",
+      contact: "联系",
+      tile_book_aria: "在{title}预订取车",
+    },
   },
   auth: {
     mock_phase_credentials: "演示阶段：可使用任意邮箱和密码（如 demo@example.com / 1234）",

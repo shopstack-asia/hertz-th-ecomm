@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The **marketing home page** composition: hero, booking entry (`StickyBookingBar`), special offers, categories, fuel types, top locations, gift vouchers CTA, featured vehicles, trust sections, testimonials, and app download — mostly presentational sections assembled in the route file.
+The **marketing home page** composition: hero, members loyalty banner, explore locations (CMS bento), booking entry (`StickyBookingBar`), special offers, categories, fuel types, gift vouchers CTA, featured vehicles, trust sections, testimonials, and app download — mostly presentational sections assembled in the route file.
 
 ## Scope
 
