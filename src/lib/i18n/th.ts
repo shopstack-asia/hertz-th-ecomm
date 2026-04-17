@@ -71,6 +71,9 @@ export const th = {
       learn_more: "ดูเพิ่มเติม",
       dot_aria: "ไปที่สไลด์ {n}",
     },
+    products_services: {
+      banner_aria: "ผลิตภัณฑ์และบริการ",
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: ใช้อีเมลและรหัสผ่านอะไรก็ได้ (เช่น demo@example.com / 1234)",

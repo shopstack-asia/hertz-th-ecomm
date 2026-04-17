@@ -2,7 +2,7 @@
 
 ## Page composition
 
-`page.tsx` renders a stack of home sections in a fixed order (hero → **members loyalty banner** → **explore locations** → **exclusive partner offers** → booking bar → offers → categories → fuel types → vouchers → featured vehicles → why choose → testimonials → app download). Each block is a separate component; **Explore locations** owns the `explore-locations-bg.webp` decorative layer inside its section.
+`page.tsx` renders a stack of home sections in a fixed order (hero → **members loyalty banner** → **explore locations** → **exclusive partner offers** → **products and services banner** → booking bar → offers → categories → fuel types → vouchers → featured vehicles → why choose → testimonials → app download). Each block is a separate component; **Explore locations** owns the `explore-locations-bg.webp` decorative layer inside its section.
 
 ## Booking entry
 
@@ -48,6 +48,14 @@ The home route is a **Server Component**: it calls `getWebsiteConfig()` and pass
 - Timing: `config.config.auto_play` and `config.config.interval_ms` (same bounds as hero). With `prefers-reduced-motion: reduce`, auto-advance is disabled.
 - Layout: responsive paged carousel (1 / 2 / 4 cards per page) with dot pagination for **pages**, not per item. Slides use a horizontal **`translate3d`** strip (`transition-transform` ~500ms; disabled when `prefers-reduced-motion: reduce`). Forward wrap is **seamless**: an extra duplicate of the first page follows the last so the track always advances in the same direction, then the index snaps back to the real first slide without animation after `transitionend` on the track only (`target === currentTarget` so card transitions do not fire the snap), or in `useLayoutEffect` when reduced motion. **Previous / Next** advance by page. Auto-advance uses `interval_ms` and pauses when the document is hidden (`visibilitychange`); it is not paused on hover.
 - Section background: `exclusive-offers-bg.webp` under `public/images/exclusive_offers/` is rendered full-bleed behind the section (gradient overlays for contrast), same idea as Explore locations’ in-section background asset.
+
+### Products and services banner
+
+- Source: `CmsSitePublic.home_page` — enabled block with `block_type === "BANNER"` and `code === "PRODUCTS_AND_SERVICES"` (local mock: `src/lib/mock/productsAndServicesSection.ts`).
+- Resolver: `resolveProductsAndServicesSection` in `src/lib/cms/websiteHomeProductsAndServices.ts` → `ProductsAndServicesSection`.
+- Background image: first usable URL in `config.config.image[]` (same rules as Members loyalty); otherwise `/images/home/products-and-services.webp`.
+- CTA href: `config.config.link` (mock: `/vouchers`). The storefront wraps the **full-width image** in one `<Link>`.
+- Fallback when the block or `link` is absent: `/vouchers`. Optional `alt` / `section_title` feeds `<img alt>`; otherwise i18n `home.products_services.banner_aria`.
 
 ## Edge cases
 

@@ -4,11 +4,13 @@ import { resolveHomeHeroCarousel } from "@/lib/cms/websiteHomeHeroCarousel";
 import { resolveMembersLoyaltyProgramSection } from "@/lib/cms/websiteHomeMembersLoyalty";
 import { resolveExploreLocationsSection } from "@/lib/cms/websiteHomeExploreLocations";
 import { resolveHomeExclusiveOffers } from "@/lib/cms/websiteHomeExclusiveOffers";
+import { resolveProductsAndServicesSection } from "@/lib/cms/websiteHomeProductsAndServices";
 import { MembersLoyaltyProgramSection } from "@/components/home/MembersLoyaltyProgramSection";
 import { ExploreLocationsSection } from "@/components/home/ExploreLocationsSection";
 import { StickyBookingBar } from "@/components/booking/StickyBookingBar";
 import { SpecialOffersSection } from "@/components/home/SpecialOffersSection";
 import { ExclusiveOffersSection } from "@/components/home/ExclusiveOffersSection";
+import { ProductsAndServicesSection } from "@/components/home/ProductsAndServicesSection";
 import { CategorySection } from "@/components/home/CategorySection";
 import { FuelTypeSection } from "@/components/home/FuelTypeSection";
 import { GiftVouchersSection } from "@/components/home/GiftVouchersSection";
@@ -23,6 +25,7 @@ export default async function HomePage() {
   const membersLoyalty = resolveMembersLoyaltyProgramSection(site.home_page);
   const exploreLocations = resolveExploreLocationsSection(site.home_page);
   const exclusiveOffers = resolveHomeExclusiveOffers(site.home_page);
+  const productsAndServices = resolveProductsAndServicesSection(site.home_page);
 
   return (
     <>
@@ -30,6 +33,7 @@ export default async function HomePage() {
       <MembersLoyaltyProgramSection data={membersLoyalty} />
       <ExploreLocationsSection data={exploreLocations} />
       <ExclusiveOffersSection data={exclusiveOffers} />
+      <ProductsAndServicesSection data={productsAndServices} />
       <StickyBookingBar />
       <SpecialOffersSection />
       <CategorySection />

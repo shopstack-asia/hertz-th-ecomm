@@ -70,6 +70,9 @@ export const zh = {
       learn_more: "了解更多",
       dot_aria: "转到第 {n} 页",
     },
+    products_services: {
+      banner_aria: "产品与服务",
+    },
   },
   auth: {
     mock_phase_credentials: "演示阶段：可使用任意邮箱和密码（如 demo@example.com / 1234）",
