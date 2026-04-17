@@ -13,6 +13,7 @@ describe("resolveHomeHeroCarousel", () => {
     const r = resolveHomeHeroCarousel([
       {
         block_type: "CAROUSEL",
+        code: "HERO_SECTION",
         enabled: true,
         config: {
           config: {
@@ -32,5 +33,21 @@ describe("resolveHomeHeroCarousel", () => {
     expect(r.slides[1].src).toBe("/images/home/hero-slide-2.webp");
     expect(r.autoPlay).toBe(false);
     expect(r.intervalMs).toBe(5000);
+  });
+
+  it("ignores CAROUSEL blocks that are not HERO_SECTION", () => {
+    const r = resolveHomeHeroCarousel([
+      {
+        block_type: "CAROUSEL",
+        code: "EXCLUSIVE_OFFERS",
+        enabled: true,
+        config: {
+          config: {
+            items: [{ title: "Partner", image: ["https://cdn.example.com/partner.jpg"] }],
+          },
+        },
+      },
+    ]);
+    expect(r.slides[0].src).toBe("/images/home/hero-slide-1.webp");
   });
 });

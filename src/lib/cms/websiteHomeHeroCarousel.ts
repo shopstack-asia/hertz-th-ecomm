@@ -57,7 +57,11 @@ export function resolveHomeHeroCarousel(homePage: unknown): HomeHeroCarouselReso
   const block = blocks.find((b) => {
     if (!b || typeof b !== "object") return false;
     const o = b as Record<string, unknown>;
-    return o.block_type === "CAROUSEL" && o.enabled !== false;
+    return (
+      o.block_type === "CAROUSEL" &&
+      o.code === "HERO_SECTION" &&
+      o.enabled !== false
+    );
   }) as Record<string, unknown> | undefined;
 
   if (!block) {

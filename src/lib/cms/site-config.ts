@@ -2,6 +2,7 @@ import { env } from "@/lib/config/env";
 import { MOCK_HERO_SECTION_CAROUSEL_BLOCKS } from "@/lib/mock/heroSection";
 import { MOCK_MEMBERS_LOYALTY_PROGRAM_BANNER_BLOCK } from "@/lib/mock/membersLoyaltyProgramSection";
 import { MOCK_EXPLORE_LOCATIONS_CARD_LIST_BLOCK } from "@/lib/mock/exploreLocationsSection";
+import { MOCK_EXCLUSIVE_OFFERS_CAROUSEL_BLOCK } from "@/lib/mock/exclusiveOffersSection";
 
 /**
  * Public website document aligned with cs-core `src/modules/cms/site/site.schema.ts`.
@@ -57,6 +58,7 @@ function getMockWebsiteConfig(code: string): CmsSitePublic {
         ...MOCK_HERO_SECTION_CAROUSEL_BLOCKS,
         MOCK_MEMBERS_LOYALTY_PROGRAM_BANNER_BLOCK,
         MOCK_EXPLORE_LOCATIONS_CARD_LIST_BLOCK,
+        MOCK_EXCLUSIVE_OFFERS_CAROUSEL_BLOCK,
       ],
       header_layout: undefined,
       footer_layout: undefined,

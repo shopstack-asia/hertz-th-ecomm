@@ -6,4 +6,5 @@
 | Hero background carousel | [domain-features.md](./domain-features.md) | `getWebsiteConfig` → `resolveHomeHeroCarousel` (`websiteHomeHeroCarousel.ts`) → `HeroSection` |
 | Members loyalty banner | [domain-features.md](./domain-features.md) | `resolveMembersLoyaltyProgramSection` (`websiteHomeMembersLoyalty.ts`) → `MembersLoyaltyProgramSection` |
 | Explore locations bento | [domain-features.md](./domain-features.md) | `resolveExploreLocationsSection` (`websiteHomeExploreLocations.ts`) → `ExploreLocationsSection` |
+| Exclusive partner offers carousel | [domain-features.md](./domain-features.md) | `resolveHomeExclusiveOffers` (`websiteHomeExclusiveOffers.ts`) → `ExclusiveOffersSection` |
 | Per-section fetching | (inline) | Inspect each `src/components/home/*` when documenting data dependencies |

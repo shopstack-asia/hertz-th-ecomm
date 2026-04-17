@@ -62,6 +62,15 @@ export const en = {
       contact: "Contact",
       tile_book_aria: "Book pickup in {title}",
     },
+    exclusive_offers: {
+      section_aria: "Exclusive offers for partners",
+      section_title: "Exclusive Offers for Our Partners",
+      card_heading: "Partner privileges",
+      card_description:
+        "Enjoy savings and extras from our partner campaigns when you book with Hertz Thailand.",
+      learn_more: "Learn more",
+      dot_aria: "Go to slide {n}",
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: Use any email and any password (e.g. demo@example.com / 1234)",

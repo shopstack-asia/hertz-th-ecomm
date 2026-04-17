@@ -62,6 +62,15 @@ export const th = {
       contact: "ติดต่อ",
       tile_book_aria: "จองรับรถที่ {title}",
     },
+    exclusive_offers: {
+      section_aria: "ข้อเสนอพิเศษสำหรับพันธมิตร",
+      section_title: "ข้อเสนอพิเศษสำหรับพันธมิตรของเรา",
+      card_heading: "สิทธิประโยชน์พันธมิตร",
+      card_description:
+        "รับส่วนลดและสิทธิพิเศษจากแคมเปญพันธมิตรเมื่อจองกับเฮิร์ตประเทศไทย",
+      learn_more: "ดูเพิ่มเติม",
+      dot_aria: "ไปที่สไลด์ {n}",
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: ใช้อีเมลและรหัสผ่านอะไรก็ได้ (เช่น demo@example.com / 1234)",

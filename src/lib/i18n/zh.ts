@@ -62,6 +62,14 @@ export const zh = {
       contact: "联系",
       tile_book_aria: "在{title}预订取车",
     },
+    exclusive_offers: {
+      section_aria: "合作伙伴专属优惠",
+      section_title: "合作伙伴专属优惠",
+      card_heading: "合作伙伴礼遇",
+      card_description: "通过赫兹泰国预订，尽享合作推广活动的折扣与附加权益。",
+      learn_more: "了解更多",
+      dot_aria: "转到第 {n} 页",
+    },
   },
   auth: {
     mock_phase_credentials: "演示阶段：可使用任意邮箱和密码（如 demo@example.com / 1234）",

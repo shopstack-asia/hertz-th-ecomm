@@ -6,12 +6,15 @@ interface UseCarouselOptions {
   total: number;
   intervalMs?: number;
   transitionMs?: number;
+  /** When false, the carousel does not auto-advance on an interval. */
+  autoPlay?: boolean;
 }
 
 export function useCarousel({
   total,
   intervalMs = 6000,
   transitionMs = 300,
+  autoPlay = true,
 }: UseCarouselOptions) {
   const [index, setIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -19,23 +22,31 @@ export function useCarousel({
 
   const goTo = useCallback(
     (next: number) => {
-      setIndex((prev) => (next + total) % total);
+      if (total <= 0) return;
+      setIndex(() => ((next % total) + total) % total);
     },
     [total]
   );
 
-  const next = useCallback(() => goTo(index + 1), [index, goTo]);
-  const prev = useCallback(() => goTo(index - 1), [index, goTo]);
+  const next = useCallback(() => {
+    if (total <= 0) return;
+    setIndex((prev) => (prev + 1) % total);
+  }, [total]);
+
+  const prev = useCallback(() => {
+    if (total <= 0) return;
+    setIndex((prev) => (prev - 1 + total) % total);
+  }, [total]);
 
   useEffect(() => {
-    if (total <= 0 || isPaused) return;
+    if (total <= 0 || isPaused || !autoPlay) return;
     timerRef.current = setInterval(() => {
       setIndex((prev) => (prev + 1) % total);
     }, intervalMs);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [total, intervalMs, isPaused]);
+  }, [total, intervalMs, isPaused, autoPlay]);
 
   useEffect(() => {
     const handleVisibility = () => {
