@@ -2,7 +2,7 @@
 
 ## Page composition
 
-`page.tsx` renders a stack of home sections in a fixed order (hero → **members loyalty banner** → **explore locations** → **exclusive partner offers** → **products and services banner** → booking bar → offers → categories → fuel types → vouchers → featured vehicles → why choose → testimonials → app download). Each block is a separate component; **Explore locations** owns the `explore-locations-bg.webp` decorative layer inside its section.
+`page.tsx` renders a stack of home sections in a fixed order (hero → **members loyalty banner** → **explore locations** → **exclusive partner offers** → **products and services banner** → **corporate car rental services banner** → booking bar → offers → categories → fuel types → vouchers → featured vehicles → why choose → testimonials → app download). Each block is a separate component; **Explore locations** owns the `explore-locations-bg.webp` decorative layer inside its section.
 
 ## Booking entry
 
@@ -56,6 +56,14 @@ The home route is a **Server Component**: it calls `getWebsiteConfig()` and pass
 - Background image: first usable URL in `config.config.image[]` (same rules as Members loyalty); otherwise `/images/home/products-and-services.webp`.
 - CTA href: `config.config.link` (mock: `/vouchers`). The storefront wraps the **full-width image** in one `<Link>`.
 - Fallback when the block or `link` is absent: `/vouchers`. Optional `alt` / `section_title` feeds `<img alt>`; otherwise i18n `home.products_services.banner_aria`.
+
+### Corporate car rental services banner
+
+- Source: `CmsSitePublic.home_page` — enabled block with `block_type === "BANNER"` and `code === "CORPORATE_CAR_RENTAL_SERVICES"` (local mock: `src/lib/mock/corporateCarRentalServicesSection.ts`).
+- Resolver: `resolveCorporateCarRentalServicesSection` in `src/lib/cms/websiteHomeCorporateCarRentalServices.ts` → `CorporateCarRentalServicesSection`.
+- Background image: first usable URL in `config.config.image[]`; when `null` or missing, `/images/home/corporate-car-rental-services.webp`.
+- CTA href: `config.config.link` (mock: `/vouchers`). Full-width image wrapped in one `<Link>`.
+- Fallback when the block or `link` is absent: `/vouchers`. Optional `alt` / `section_title` feeds `<img alt>`; otherwise i18n `home.corporate_car_rental.banner_aria`.
 
 ## Edge cases
 

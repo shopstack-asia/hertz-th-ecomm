@@ -73,6 +73,9 @@ export const zh = {
     products_services: {
       banner_aria: "产品与服务",
     },
+    corporate_car_rental: {
+      banner_aria: "企业租车服务",
+    },
   },
   auth: {
     mock_phase_credentials: "演示阶段：可使用任意邮箱和密码（如 demo@example.com / 1234）",

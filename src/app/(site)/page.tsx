@@ -5,12 +5,14 @@ import { resolveMembersLoyaltyProgramSection } from "@/lib/cms/websiteHomeMember
 import { resolveExploreLocationsSection } from "@/lib/cms/websiteHomeExploreLocations";
 import { resolveHomeExclusiveOffers } from "@/lib/cms/websiteHomeExclusiveOffers";
 import { resolveProductsAndServicesSection } from "@/lib/cms/websiteHomeProductsAndServices";
+import { resolveCorporateCarRentalServicesSection } from "@/lib/cms/websiteHomeCorporateCarRentalServices";
 import { MembersLoyaltyProgramSection } from "@/components/home/MembersLoyaltyProgramSection";
 import { ExploreLocationsSection } from "@/components/home/ExploreLocationsSection";
 import { StickyBookingBar } from "@/components/booking/StickyBookingBar";
 import { SpecialOffersSection } from "@/components/home/SpecialOffersSection";
 import { ExclusiveOffersSection } from "@/components/home/ExclusiveOffersSection";
 import { ProductsAndServicesSection } from "@/components/home/ProductsAndServicesSection";
+import { CorporateCarRentalServicesSection } from "@/components/home/CorporateCarRentalServicesSection";
 import { CategorySection } from "@/components/home/CategorySection";
 import { FuelTypeSection } from "@/components/home/FuelTypeSection";
 import { GiftVouchersSection } from "@/components/home/GiftVouchersSection";
@@ -26,6 +28,7 @@ export default async function HomePage() {
   const exploreLocations = resolveExploreLocationsSection(site.home_page);
   const exclusiveOffers = resolveHomeExclusiveOffers(site.home_page);
   const productsAndServices = resolveProductsAndServicesSection(site.home_page);
+  const corporateCarRentalServices = resolveCorporateCarRentalServicesSection(site.home_page);
 
   return (
     <>
@@ -34,6 +37,7 @@ export default async function HomePage() {
       <ExploreLocationsSection data={exploreLocations} />
       <ExclusiveOffersSection data={exclusiveOffers} />
       <ProductsAndServicesSection data={productsAndServices} />
+      <CorporateCarRentalServicesSection data={corporateCarRentalServices} />
       <StickyBookingBar />
       <SpecialOffersSection />
       <CategorySection />

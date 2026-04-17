@@ -74,6 +74,9 @@ export const th = {
     products_services: {
       banner_aria: "ผลิตภัณฑ์และบริการ",
     },
+    corporate_car_rental: {
+      banner_aria: "บริการเช่ารถสำหรับองค์กร",
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: ใช้อีเมลและรหัสผ่านอะไรก็ได้ (เช่น demo@example.com / 1234)",

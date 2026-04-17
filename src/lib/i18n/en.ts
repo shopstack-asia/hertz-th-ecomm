@@ -74,6 +74,9 @@ export const en = {
     products_services: {
       banner_aria: "Products and services",
     },
+    corporate_car_rental: {
+      banner_aria: "Corporate car rental services",
+    },
   },
   auth: {
     mock_phase_credentials: "Mock phase: Use any email and any password (e.g. demo@example.com / 1234)",
