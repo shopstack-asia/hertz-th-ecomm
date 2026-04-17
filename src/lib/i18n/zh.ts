@@ -1,3 +1,5 @@
+import { HOME_PAGE_TESTIMONIALS_MOCK } from "@/lib/mock/testimonialsSection";
+
 export const zh = {
   common: {
     remove: "移除",
@@ -76,6 +78,7 @@ export const zh = {
     corporate_car_rental: {
       banner_aria: "企业租车服务",
     },
+    testimonials: HOME_PAGE_TESTIMONIALS_MOCK.zh,
   },
   auth: {
     mock_phase_credentials: "演示阶段：可使用任意邮箱和密码（如 demo@example.com / 1234）",

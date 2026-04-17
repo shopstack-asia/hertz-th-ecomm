@@ -1,3 +1,5 @@
+import { HOME_PAGE_TESTIMONIALS_MOCK } from "@/lib/mock/testimonialsSection";
+
 export const th = {
   common: {
     remove: "ลบ",
@@ -77,6 +79,7 @@ export const th = {
     corporate_car_rental: {
       banner_aria: "บริการเช่ารถสำหรับองค์กร",
     },
+    testimonials: HOME_PAGE_TESTIMONIALS_MOCK.th,
   },
   auth: {
     mock_phase_credentials: "Mock phase: ใช้อีเมลและรหัสผ่านอะไรก็ได้ (เช่น demo@example.com / 1234)",

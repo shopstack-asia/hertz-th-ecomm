@@ -1,3 +1,5 @@
+import { HOME_PAGE_TESTIMONIALS_MOCK } from "@/lib/mock/testimonialsSection";
+
 export const en = {
   common: {
     remove: "Remove",
@@ -77,6 +79,7 @@ export const en = {
     corporate_car_rental: {
       banner_aria: "Corporate car rental services",
     },
+    testimonials: HOME_PAGE_TESTIMONIALS_MOCK.en,
   },
   auth: {
     mock_phase_credentials: "Mock phase: Use any email and any password (e.g. demo@example.com / 1234)",

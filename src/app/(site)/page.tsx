@@ -39,14 +39,14 @@ export default async function HomePage() {
       <ProductsAndServicesSection data={productsAndServices} />
       <CorporateCarRentalServicesSection data={corporateCarRentalServices} />
       <StickyBookingBar />
-      <SpecialOffersSection />
-      <CategorySection />
-      <FuelTypeSection />
-      <GiftVouchersSection />
-      <FeaturedVehicles />
+      {/* <SpecialOffersSection /> */}
+      {/* <CategorySection /> */}
+      {/* <FuelTypeSection /> */}
+      {/* <GiftVouchersSection /> */}
+      {/* <FeaturedVehicles /> */}
       <WhyChooseSection />
       <TestimonialsSection />
-      <AppDownloadSection />
+      {/* <AppDownloadSection /> */}
     </>
   );
 }
