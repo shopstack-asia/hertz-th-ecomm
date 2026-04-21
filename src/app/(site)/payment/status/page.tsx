@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { proxyFetch } from "@/lib/api/proxy_fetch";
 
@@ -50,9 +51,9 @@ function PaymentStatusContent() {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <p className="text-lg font-semibold text-green-600">Redirecting to confirmation...</p>
-        <a href={`/booking/${reservationNo}`} className="mt-4 text-hertz-yellow underline">
+        <Link href={`/booking/${reservationNo}`} className="mt-4 text-hertz-yellow underline">
           Go to booking
-        </a>
+        </Link>
       </div>
     );
   }
@@ -65,12 +66,12 @@ function PaymentStatusContent() {
       <p className="mt-2 text-hertz-black-80">
         Please try again or contact support.
       </p>
-      <a
+      <Link
         href="/"
         className="mt-6 inline-block rounded-xl bg-hertz-yellow px-6 py-3 font-semibold text-hertz-black-90"
       >
         Back to home
-      </a>
+      </Link>
     </div>
   );
 }

@@ -37,7 +37,7 @@ export interface Session {
 }
 
 /** Use stateless (signed cookie) on Vercel or when AUTH_SECRET is set. */
-function useStateless(): boolean {
+function shouldUseStatelessSession(): boolean {
   if (process.env.VERCEL === "1") return true;
   const secret = process.env.AUTH_SECRET || process.env.SESSION_SECRET;
   return Boolean(secret && secret.length >= 16);
@@ -72,7 +72,7 @@ function cleanupExpired(): void {
  * With AUTH_SECRET set, returns session_id as signed token (stateless).
  */
 export function createSession(user: SessionUser): Session {
-  if (useStateless()) {
+  if (shouldUseStatelessSession()) {
     const session_id = createStatelessToken(user);
     const now = Date.now();
     return {
@@ -99,7 +99,7 @@ export function createSession(user: SessionUser): Session {
  * Get session by id (or by stateless token). Returns null if not found or expired.
  */
 export function getSession(sessionId: string): Session | null {
-  if (useStateless() && isStatelessToken(sessionId)) {
+  if (shouldUseStatelessSession() && isStatelessToken(sessionId)) {
     const payload = verifyStatelessToken(sessionId);
     if (!payload) return null;
     return {
@@ -122,7 +122,7 @@ export function getSession(sessionId: string): Session | null {
  * Delete a session (e.g. on logout). No-op for stateless; caller clears cookie.
  */
 export function deleteSession(sessionId: string): void {
-  if (useStateless() && isStatelessToken(sessionId)) return;
+  if (shouldUseStatelessSession() && isStatelessToken(sessionId)) return;
   sessions.delete(sessionId);
 }
 
@@ -137,7 +137,7 @@ export function updateSessionUser(
   const session = getSession(sessionId);
   if (!session) return null;
   const updatedUser = { ...session.user, ...updates };
-  if (useStateless() && isStatelessToken(sessionId)) {
+  if (shouldUseStatelessSession() && isStatelessToken(sessionId)) {
     return createSession(updatedUser);
   }
   session.user = updatedUser;
